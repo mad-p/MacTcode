@@ -64,8 +64,8 @@ class TcodeTable {
     }
     static func lookup(i: Int, j: Int) -> String? {
         if 0 <= i && i < nKeys && 0 <= j && j < nKeys {
-            let row = tcodeTable[i]
-            if let startIndex = row.index(row.startIndex, offsetBy: j, limitedBy: row.endIndex) {
+            let row = tcodeTable[j]
+            if let startIndex = row.index(row.startIndex, offsetBy: i, limitedBy: row.endIndex) {
                 return String(row[startIndex])
             }
         }

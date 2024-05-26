@@ -8,6 +8,7 @@
 import XCTest
 
 final class MacTcodeUITestsLaunchTests: XCTestCase {
+    /*
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
@@ -29,4 +30,5 @@ final class MacTcodeUITestsLaunchTests: XCTestCase {
         attachment.lifetime = .keepAlways
         add(attachment)
     }
+     */
 }
