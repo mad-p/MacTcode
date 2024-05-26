@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */; };
-		9D8C8DBC2C01ACF0003D8A43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBB2C01ACF0003D8A43 /* Assets.xcassets */; };
 		9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */; };
 		9D8C8DCA2C01ACF1003D8A43 /* MacTcodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* MacTcodeTests.swift */; };
 		9D8C8DD42C01ACF1003D8A43 /* MacTcodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */; };
@@ -16,6 +15,7 @@
 		9D8C8DE32C01ADA9003D8A43 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE22C01ADA9003D8A43 /* Info.plist */; };
 		9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */; };
 		9D8C8DE72C0338EB003D8A43 /* TcodeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */; };
+		9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,7 +38,6 @@
 /* Begin PBXFileReference section */
 		9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacTcode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeApp.swift; sourceTree = "<group>"; };
-		9D8C8DBB2C01ACF0003D8A43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacTcode.entitlements; sourceTree = "<group>"; };
 		9D8C8DC52C01ACF1003D8A43 /* MacTcodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacTcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -49,6 +48,7 @@
 		9D8C8DE22C01ADA9003D8A43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeInputController.swift; sourceTree = "<group>"; };
 		9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeTable.swift; sourceTree = "<group>"; };
+		9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,8 +102,8 @@
 				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
 				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
 				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
+				9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */,
 				9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */,
-				9D8C8DBB2C01ACF0003D8A43 /* Assets.xcassets */,
 				9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */,
 				9D8C8DBD2C01ACF0003D8A43 /* Preview Content */,
 			);
@@ -240,7 +240,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */,
-				9D8C8DBC2C01ACF0003D8A43 /* Assets.xcassets in Resources */,
+				9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */,
 				9D8C8DE32C01ADA9003D8A43 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

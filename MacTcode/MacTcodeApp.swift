@@ -8,7 +8,7 @@
 import Cocoa
 import InputMethodKit
 
-// Code from https://github.com/ensan-hcl/Typut (MIT License)
+// Copied from https://github.com/ensan-hcl/Typut (MIT License)
 
 class NSManualApplication: NSApplication {
     private let appDelegate = AppDelegate()
