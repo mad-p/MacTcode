@@ -18,6 +18,12 @@ final class MacTcodeTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
+    func testTranslate() throws {
+        XCTAssertEqual(27, TcodeTable.translateKey(text: "t"), "t")
+        XCTAssertEqual(22, TcodeTable.translateKey(text: "e"), "e")
+        XCTAssertNil(TcodeTable.translateKey(text: "+"), "not found")
+    }
+    
     func testLookup() throws {
         XCTAssertEqual("の", TcodeTable.lookup(i: 27, j:22), "の")
         XCTAssertEqual("識", TcodeTable.lookup(i: 7, j:32), "識")

@@ -9,7 +9,12 @@ import Cocoa
 
 class TcodeTable {
     static let nKeys = 40
-    static var tcodeKeys = "1234567890',.pyfgcrlaoeuidhtns;qjkxbmwvz"
+    static var tcodeKeys: [String] = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+        "'", ",", ".", "p", "y", "f", "g", "c", "r", "l",
+        "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
+        ";", "q", "j", "k", "x", "b", "m", "w", "v", "z",
+    ]
     static var tcodeTable: [String] = [
         "■■■■■■■■■■ヮヰヱヵヶ請境系探象ゎゐゑ■■盛革突温捕■■■■■依繊借須訳",
         "■■■■■■■■■■丑臼宴縁曳尚賀岸責漁於汚乙穏■益援周域荒■■■■■織父枚乱香",
@@ -52,21 +57,22 @@ class TcodeTable {
         "替沼?辞献■■■■■ゅ修究答養復並浦ユ冷ぬ展警型誰組選党択体例満津準遊戸ひょ価与",
         "還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ",
     ]
-    static func translateKey(event: NSEvent!) -> Int? {
-        if let text = event.characters {
-            if let ch = text.first {
-                if let index = tcodeKeys.firstIndex(of: ch) {
-                    return text.distance(from: text.startIndex, to: index)
-                }
-            }
+    static func translateKey(text: String) -> Int? {
+        NSLog("translateKey text = \(text)")
+        if let index = tcodeKeys.firstIndex(of: text) {
+            NSLog("translated key index = \(index)")
+            return index
         }
         return nil
     }
     static func lookup(i: Int, j: Int) -> String? {
         if 0 <= i && i < nKeys && 0 <= j && j < nKeys {
+            NSLog("lookup i=\(i); j=\(j)")
             let row = tcodeTable[j]
             if let startIndex = row.index(row.startIndex, offsetBy: i, limitedBy: row.endIndex) {
-                return String(row[startIndex])
+                let ch = String(row[startIndex])
+                NSLog("lookup ch = \(ch)")
+                return ch
             }
         }
         return nil

@@ -30,46 +30,49 @@ class TcodeInputController: IMKInputController {
         guard let client = sender as? IMKTextInput else {
             return false
         }
-        NSLog("event.keyCode = \(event.keyCode); firstChar = \(firstChar ?? "nil")")
+        NSLog("event.keyCode = \(event.keyCode); event.characters = \(event.characters ?? "nil")")
         
         if !event.modifierFlags.isEmpty {
             reset()
             return false
         }
-        if let stroke = TcodeTable.translateKey(event: event) {
-            if let first = firstStroke {
-                // second stroke
-                NSLog("Second stroke \(stroke)")
-                if let str = TcodeTable.lookup(i: first, j: stroke) {
-                    NSLog("Submit \(str)")
-                    client.insertText(str, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                    reset()
-                    return true
+        if let text = event.characters, text.allSatisfy({ $0.isLetter || $0.isNumber || $0.isPunctuation }) {
+            if let stroke = TcodeTable.translateKey(text: text) {
+                if let first = firstStroke {
+                    // second stroke
+                    NSLog("Second stroke \(stroke)")
+                    if let str = TcodeTable.lookup(i: first, j: stroke) {
+                        NSLog("Submit \(str)")
+                        client.insertText(str, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                        reset()
+                        return true
+                    } else {
+                        NSLog("Undefined stroke \(first) \(stroke)")
+                        return true
+                    }
                 } else {
-                    NSLog("Undefined stroke \(first) \(stroke)")
+                    // first stroke
+                    NSLog("First stroke \(stroke)")
+                    firstStroke = stroke
+                    firstChar = event.characters!
                     return true
                 }
-            } else {
-                // first stroke
-                NSLog("First stroke \(stroke)")
-                firstStroke = stroke
-                firstChar = event.characters!
-                return true
-            }
-        } else {
-            // non-tcode key
-            switch(event.keyCode) {
-            case 49: // Space -- submit first stroke
-                client.insertText(firstChar, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                reset()
-                return true
-            case 53: // Escape -- cancel first stroke
-                reset()
-                return true
-            default:
-                return false
             }
         }
+        
+        // non-tcode key
+        switch(event.keyCode) {
+        case 49: // Space -- submit first stroke
+            client.insertText(firstChar, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+            reset()
+            return true
+        case 53: // Escape -- cancel first stroke
+            reset()
+            return true
+        default:
+            return false
+        }
+
         /*NOTREACHED*/
     }
 }

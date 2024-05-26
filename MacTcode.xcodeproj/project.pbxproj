@@ -3,16 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
+		9D4818DB2C0368DB00906504 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D92C0368DB00906504 /* main@2x.tiff */; };
 		9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */; };
 		9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */; };
 		9D8C8DCA2C01ACF1003D8A43 /* MacTcodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* MacTcodeTests.swift */; };
 		9D8C8DD42C01ACF1003D8A43 /* MacTcodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */; };
 		9D8C8DD62C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */; };
-		9D8C8DE32C01ADA9003D8A43 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE22C01ADA9003D8A43 /* Info.plist */; };
 		9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */; };
 		9D8C8DE72C0338EB003D8A43 /* TcodeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */; };
 		9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */; };
@@ -36,6 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9D4818D82C0368DB00906504 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = main.tiff; sourceTree = "<group>"; };
+		9D4818D92C0368DB00906504 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacTcode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeApp.swift; sourceTree = "<group>"; };
 		9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -100,6 +103,8 @@
 			isa = PBXGroup;
 			children = (
 				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
+				9D4818D82C0368DB00906504 /* main.tiff */,
+				9D4818D92C0368DB00906504 /* main@2x.tiff */,
 				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
 				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
 				9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */,
@@ -215,7 +220,7 @@
 				};
 			};
 			buildConfigurationList = 9D8C8DAF2C01ACEE003D8A43 /* Build configuration list for PBXProject "MacTcode" */;
-			compatibilityVersion = "Xcode 14.0";
+			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -240,8 +245,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */,
+				9D4818DA2C0368DB00906504 /* main.tiff in Resources */,
+				9D4818DB2C0368DB00906504 /* main@2x.tiff in Resources */,
 				9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */,
-				9D8C8DE32C01ADA9003D8A43 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,15 +443,17 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_FILE = MacTcode/Info.plist;
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = "$(PRODUCT_MODULE_NAME).NSManualApplication";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.MacTcode";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -466,15 +474,17 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_FILE = MacTcode/Info.plist;
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = "$(PRODUCT_MODULE_NAME).NSManualApplication";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.MacTcode";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
