@@ -4,6 +4,8 @@
 <dict>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
+	<key>com.apple.security.temporary-exception.mach-register.global-name</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)_Connection</string>
 	<key>com.apple.security.files.user-selected.read-only</key>
 	<true/>
 </dict>
