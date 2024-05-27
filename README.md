@@ -15,7 +15,7 @@ macOS用のT-Codeが使えるIMとして[MacUIM](https://github.com/e-kato/macui
 
 おおむね優先度順
 - [x] 基本文字の入力
-- [ ] postfix部首変換
+- [x] postfix部首変換
 - [ ] 3ストローク以上の基本文字サポート
 - [ ] 1行入力(T-Code変換をしつつバッファにため、一気に入力するモード)
 - [ ] configファイルサポート
