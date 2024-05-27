@@ -2,7 +2,7 @@
 
 ## デモ
 
-![mactcode-demo.gif](mactcode-demo.gif)
+![](mactcode-demo.gif)
 
 ## 動機
 
