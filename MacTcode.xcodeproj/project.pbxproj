@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9D0F3CDF2C04D00F005A0CAC /* TcodeBushu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CDE2C04D00E005A0CAC /* TcodeBushu.swift */; };
+		9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE02C04D570005A0CAC /* Config.swift */; };
+		9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */; };
+		9D0F3CE72C04E139005A0CAC /* bushu.dic in Resources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE62C04E139005A0CAC /* bushu.dic */; };
 		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
 		9D4818DB2C0368DB00906504 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D92C0368DB00906504 /* main@2x.tiff */; };
 		9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */; };
@@ -37,6 +41,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9D0F3CDE2C04D00E005A0CAC /* TcodeBushu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeBushu.swift; sourceTree = "<group>"; };
+		9D0F3CE02C04D570005A0CAC /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BushuTests.swift; sourceTree = "<group>"; };
+		9D0F3CE62C04E139005A0CAC /* bushu.dic */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = bushu.dic; sourceTree = "<group>"; };
 		9D4818D82C0368DB00906504 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = main.tiff; sourceTree = "<group>"; };
 		9D4818D92C0368DB00906504 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacTcode.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,11 +110,14 @@
 		9D8C8DB62C01ACEE003D8A43 /* MacTcode */ = {
 			isa = PBXGroup;
 			children = (
+				9D0F3CE62C04E139005A0CAC /* bushu.dic */,
 				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
 				9D4818D82C0368DB00906504 /* main.tiff */,
 				9D4818D92C0368DB00906504 /* main@2x.tiff */,
 				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
 				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
+				9D0F3CDE2C04D00E005A0CAC /* TcodeBushu.swift */,
+				9D0F3CE02C04D570005A0CAC /* Config.swift */,
 				9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */,
 				9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */,
 				9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */,
@@ -127,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				9D8C8DC92C01ACF1003D8A43 /* MacTcodeTests.swift */,
+				9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */,
 			);
 			path = MacTcodeTests;
 			sourceTree = "<group>";
@@ -247,6 +259,7 @@
 				9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */,
 				9D4818DA2C0368DB00906504 /* main.tiff in Resources */,
 				9D4818DB2C0368DB00906504 /* main@2x.tiff in Resources */,
+				9D0F3CE72C04E139005A0CAC /* bushu.dic in Resources */,
 				9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -273,6 +286,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */,
+				9D0F3CDF2C04D00F005A0CAC /* TcodeBushu.swift in Sources */,
+				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
 				9D8C8DE72C0338EB003D8A43 /* TcodeTable.swift in Sources */,
 				9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */,
 			);
@@ -283,6 +298,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8C8DCA2C01ACF1003D8A43 /* MacTcodeTests.swift in Sources */,
+				9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

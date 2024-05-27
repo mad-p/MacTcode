@@ -58,20 +58,16 @@ class TcodeTable {
         "還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ",
     ]
     static func translateKey(text: String) -> Int? {
-        NSLog("translateKey text = \(text)")
         if let index = tcodeKeys.firstIndex(of: text) {
-            NSLog("translated key index = \(index)")
             return index
         }
         return nil
     }
-    static func lookup(i: Int, j: Int) -> String? {
-        if 0 <= i && i < nKeys && 0 <= j && j < nKeys {
-            NSLog("lookup i=\(i); j=\(j)")
-            let row = tcodeTable[j]
-            if let startIndex = row.index(row.startIndex, offsetBy: i, limitedBy: row.endIndex) {
+    static func lookup(first: Int, second: Int) -> String? {
+        if 0 <= first && first < nKeys && 0 <= second && second < nKeys {
+            let row = tcodeTable[second]
+            if let startIndex = row.index(row.startIndex, offsetBy: first, limitedBy: row.endIndex) {
                 let ch = String(row[startIndex])
-                NSLog("lookup ch = \(ch)")
                 return ch
             }
         }

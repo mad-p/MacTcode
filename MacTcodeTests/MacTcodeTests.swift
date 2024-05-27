@@ -25,8 +25,8 @@ final class MacTcodeTests: XCTestCase {
     }
     
     func testLookup() throws {
-        XCTAssertEqual("の", TcodeTable.lookup(i: 27, j:22), "の")
-        XCTAssertEqual("識", TcodeTable.lookup(i: 7, j:32), "識")
+        XCTAssertEqual("の", TcodeTable.lookup(first: 27, second:22), "の")
+        XCTAssertEqual("識", TcodeTable.lookup(first: 7, second:32), "識")
     }
 
     func testPerformanceExample() throws {
