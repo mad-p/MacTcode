@@ -62,7 +62,7 @@ class TcodeInputController: IMKInputController {
         if (ch1 == nil) || (ch2 == nil) {
             NSLog("Bushu henkan: no input")
         } else {
-            if let ch = TcodeBushu.bushu.compose(char1: ch1!, char2: ch2!) {
+            if let ch = Bushu.bushu.compose(char1: ch1!, char2: ch2!) {
                 NSLog("Bushu \(ch1!)\(ch2!) -> \(ch)")
                 if useBackspace {
                     NSLog("send backspace")

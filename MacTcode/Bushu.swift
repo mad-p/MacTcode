@@ -7,8 +7,8 @@
 
 import Cocoa
 
-final class TcodeBushu {
-    static let bushu = TcodeBushu()
+final class Bushu {
+    static let bushu = Bushu()
     
     static var composeTable: [[String]: String] = [:]
     static var decomposeTable: [String: [String]] = [:]
@@ -20,11 +20,11 @@ final class TcodeBushu {
                 let chars = line.map {String($0)}
                 if chars.count == 3 {
                     if chars[0] == "N" {
-                        TcodeBushu.equivTable[chars[2]] = chars[1]
+                        Bushu.equivTable[chars[2]] = chars[1]
                     } else {
                         let pair = [chars[0], chars[1]]
-                        TcodeBushu.decomposeTable[chars[2]] = pair
-                        TcodeBushu.composeTable[pair] = chars[2]
+                        Bushu.decomposeTable[chars[2]] = pair
+                        Bushu.composeTable[pair] = chars[2]
                     }
                 } else {
                     if line.count > 0 {
@@ -36,23 +36,23 @@ final class TcodeBushu {
     }
     
     func basicCompose(char1: String, char2: String) -> String? {
-        return (TcodeBushu.composeTable[[char1, char2]] ??
-                TcodeBushu.composeTable[[char2, char1]])
+        return (Bushu.composeTable[[char1, char2]] ??
+                Bushu.composeTable[[char2, char1]])
     }
     
     func compose(char1: String, char2: String) -> String? {
         if let ch = basicCompose(char1: char1, char2: char2) {
             return ch
         }
-        let ch1 = TcodeBushu.equivTable[char1] ?? char1
-        let ch2 = TcodeBushu.equivTable[char2] ?? char2
+        let ch1 = Bushu.equivTable[char1] ?? char1
+        let ch2 = Bushu.equivTable[char2] ?? char2
         if ((ch1 != char1) || (ch2 != char2)) {
             if let ch = basicCompose(char1: ch1, char2: ch2) {
                 return ch
             }
         }
-        let tc1 = TcodeBushu.decomposeTable[ch1]
-        let tc2 = TcodeBushu.decomposeTable[ch2]
+        let tc1 = Bushu.decomposeTable[ch1]
+        let tc2 = Bushu.decomposeTable[ch2]
         let tc11 = tc1?[0]
         let tc12 = tc1?[1]
         let tc21 = tc2?[0]
@@ -76,7 +76,7 @@ final class TcodeBushu {
             let p1 = pair[0]
             let p2 = pair[1]
             if p1 != nil && p2 != nil {
-                if let ch = TcodeBushu.bushu.basicCompose(char1: p1!, char2: p2!) {
+                if let ch = Bushu.bushu.basicCompose(char1: p1!, char2: p2!) {
                     if (ch != ch1) && (ch != ch2) {
                         return ch
                     }
