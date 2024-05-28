@@ -8,7 +8,7 @@
 import Cocoa
 
 final class Bushu {
-    static let bushu = Bushu()
+    static let i = Bushu()
     
     private var composeTable: [[String]: String] = [:]
     private var decomposeTable: [String: [String]] = [:]
@@ -16,8 +16,8 @@ final class Bushu {
 
     private init() {
         NSLog("Read bushu dictionary...")
-        if let bushuRev = Config.loadConfig(file: "bushu.dic") {
-            for line in bushuRev.components(separatedBy: .newlines) {
+        if let bushuDic = Config.loadConfig(file: "bushu.dic") {
+            for line in bushuDic.components(separatedBy: .newlines) {
                 let chars = line.map {String($0)}
                 if chars.count == 3 {
                     if chars[0] == "N" {
@@ -34,7 +34,7 @@ final class Bushu {
                 }
             }
         }
-        NSLog("\(composeTable.count) entries read")
+        NSLog("\(composeTable.count) bushu entries read")
     }
     
     func basicCompose(char1: String, char2: String) -> String? {

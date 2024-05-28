@@ -62,7 +62,7 @@ class TcodeInputController: IMKInputController {
         if (ch1 == nil) || (ch2 == nil) {
             NSLog("Bushu henkan: no input")
         } else {
-            if let ch = Bushu.bushu.compose(char1: ch1!, char2: ch2!) {
+            if let ch = Bushu.i.compose(char1: ch1!, char2: ch2!) {
                 NSLog("Bushu \(ch1!)\(ch2!) -> \(ch)")
                 if useBackspace {
                     NSLog("send backspace")
@@ -117,7 +117,7 @@ class TcodeInputController: IMKInputController {
                     if let str = TcodeTable.lookup(first: first, second: stroke) {
                         NSLog("Submit \(str)")
                         recentChars.append(str)
-                        if recentChars.count > 8 {
+                        if recentChars.count > 10 {
                             recentChars.removeFirst()
                         }
                         client.insertText(str, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
