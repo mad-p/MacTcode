@@ -10,21 +10,22 @@ import Cocoa
 final class Bushu {
     static let bushu = Bushu()
     
-    static var composeTable: [[String]: String] = [:]
-    static var decomposeTable: [String: [String]] = [:]
-    static var equivTable: [String: String] = [:]
+    private var composeTable: [[String]: String] = [:]
+    private var decomposeTable: [String: [String]] = [:]
+    private var equivTable: [String: String] = [:]
 
     private init() {
+        NSLog("Read bushu dictionary...")
         if let bushuRev = Config.loadConfig(file: "bushu.dic") {
             for line in bushuRev.components(separatedBy: .newlines) {
                 let chars = line.map {String($0)}
                 if chars.count == 3 {
                     if chars[0] == "N" {
-                        Bushu.equivTable[chars[2]] = chars[1]
+                        equivTable[chars[2]] = chars[1]
                     } else {
                         let pair = [chars[0], chars[1]]
-                        Bushu.decomposeTable[chars[2]] = pair
-                        Bushu.composeTable[pair] = chars[2]
+                        decomposeTable[chars[2]] = pair
+                        composeTable[pair] = chars[2]
                     }
                 } else {
                     if line.count > 0 {
@@ -33,26 +34,27 @@ final class Bushu {
                 }
             }
         }
+        NSLog("\(composeTable.count) entries read")
     }
     
     func basicCompose(char1: String, char2: String) -> String? {
-        return (Bushu.composeTable[[char1, char2]] ??
-                Bushu.composeTable[[char2, char1]])
+        return (composeTable[[char1, char2]] ??
+                composeTable[[char2, char1]])
     }
     
     func compose(char1: String, char2: String) -> String? {
         if let ch = basicCompose(char1: char1, char2: char2) {
             return ch
         }
-        let ch1 = Bushu.equivTable[char1] ?? char1
-        let ch2 = Bushu.equivTable[char2] ?? char2
+        let ch1 = equivTable[char1] ?? char1
+        let ch2 = equivTable[char2] ?? char2
         if ((ch1 != char1) || (ch2 != char2)) {
             if let ch = basicCompose(char1: ch1, char2: ch2) {
                 return ch
             }
         }
-        let tc1 = Bushu.decomposeTable[ch1]
-        let tc2 = Bushu.decomposeTable[ch2]
+        let tc1 = decomposeTable[ch1]
+        let tc2 = decomposeTable[ch2]
         let tc11 = tc1?[0]
         let tc12 = tc1?[1]
         let tc21 = tc2?[0]
@@ -76,7 +78,7 @@ final class Bushu {
             let p1 = pair[0]
             let p2 = pair[1]
             if p1 != nil && p2 != nil {
-                if let ch = Bushu.bushu.basicCompose(char1: p1!, char2: p2!) {
+                if let ch = basicCompose(char1: p1!, char2: p2!) {
                     if (ch != ch1) && (ch != ch2) {
                         return ch
                     }
