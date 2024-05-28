@@ -27,7 +27,9 @@ final class TcodeBushu {
                         TcodeBushu.composeTable[pair] = chars[2]
                     }
                 } else {
-                    NSLog("Invalid bushu.dic entry: \(line)")
+                    if line.count > 0 {
+                        NSLog("Invalid bushu.dic entry: \(line)")
+                    }
                 }
             }
         }

@@ -25,6 +25,76 @@ class TcodeInputController: IMKInputController {
         firstStroke = nil
         firstChar = nil
     }
+    fileprivate func postfixBushu(_ client: any IMKTextInput) -> Bool {
+        // postfix bushu
+        let cursor = client.selectedRange()
+        var ch1: String? = nil
+        var ch2: String? = nil
+        var consumeRecent = true
+        var useBackspace = false
+        var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
+        let emptyRange = NSRange(location: NSNotFound, length: NSNotFound)
+
+        if cursor.length == 2 {
+            // bushu henkan from selection
+            if let text = client.string(from: cursor, actualRange: &replaceRange) {
+                let chars = text.map { String($0) }
+                ch1 = chars[0]
+                ch2 = chars[1]
+                if (ch1 != nil) && (ch2 != nil) {
+                    NSLog("Offline bushu \(ch1!)\(ch2!)")
+                } else {
+                    NSLog("offline bushu but no chars")
+                }
+                consumeRecent = false
+            }
+        } else {
+            // bushu henkan from recentChars
+            NSLog("Online bushu")
+            if recentChars.count >= 2 {
+                ch1 = recentChars[recentChars.count - 2]
+                ch2 = recentChars[recentChars.count - 1]
+            }
+            if cursor.location == NSNotFound {
+                useBackspace = true
+            }
+        }
+        if (ch1 == nil) || (ch2 == nil) {
+            NSLog("Bushu henkan: no input")
+        } else {
+            if let ch = TcodeBushu.bushu.compose(char1: ch1!, char2: ch2!) {
+                NSLog("Bushu \(ch1!)\(ch2!) -> \(ch)")
+                if useBackspace {
+                    NSLog("send backspace")
+                    sendBackspace()
+                    Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
+                        self.sendBackspace()
+                        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
+                            client.insertText(ch, replacementRange: emptyRange)
+                        }
+                    }
+                    client.insertText(ch, replacementRange: emptyRange)
+                } else {
+                    NSLog("selected range: \(cursor.location), \(cursor.length)")
+                    if cursor.length > 0 {
+                        client.insertText(ch, replacementRange: cursor)
+                    } else {
+                        let location = cursor.location >= 2 ? cursor.location - 2 : 0
+                        let length = cursor.location >= 2 ? 2 : NSNotFound
+                        client.insertText(ch, replacementRange: NSRange(location: location, length: length))
+                    }
+                }
+                if consumeRecent {
+                    recentChars.removeLast(2)
+                    recentChars.append(ch)
+                }
+            } else {
+                NSLog("Bushu henkan no candidates for \(ch1!)\(ch2!)")
+            }
+        }
+        return true
+    }
+    
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
         // get client to insert
         guard let client = sender as? IMKTextInput else {
@@ -41,26 +111,8 @@ class TcodeInputController: IMKInputController {
                 if let first = firstStroke {
                     // second stroke
                     if first == 26 && stroke == 23 {
-                        // postfix bushu
-                        if recentChars.count >= 2 {
-                            let ch1 = recentChars[recentChars.count - 2]
-                            let ch2 = recentChars[recentChars.count - 1]
-                            if let ch = TcodeBushu.bushu.compose(char1: ch1, char2:     ch2) {
-                                NSLog("Bushu \(ch1)\(ch2) -> \(ch)")
-                                recentChars.removeLast(2)
-                                recentChars.append(ch)
-                                reset()
-                                sendBackspace()
-                                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
-                                    self.sendBackspace()
-                                    Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
-                                        client.insertText(ch, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                                    }
-                                }
-                            }
-                        }
-                            
-                        return true
+                        reset()
+                        return postfixBushu(client)
                     }
                     if let str = TcodeTable.lookup(first: first, second: stroke) {
                         NSLog("Submit \(str)")
