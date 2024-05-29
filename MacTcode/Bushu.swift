@@ -5,6 +5,10 @@
 //  Created by maeda on 2024/05/27.
 //
 
+// 部首変換アルゴリズム
+// tc-bushu.el の初期バージョンのアルゴリズムを再現。
+// 元コードはGPLだが、コードコピーはしていないので、MITライセンスで配布できるはず。
+
 import Cocoa
 
 final class Bushu {
@@ -14,8 +18,11 @@ final class Bushu {
     private var decomposeTable: [String: [String]] = [:]
     private var equivTable: [String: String] = [:]
 
-    private init() {
+    func readDictionary() {
         NSLog("Read bushu dictionary...")
+        composeTable = [:]
+        decomposeTable = [:]
+        equivTable = [:]
         if let bushuDic = Config.loadConfig(file: "bushu.dic") {
             for line in bushuDic.components(separatedBy: .newlines) {
                 let chars = line.map {String($0)}
@@ -35,6 +42,10 @@ final class Bushu {
             }
         }
         NSLog("\(composeTable.count) bushu entries read")
+    }
+    
+    private init() {
+        readDictionary()
     }
     
     func basicCompose(char1: String, char2: String) -> String? {

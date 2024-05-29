@@ -5,6 +5,10 @@
 //  Created by maeda on 2024/05/28.
 //
 
+// 交ぜ書き変換アルゴリズム
+// tc-mazegaki.el の割と新しいバージョンのアルゴリズムを再現。
+// 元コードはGPLだが、コードコピーはしていないので、MITライセンスで配布できるはず。
+
 import Cocoa
 
 final class MazegakiDict {
@@ -13,8 +17,9 @@ final class MazegakiDict {
     var dict: [String: String] = [:]
     static let inflectionMark = "—"
     
-    private init() {
+    func readDictionary() {
         NSLog("Read mazegaki dictionary...")
+        dict = [:]
         if let mazedic = Config.loadConfig(file: "mazegaki.dic") {
             for line in mazedic.components(separatedBy: .newlines) {
                 let kv = line.components(separatedBy: " ")
@@ -29,26 +34,64 @@ final class MazegakiDict {
         }
         NSLog("\(dict.count) mazegaki entries read")
     }
+    
+    private init() {
+        readDictionary()
+    }
+}
+
+class MazegakiHit {
+    var found: Bool = false // 見つかったかどうか
+    var key: String = ""    // dictを見るときのキー
+    var length: Int = 0     // 読みの長さ
+    var offset: Int = 0     // 活用部分の長さ
+    
+    func candidates() -> [String] {
+        if !found {
+            return []
+        }
+        if let dictEntry = MazegakiDict.i.dict[key] {
+            var cand = dictEntry.components(separatedBy: "/")
+            if cand.isEmpty {
+                return []
+            }
+            if cand.first == "" {
+                cand.removeFirst()
+            }
+            if cand.last == "" {
+                cand.removeLast()
+            }
+            return cand
+        }
+        return []
+    }
 }
 
 class Mazegaki {
-    var yomi: [String] // 読み部分の文字列、各要素は1文字
-    var inflection: Bool // 活用語をさがすかどうか
-    var fixed: Bool // 読み長さが固定かどうか
-    var found: Bool // 見つかったかどうか
-    var max: Int // 読みの最大長さ。fixedの場合はyomiの長さと同じ
-    var length: Int // 候補が見つかったときの長さ
-    var offset: Int // 候補が見つかったときの活用部分の長さ
+    static var maxInflection = 4 // 活用部分の最大長
+    static var inflectionCharsMin = 0x3041 // 活用部分に許される文字コードポイントの下限
+    static var inflectionCharsMax = 0x30fe // 活用部分に許される文字上限
+    static var nonYomiCharacters =
+        ["、", "。", "，", "．", "・", "「", "」", "（", "）"] // 読み部分に許されない文字
+    
+    let yomi: [String] // 読み部分の文字列、各要素は1文字
+    let inflection: Bool // 活用語をさがすかどうか
+    let fixed: Bool // 読み長さが固定かどうか
+    let max: Int // 読みの最大長さ。fixedの場合はyomiの長さと同じ
     
     init(_ text: String, inflection: Bool, fixed: Bool) {
         yomi = text.map { String($0) }
-        length = 0
-        offset = 0
+        let l = yomi.count
+        var m = l
+        for i in 0..<yomi.count {
+            if Mazegaki.nonYomiCharacters.contains(yomi[l - i - 1]) {
+                m = i
+                break
+            }
+        }
+        self.max = m
         self.inflection = inflection
         self.fixed = fixed
-        self.max = yomi.count
-        self.length = self.max
-        found = false
     }
     
     // 検索キーを文字列として返す
@@ -70,19 +113,26 @@ class Mazegaki {
     
     // max文字以内かつ候補がある最大長さの読みを見つける
     // 活用しないバージョン
-    func find(start: Int = 0) -> Bool {
-        var i = start == 0 ? length : start
+    // from:に前回のヒット結果が指定された場合、それよりも短い読みをさがす
+    func find(_ from: MazegakiHit?) -> MazegakiHit? {
+        let result = MazegakiHit()
+        result.found = false
+        var i = from != nil ? from!.length - 1 : max
         while i > 0 {
+            if fixed && i != max {
+                return result
+            }
             if let k = key(i) {
                 if MazegakiDict.i.dict[k] != nil {
-                    length = i
-                    found = true
-                    offset = 0
-                    return true
+                    result.key = k
+                    result.length = i
+                    result.found = true
+                    result.offset = 0
+                    return result
                 }
             }
             i -= 1
         }
-        return false
+        return result
     }
 }
