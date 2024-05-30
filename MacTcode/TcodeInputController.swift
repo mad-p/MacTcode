@@ -34,7 +34,7 @@ class TcodeInputController: IMKInputController {
         if useBackspace {
             NSLog("send backspace")
             DispatchQueue.global().async {
-                for i in 0..<inputLength {
+                for _ in 0..<inputLength {
                     self.sendBackspace()
                     usleep(100000) // 0.1 sec
                 }
@@ -114,8 +114,7 @@ class TcodeInputController: IMKInputController {
         var consumeRecent = true
         var useBackspace = false
         var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
-        let emptyRange = NSRange(location: NSNotFound, length: NSNotFound)
-        
+
         var mazegaki: Mazegaki
         
         if cursor.length == 0 {
