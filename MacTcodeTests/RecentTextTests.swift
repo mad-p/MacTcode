@@ -29,4 +29,15 @@ final class RecentTextTests: XCTestCase {
         XCTAssertEqual(6, actual.location)
         XCTAssertEqual(2, actual.length)
     }
+    func testInsert() {
+        let r = RecentText("気持ちいい朝です")
+        r.insertText("なるほどね", replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+        XCTAssertEqual("気持ちいい朝ですなるほどね", r.text)
+    }
+    func testInsertReplace() {
+        let r = RecentText("気持ちいい朝です")
+        let rr = NSRange(location: 3, length: 3)
+        r.insertText("なるほどね", replacementRange: rr)
+        XCTAssertEqual("気持ちなるほどねです", r.text)
+    }
 }

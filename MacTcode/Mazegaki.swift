@@ -146,8 +146,6 @@ class PostfixMazegakiAction: Action {
     }
     func execute(client: MyInputText) -> Command {
         let cursor = client.selectedRange()
-        var consumeRecent = true
-        var useBackspace = false
         var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
         
         var mazegaki: Mazegaki
@@ -186,8 +184,19 @@ class PostfixMazegakiAction: Action {
         }
         
         if candidates.count == 1 {
-            NSLog("Mazegaki: sole candidate: \(candidates.first!)")
-            client.insertText(candidates.first!, replacementRange: replaceRange)
+            let string = candidates.first!
+            let inputLength = hit!.length
+            NSLog("Mazegaki: sole candidate: \(string)")
+            if cursor.length > 0 {
+                           client.insertText(string, replacementRange: cursor)
+            } else {
+                let (location, length) = if cursor.location >= inputLength {
+                    (cursor.location - inputLength, inputLength)
+                } else {
+                    (0, NSNotFound)
+                }
+                client.insertText(string, replacementRange: NSRange(location: location, length: length))
+            }
         } else {
             NSLog("Mazegaki: more than one candidates: \(candidates)")
         }

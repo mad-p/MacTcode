@@ -10,26 +10,33 @@ import InputMethodKit
 
 @objc(TcodeInputController)
 class TcodeInputController: IMKInputController {
-    private var candidatesWindow: IMKCandidates = IMKCandidates()
-    private let recentText = RecentText("")
+    // private var candidatesWindow: IMKCandidates = IMKCandidates()
+    let mainloop: TcodeMainloop
     
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
-        self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleColumnScrollingCandidatePanel)
+        // self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleColumnScrollingCandidatePanel)
+        mainloop = TcodeMainloop()
         super.init(server: server, delegate: delegate, client: inputClient)
         NSLog("TcodeInputController: init")
     }
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-        // get client to insert
         guard let client = sender as? IMKTextInput else {
             return false
         }
-        let clientInput = Wrapper(client)
+        return mainloop.handle(event, client: Wrapper(client))
+    }
+
+}
+
+class TcodeMainloop {
+    let recentText = RecentText("")
+    func handle(_ event: NSEvent!, client: MyInputText!) -> Bool {
         let inputEvent = Translator.translate(event: event)
         var command = TcodeKeymap.map.lookup(input: inputEvent)
         while true {
             NSLog("execute command \(command);  recentText = \(recentText.text)")
-            let baseInputText = BaseInputText(client: clientInput, recent: recentText)
+            let baseInputText = BaseInputText(client: client, recent: recentText)
             switch command {
             case .passthrough:
                 return false
@@ -44,7 +51,6 @@ class TcodeInputController: IMKInputController {
         }
         /*NOTREACHED*/
     }
-
 }
 
 /// IMKTextInputをMyInputTextに見せかけるラッパー
@@ -115,51 +121,5 @@ class BaseInputText: MyInputText {
     }
     func sendBackspace() {
         target.sendBackspace()
-    }
-}
-
-class RecentText: MyInputText {
-    static let maxLength: Int = 20
-    var text: String
-    init(_ string: String) {
-        self.text = string
-    }
-    func selectedRange() -> NSRange {
-        return NSRange(location: text.count, length: 0)
-    }
-    func string(
-        from range: NSRange,
-        actualRange: NSRangePointer!
-    ) -> String! {
-        let from = text.index(text.startIndex, offsetBy: range.location)
-        let to = text.index(text.startIndex, offsetBy: range.location + range.length)
-        actualRange.pointee.location = range.location
-        actualRange.pointee.length = range.length
-        return String(text[from..<to])
-    }
-    func insertText(
-        _ newString: String!,
-        replacementRange rr: NSRange
-    ) {
-        let from = text.index(text.startIndex, offsetBy: rr.location)
-        let to = text.index(text.startIndex, offsetBy: rr.location + rr.length)
-        text.replaceSubrange(from..<to, with: newString)
-        trim()
-    }
-    func trim() {
-        let m = RecentText.maxLength
-        if text.count > m {
-            let newStart = text.index(text.endIndex, offsetBy: -m)
-            text.replaceSubrange(text.startIndex..<newStart, with: "")
-        }
-    }
-    func sendBackspace() {
-        if text.count > 0 {
-            text.removeLast()
-        }
-    }
-    func append(_ newString: String) {
-        text.append(newString)
-        trim()
     }
 }

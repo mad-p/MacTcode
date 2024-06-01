@@ -144,7 +144,7 @@ class PostfixBushuAction: Action {
         } else {
             if let ch = Bushu.i.compose(char1: ch1!, char2: ch2!) {
                 NSLog("Bushu \(ch1!)\(ch2!) -> \(ch)")
-                client.insertText(ch, replacementRange: cursor)
+                client.insertText(ch, replacementRange: replaceRange)
             } else {
                 NSLog("Bushu henkan no candidates for \(ch1!)\(ch2!)")
             }
