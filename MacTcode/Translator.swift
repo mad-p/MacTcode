@@ -31,7 +31,7 @@ struct InputEvent {
     /// キーに対応する文字がある場合、その文字
     var text: String?
     /// 元となった生イベント
-    var event: NSEvent
+    // var event: NSEvent
 }
 
 /// NSEventをInputEventに変換する
@@ -73,6 +73,6 @@ class Translator {
             }
         }
         
-        return InputEvent(type: type, text: text, event: event)
+        return InputEvent(type: type, text: text)
     }
 }

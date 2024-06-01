@@ -111,14 +111,14 @@ class TcodeBasicKeymap : Keymap {
     }
 }
 
-class TcodeMap {
+class TcodeKeymap {
     static var map: Keymap = {
         let map = PostLookupMap(prefix: TcodeBasicKeymap())
         // jf -> postfix bushu
         map.add([26, 23], .action(PostfixBushuAction()))
         // fj, 58 -> postfix mazegaki
-        map.add([23, 26], .action(PostfixMazegakiAction()))
-        map.add([4, 7], .action(PostfixMazegakiAction()))
+        map.add([23, 26], .action(PostfixMazegakiAction(inflection: false)))
+        map.add([4, 7], .action(PostfixMazegakiAction(inflection: true)))
         return map
     }()
 }

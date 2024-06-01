@@ -139,9 +139,6 @@ class PostfixBushuAction: Action {
                 }
             }
         }
-        /* take chars from recent
-        else {
-        */
         if (ch1 == nil) || (ch2 == nil) {
             NSLog("Bushu henkan: no input")
         } else {

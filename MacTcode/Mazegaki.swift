@@ -139,7 +139,58 @@ class Mazegaki {
 }
 
 class PostfixMazegakiAction: Action {
+    let maxYomi = 10
+    let inflection : Bool
+    init(inflection: Bool) {
+        self.inflection = inflection
+    }
     func execute(client: MyInputText) -> Command {
+        let cursor = client.selectedRange()
+        var consumeRecent = true
+        var useBackspace = false
+        var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
+        
+        var mazegaki: Mazegaki
+        
+        if cursor.length == 0 {
+            // mazegaki henkan from recentChars
+            let (startPos, length) = if cursor.location >= maxYomi {
+                (cursor.location - maxYomi, maxYomi)
+            } else {
+                (0, cursor.location)
+            }
+            if let text = client.string(from: NSRange(location: startPos, length: length), actualRange: &replaceRange) {
+                NSLog("Online mazegaki from \(text)")
+                mazegaki = Mazegaki(text, inflection: inflection, fixed: false)
+            } else {
+                NSLog("No yomi")
+                return .processed
+            }
+        } else {
+            // mazegaki henkan from selection
+            if let text = client.string(from: cursor, actualRange: &replaceRange) {
+                NSLog("Offline mazegaki \(text)")
+                mazegaki = Mazegaki(text, inflection: inflection, fixed: true)
+            } else {
+                return .processed
+            }
+        }
+        
+        let hit = mazegaki.find(nil)
+        if hit == nil {
+            return .processed
+        }
+        let candidates = hit!.candidates()
+        if candidates.isEmpty {
+            return .processed
+        }
+        
+        if candidates.count == 1 {
+            NSLog("Mazegaki: sole candidate: \(candidates.first!)")
+            client.insertText(candidates.first!, replacementRange: replaceRange)
+        } else {
+            NSLog("Mazegaki: more than one candidates: \(candidates)")
+        }
         return .processed
     }
 }

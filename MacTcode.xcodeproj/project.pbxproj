@@ -15,7 +15,7 @@
 		9D868A012C05F98700128D48 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D868A002C05F98700128D48 /* main@2x.tiff */; };
 		9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */; };
 		9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */; };
-		9D8C8DCA2C01ACF1003D8A43 /* MacTcodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* MacTcodeTests.swift */; };
+		9D8C8DCA2C01ACF1003D8A43 /* KeymapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */; };
 		9D8C8DD42C01ACF1003D8A43 /* MacTcodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */; };
 		9D8C8DD62C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */; };
 		9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */; };
@@ -61,7 +61,7 @@
 		9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacTcode.entitlements; sourceTree = "<group>"; };
 		9D8C8DC52C01ACF1003D8A43 /* MacTcodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacTcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		9D8C8DC92C01ACF1003D8A43 /* MacTcodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeTests.swift; sourceTree = "<group>"; };
+		9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeymapTests.swift; sourceTree = "<group>"; };
 		9D8C8DCF2C01ACF1003D8A43 /* MacTcodeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacTcodeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeUITests.swift; sourceTree = "<group>"; };
 		9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeUITestsLaunchTests.swift; sourceTree = "<group>"; };
@@ -162,7 +162,7 @@
 		9D8C8DC82C01ACF1003D8A43 /* MacTcodeTests */ = {
 			isa = PBXGroup;
 			children = (
-				9D8C8DC92C01ACF1003D8A43 /* MacTcodeTests.swift */,
+				9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */,
 				9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */,
 				9DC8D4992C0632C900DCB6A2 /* MazegakiTests.swift */,
 				9DEA6D3D2C0B40320005BB18 /* RecentTextTests.swift */,
@@ -331,7 +331,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9D8C8DCA2C01ACF1003D8A43 /* MacTcodeTests.swift in Sources */,
+				9D8C8DCA2C01ACF1003D8A43 /* KeymapTests.swift in Sources */,
 				9DEA6D3E2C0B40320005BB18 /* RecentTextTests.swift in Sources */,
 				9DC8D49A2C0632C900DCB6A2 /* MazegakiTests.swift in Sources */,
 				9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */,
