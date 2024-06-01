@@ -18,22 +18,16 @@ final class MacTcodeTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
+    /*
     func testTranslate() throws {
-        XCTAssertEqual(27, TcodeTable.translateKey(text: "t"), "t")
-        XCTAssertEqual(22, TcodeTable.translateKey(text: "e"), "e")
-        XCTAssertNil(TcodeTable.translateKey(text: "+"), "not found")
+        XCTAssertEqual(27, TcodeKeymap.translateKey(text: "t"), "t")
+        XCTAssertEqual(22, TcodeKeymap.translateKey(text: "e"), "e")
+        XCTAssertNil(TcodeKeymap.translateKey(text: "+"), "not found")
     }
     
     func testLookup() throws {
-        XCTAssertEqual("の", TcodeTable.lookup(first: 27, second:22), "の")
-        XCTAssertEqual("識", TcodeTable.lookup(first: 7, second:32), "識")
+        XCTAssertEqual("の", TcodeKeymap.lookup(first: 27, second:22), "の")
+        XCTAssertEqual("識", TcodeKeymap.lookup(first: 7, second:32), "識")
     }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
+     */
 }

@@ -10,6 +10,7 @@
 // 元コードはGPLだが、コードコピーはしていないので、MITライセンスで配布できるはず。
 
 import Cocoa
+import InputMethodKit
 
 final class Bushu {
     static let i = Bushu()
@@ -111,5 +112,46 @@ final class Bushu {
         }
         // not found
         return nil
+    }
+}
+
+class PostfixBushuAction: Action {
+    func execute(client: MyInputText) -> Command {
+        // postfix bushu
+        let cursor = client.selectedRange()
+        var ch1: String? = nil
+        var ch2: String? = nil
+        var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
+
+        if (cursor.length == 0 && cursor.location >= 2) || cursor.length == 2 {
+            // bushu henkan from selection or previous two chars
+            let location = if cursor.length == 2 {
+                cursor.location
+            } else {
+                cursor.location - 2
+            }
+            if let text = client.string(from: NSRange(location: location, length: 2), actualRange: &replaceRange) {
+                let chars = text.map { String($0) }
+                ch1 = chars[0]
+                ch2 = chars[1]
+                if (ch1 != nil) && (ch2 != nil) {
+                    NSLog("Bushu \(ch1!)\(ch2!)")
+                }
+            }
+        }
+        /* take chars from recent
+        else {
+        */
+        if (ch1 == nil) || (ch2 == nil) {
+            NSLog("Bushu henkan: no input")
+        } else {
+            if let ch = Bushu.i.compose(char1: ch1!, char2: ch2!) {
+                NSLog("Bushu \(ch1!)\(ch2!) -> \(ch)")
+                client.insertText(ch, replacementRange: cursor)
+            } else {
+                NSLog("Bushu henkan no candidates for \(ch1!)\(ch2!)")
+            }
+        }
+        return .processed
     }
 }

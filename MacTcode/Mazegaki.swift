@@ -10,6 +10,7 @@
 // 元コードはGPLだが、コードコピーはしていないので、MITライセンスで配布できるはず。
 
 import Cocoa
+import InputMethodKit
 
 final class MazegakiDict {
     static let i = MazegakiDict()
@@ -136,3 +137,10 @@ class Mazegaki {
         return result
     }
 }
+
+class PostfixMazegakiAction: Action {
+    func execute(client: MyInputText) -> Command {
+        return .processed
+    }
+}
+

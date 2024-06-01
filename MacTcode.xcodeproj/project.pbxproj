@@ -19,11 +19,17 @@
 		9D8C8DD42C01ACF1003D8A43 /* MacTcodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */; };
 		9D8C8DD62C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */; };
 		9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */; };
-		9D8C8DE72C0338EB003D8A43 /* TcodeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */; };
+		9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */; };
 		9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */; };
 		9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */; };
 		9DC8D4982C061F3800DCB6A2 /* mazegaki.dic in Resources */ = {isa = PBXBuildFile; fileRef = 9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */; };
 		9DC8D49A2C0632C900DCB6A2 /* MazegakiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC8D4992C0632C900DCB6A2 /* MazegakiTests.swift */; };
+		9DDFC1662C09982F00BAADB5 /* mainw.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9DDFC1642C09982F00BAADB5 /* mainw.tiff */; };
+		9DDFC1672C09982F00BAADB5 /* mainw@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9DDFC1652C09982F00BAADB5 /* mainw@2x.tiff */; };
+		9DEA6D382C0AC0DA0005BB18 /* Keymap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D372C0AC0DA0005BB18 /* Keymap.swift */; };
+		9DEA6D3A2C0AC7F90005BB18 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D392C0AC7F90005BB18 /* Action.swift */; };
+		9DEA6D3C2C0AE74E0005BB18 /* Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D3B2C0AE74E0005BB18 /* Translator.swift */; };
+		9DEA6D3E2C0B40320005BB18 /* RecentTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D3D2C0B40320005BB18 /* RecentTextTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,11 +67,17 @@
 		9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		9D8C8DE22C01ADA9003D8A43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeInputController.swift; sourceTree = "<group>"; };
-		9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeTable.swift; sourceTree = "<group>"; };
+		9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeKeymap.swift; sourceTree = "<group>"; };
 		9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mazegaki.swift; sourceTree = "<group>"; };
 		9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mazegaki.dic; sourceTree = "<group>"; };
 		9DC8D4992C0632C900DCB6A2 /* MazegakiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiTests.swift; sourceTree = "<group>"; };
+		9DDFC1642C09982F00BAADB5 /* mainw.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = mainw.tiff; sourceTree = "<group>"; };
+		9DDFC1652C09982F00BAADB5 /* mainw@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "mainw@2x.tiff"; sourceTree = "<group>"; };
+		9DEA6D372C0AC0DA0005BB18 /* Keymap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keymap.swift; sourceTree = "<group>"; };
+		9DEA6D392C0AC7F90005BB18 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		9DEA6D3B2C0AE74E0005BB18 /* Translator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translator.swift; sourceTree = "<group>"; };
+		9DEA6D3D2C0B40320005BB18 /* RecentTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,13 +128,14 @@
 		9D8C8DB62C01ACEE003D8A43 /* MacTcode */ = {
 			isa = PBXGroup;
 			children = (
+				9DDFC1642C09982F00BAADB5 /* mainw.tiff */,
+				9DDFC1652C09982F00BAADB5 /* mainw@2x.tiff */,
 				9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */,
 				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
 				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
 				9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */,
 				9D0F3CE02C04D570005A0CAC /* Config.swift */,
 				9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */,
-				9D8C8DE62C0338EB003D8A43 /* TcodeTable.swift */,
 				9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */,
 				9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */,
 				9D868A002C05F98700128D48 /* main@2x.tiff */,
@@ -130,6 +143,10 @@
 				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
 				9D4818D82C0368DB00906504 /* main.tiff */,
 				9D8C8DBD2C01ACF0003D8A43 /* Preview Content */,
+				9DEA6D372C0AC0DA0005BB18 /* Keymap.swift */,
+				9DEA6D3B2C0AE74E0005BB18 /* Translator.swift */,
+				9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */,
+				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
 			);
 			path = MacTcode;
 			sourceTree = "<group>";
@@ -148,6 +165,7 @@
 				9D8C8DC92C01ACF1003D8A43 /* MacTcodeTests.swift */,
 				9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */,
 				9DC8D4992C0632C900DCB6A2 /* MazegakiTests.swift */,
+				9DEA6D3D2C0B40320005BB18 /* RecentTextTests.swift */,
 			);
 			path = MacTcodeTests;
 			sourceTree = "<group>";
@@ -266,6 +284,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */,
+				9DDFC1662C09982F00BAADB5 /* mainw.tiff in Resources */,
+				9DDFC1672C09982F00BAADB5 /* mainw@2x.tiff in Resources */,
 				9DC8D4982C061F3800DCB6A2 /* mazegaki.dic in Resources */,
 				9D868A012C05F98700128D48 /* main@2x.tiff in Resources */,
 				9D4818DA2C0368DB00906504 /* main.tiff in Resources */,
@@ -299,7 +319,10 @@
 				9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
 				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
-				9D8C8DE72C0338EB003D8A43 /* TcodeTable.swift in Sources */,
+				9DEA6D3C2C0AE74E0005BB18 /* Translator.swift in Sources */,
+				9DEA6D382C0AC0DA0005BB18 /* Keymap.swift in Sources */,
+				9DEA6D3A2C0AC7F90005BB18 /* Action.swift in Sources */,
+				9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */,
 				9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -309,6 +332,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8C8DCA2C01ACF1003D8A43 /* MacTcodeTests.swift in Sources */,
+				9DEA6D3E2C0B40320005BB18 /* RecentTextTests.swift in Sources */,
 				9DC8D49A2C0632C900DCB6A2 /* MazegakiTests.swift in Sources */,
 				9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */,
 			);

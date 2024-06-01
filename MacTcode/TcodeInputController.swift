@@ -13,8 +13,7 @@ class TcodeInputController: IMKInputController {
     private var candidatesWindow: IMKCandidates = IMKCandidates()
     private var firstStroke: Int? = nil
     private var firstChar: String? = nil
-    private var recentChars: [String] = []
-    static var maxRecent = 10
+    private let recentText = RecentText("")
     
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleColumnScrollingCandidatePanel)
@@ -27,6 +26,7 @@ class TcodeInputController: IMKInputController {
         firstChar = nil
     }
     
+    /*
     fileprivate func commitTranslation(_ string: String, client: any IMKTextInput,
                                        inputLength: Int,
                                        cursor: NSRange, replaceRange: NSRange,
@@ -61,54 +61,9 @@ class TcodeInputController: IMKInputController {
         } else {
             recentChars = []
         }
-    }
+    }*/
     
-    fileprivate func postfixBushu(_ client: any IMKTextInput) -> Bool {
-        // postfix bushu
-        let cursor = client.selectedRange()
-        var ch1: String? = nil
-        var ch2: String? = nil
-        var consumeRecent = true
-        var useBackspace = false
-        var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
-
-        if cursor.length == 2 {
-            // bushu henkan from selection
-            if let text = client.string(from: cursor, actualRange: &replaceRange) {
-                let chars = text.map { String($0) }
-                ch1 = chars[0]
-                ch2 = chars[1]
-                if (ch1 != nil) && (ch2 != nil) {
-                    NSLog("Offline bushu \(ch1!)\(ch2!)")
-                } else {
-                    NSLog("offline bushu but no chars")
-                }
-                consumeRecent = false
-            }
-        } else {
-            // bushu henkan from recentChars
-            NSLog("Online bushu")
-            if recentChars.count >= 2 {
-                ch1 = recentChars[recentChars.count - 2]
-                ch2 = recentChars[recentChars.count - 1]
-            }
-            if cursor.location == NSNotFound {
-                useBackspace = true
-            }
-        }
-        if (ch1 == nil) || (ch2 == nil) {
-            NSLog("Bushu henkan: no input")
-        } else {
-            if let ch = Bushu.i.compose(char1: ch1!, char2: ch2!) {
-                NSLog("Bushu \(ch1!)\(ch2!) -> \(ch)")
-                commitTranslation(ch, client: client, inputLength: 2, cursor: cursor, replaceRange: replaceRange, useBackspace: useBackspace, consumeRecent: consumeRecent)
-            } else {
-                NSLog("Bushu henkan no candidates for \(ch1!)\(ch2!)")
-            }
-        }
-        return true
-    }
-    
+    /*
     fileprivate func postfixMazegaki(_ client: any IMKTextInput, inflection: Bool) -> Bool {
         let cursor = client.selectedRange()
         var consumeRecent = true
@@ -154,89 +109,131 @@ class TcodeInputController: IMKInputController {
         
         return true
     }
+     */
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
         // get client to insert
         guard let client = sender as? IMKTextInput else {
             return false
         }
-        NSLog("event.keyCode = \(event.keyCode); event.characters = \(event.characters ?? "nil"); event.modifierFlags = \(event.modifierFlags)")
         
-        if !event.modifierFlags.isEmpty {
-            reset()
-            return false
-        }
-        if let text = event.characters, text.allSatisfy({ $0.isLetter || $0.isNumber || $0.isPunctuation }) {
-            if let stroke = TcodeTable.translateKey(text: text) {
-                if let first = firstStroke {
-                    // second stroke
-                    
-                    // function bindings
-                    if first == 26 && stroke == 23 { // hu
-                        reset()
-                        return postfixBushu(client)
-                    }
-                    if first == 23 && stroke == 26 { // uh
-                        reset()
-                        return postfixMazegaki(client, inflection: false)
-                    }
-                    if first == 4 && stroke == 7 { // 58
-                        reset()
-                        return postfixMazegaki(client, inflection: true)
-                    }
-                    if let str = TcodeTable.lookup(first: first, second: stroke) {
-                        NSLog("Submit \(str)")
-                        recentChars.append(str)
-                        recentChars = recentChars.suffix(10)
-                        client.insertText(str, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                        reset()
-                        return true
-                    } else {
-                        NSLog("Undefined stroke \(first) \(stroke)")
-                        return true
-                    }
-                } else {
-                    // first stroke
-                    firstStroke = stroke
-                    firstChar = event.characters!
-                    return true
-                }
-            }
-        }
-        
-        // non-tcode key
-        switch(event.keyCode) {
-        case 49: // Space -- submit first stroke
-            if firstChar != nil {
-                client.insertText(firstChar, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                reset()
-                return true
-            } else {
+        let inputEvent = Translator.translate(event: event)
+        var command = TcodeMap.map.lookup(input: inputEvent)
+        while true {
+            let baseInputText = BaseInputText(client: client, recent: recentText)
+            switch command {
+            case .passthrough:
                 return false
+            case .processed:
+                return true
+            case .text(let string, let array):
+                baseInputText.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                return true
+            case .action(let action):
+                command = action.execute(client: baseInputText)
             }
-        case 53: // Escape -- cancel first stroke
-            reset()
-            return true
-        default:
-            return false
         }
-
         /*NOTREACHED*/
-    }
-    
-    func sendBackspace() {
-        // バックスペースのキーコード（8）を定義
-        let keyCode: CGKeyCode = 0x33
-        
-        // バックスペースキー押下イベントを作成
-        let backspaceDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
-        // バックスペースキー解放イベントを作成
-        let backspaceUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
-        
-        // イベントを送信
-        backspaceDown?.post(tap: .cghidEventTap)
-        backspaceUp?.post(tap: .cghidEventTap)
     }
 
 }
 
+/// クライアントのカーソル周辺の文字列、もし得られなければrecentCharsを扱うMyInputText
+class BaseInputText: MyInputText {
+    let client: IMKTextInput
+    let recent: RecentText
+    var useRecent: Bool = false
+    init(client: IMKTextInput!, recent: RecentText) {
+        self.client = client
+        self.recent = recent
+        let cursor = client.selectedRange()
+        useRecent = (cursor.location == NSNotFound)
+    }
+    func selectedRange() -> NSRange {
+        if useRecent {
+            return recent.selectedRange()
+        } else {
+            return client.selectedRange()
+        }
+    }
+    func string(
+        from range: NSRange,
+        actualRange: NSRangePointer!
+    ) -> String! {
+        if useRecent {
+            return recent.string(from: range, actualRange: actualRange)
+        } else {
+            return client.string(from: range, actualRange: actualRange)
+        }
+    }
+    func insertText(
+        _ string: String!,
+        replacementRange rr: NSRange
+    ) {
+        if useRecent {
+            recent.insertText(string, replacementRange: rr)
+        } else {
+            recent.append(string)
+            client.insertText(string, replacementRange: rr)
+        }
+    }
+    
+    func sendBackspace() {
+        if useRecent {
+            recent.sendBackspace()
+        } else {
+            let keyCode: CGKeyCode = 0x33
+            let backspaceDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
+            let backspaceUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
+            
+            backspaceDown?.post(tap: .cghidEventTap)
+            backspaceUp?.post(tap: .cghidEventTap)
+        }
+    }
+}
+
+class RecentText: MyInputText {
+    static let maxLength: Int = 20
+    var text: String
+    init(_ string: String) {
+        self.text = string
+    }
+    func selectedRange() -> NSRange {
+        return NSRange(location: text.count, length: 0)
+    }
+    func string(
+        from range: NSRange,
+        actualRange: NSRangePointer!
+    ) -> String! {
+        let from = text.index(text.startIndex, offsetBy: range.location)
+        let to = text.index(text.startIndex, offsetBy: range.location + range.length)
+        actualRange.pointee.location = range.location
+        actualRange.pointee.length = range.length
+        return String(text[from..<to])
+    }
+    func insertText(
+        _ newString: String!,
+        replacementRange rr: NSRange
+    ) {
+        let from = text.index(text.startIndex, offsetBy: rr.location)
+        let to = text.index(text.startIndex, offsetBy: rr.location + rr.length)
+        text.replaceSubrange(from..<to, with: newString)
+        trim()
+    }
+    func trim() {
+        let m = RecentText.maxLength
+        if text.count > m {
+            let newStart = text.index(text.endIndex, offsetBy: -m)
+            text.replaceSubrange(text.startIndex..<newStart, with: "")
+        }
+    }
+    func sendBackspace() {
+        if text.count > 0 {
+            text.removeLast()
+        }
+    }
+    func append(_ newString: String) {
+        text.append(newString)
+        trim()
+    }
+}

@@ -7,15 +7,9 @@
 
 import Cocoa
 
-class TcodeTable {
-    static let nKeys = 40
-    static var tcodeKeys: [String] = [
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-        "'", ",", ".", "p", "y", "f", "g", "c", "r", "l",
-        "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
-        ";", "q", "j", "k", "x", "b", "m", "w", "v", "z",
-    ]
-    static var tcodeTable: [String] = [
+class TcodeBasicKeymap : Keymap {
+    static var nKeys = 40
+    static var table: [String] = [
         "■■■■■■■■■■ヮヰヱヵヶ請境系探象ゎゐゑ■■盛革突温捕■■■■■依繊借須訳",
         "■■■■■■■■■■丑臼宴縁曳尚賀岸責漁於汚乙穏■益援周域荒■■■■■織父枚乱香",
         "■■■■■■■…■■鬼虚狭脅驚舎喜幹丘糖奇既菊却享康徒景処ぜ■■■■■譲ヘ模降走",
@@ -57,20 +51,74 @@ class TcodeTable {
         "替沼?辞献■■■■■ゅ修究答養復並浦ユ冷ぬ展警型誰組選党択体例満津準遊戸ひょ価与",
         "還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ",
     ]
-    static func translateKey(text: String) -> Int? {
-        if let index = tcodeKeys.firstIndex(of: text) {
-            return index
-        }
-        return nil
+    
+    var pending: [InputEvent] = []
+    var first: Int? = nil
+    
+    func reset() {
+        pending = []
+        first = nil
     }
-    static func lookup(first: Int, second: Int) -> String? {
-        if 0 <= first && first < nKeys && 0 <= second && second < nKeys {
-            let row = tcodeTable[second]
-            if let startIndex = row.index(row.startIndex, offsetBy: first, limitedBy: row.endIndex) {
-                let ch = String(row[startIndex])
-                return ch
+    func lookup(input: InputEvent) -> Command {
+        switch input.type {
+        case .printable(let key):
+            if let second = key {
+                if first == nil {
+                    first = second
+                    pending.append(input)
+                    return .processed
+                } else {
+                    let f = first!
+                    let keys = [f, second]
+                    reset()
+                    let n = TcodeBasicKeymap.nKeys
+                    if 0 <= f && f < n && 0 <= second && second < n {
+                        let row = TcodeBasicKeymap.table[second]
+                        if let startIndex = row.index(row.startIndex, offsetBy: f, limitedBy: row.endIndex) {
+                            let ch = String(row[startIndex])
+                            return .text(ch, keys)
+                        } else {
+                            NSLog("Can't happen: lookup in TcodeBasicKeymap ")
+                            return .processed
+                        }
+                    } else {
+                        NSLog("Invalid key sequence?? \(f), \(second)")
+                        reset()
+                        return .processed
+                    }
+                }
+            } else {
+                return .passthrough
+            }
+        case .space:
+            if let f = first {
+                let p = pending[0]
+                return .text(p.text!, [f])
+            } else {
+                return .passthrough
+            }
+        case .enter, .left, .right, .up, .down, .unknown:
+            reset()
+            return .passthrough
+        case .delete:
+            if first == nil {
+                return .passthrough
+            } else {
+                reset()
+                return .processed
             }
         }
-        return nil
     }
+}
+
+class TcodeMap {
+    static var map: Keymap = {
+        let map = PostLookupMap(prefix: TcodeBasicKeymap())
+        // jf -> postfix bushu
+        map.add([26, 23], .action(PostfixBushuAction()))
+        // fj, 58 -> postfix mazegaki
+        map.add([23, 26], .action(PostfixMazegakiAction()))
+        map.add([4, 7], .action(PostfixMazegakiAction()))
+        return map
+    }()
 }
