@@ -30,26 +30,55 @@ class TcodeInputController: IMKInputController {
 }
 
 class TcodeMainloop {
-    let recentText = RecentText("")
+    var recentText = RecentText("")
+    var pending: [InputEvent] = []
+    func reset() {
+        recentText = RecentText("")
+        pending = []
+    }
     func handle(_ event: NSEvent!, client: MyInputText!) -> Bool {
         let inputEvent = Translator.translate(event: event)
-        var command = TcodeKeymap.map.lookup(input: inputEvent)
-        while true {
-            NSLog("execute command \(command);  recentText = \(recentText.text)")
+        let seq = pending + [inputEvent]
+        pending = []
+        // TODO pendingを処理するコマンドだけ、resolveより前に処理しなければならない
+        // - spaceでpendingを送る
+        // - escapeで取り消す
+        var command: Command? = nil
+        if let topLevelEntry = TopLevelMap.map.lookup(input: inputEvent) {
+            if ResetAllStateAction.isResetAction(entry: topLevelEntry) {
+                reset()
+                return true
+            }
+            switch topLevelEntry {
+            case .next(_):
+                return false // can't happen
+            case .command(let cmd):
+                command = cmd
+            }
+        }
+        if command == nil {
+            command = KeymapResolver.resolve(keySequence: seq, keymap: TcodeKeymap.map)
+        }
+        while command != nil {
+            NSLog("execute command \(command!);  recentText = \(recentText.text)")
             let baseInputText = BaseInputText(client: client, recent: recentText)
-            switch command {
+            
+            switch command! {
             case .passthrough:
                 return false
             case .processed:
                 return true
-            case .text(let string, _):
+            case .pending:
+                pending = seq
+                return true
+            case .text(let string):
                 baseInputText.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 return true
             case .action(let action):
-                command = action.execute(client: baseInputText)
+                command = action.execute(client: baseInputText, input: seq)
             }
         }
-        /*NOTREACHED*/
+        return true // can't happen
     }
 }
 

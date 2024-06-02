@@ -21,5 +21,5 @@ protocol MyInputText {
 }
 
 protocol Action {
-    func execute(client: MyInputText) -> Command
+    func execute(client: MyInputText, input: [InputEvent]) -> Command
 }

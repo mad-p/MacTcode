@@ -60,4 +60,13 @@ final class TranslationTests: XCTestCase {
         feed("zbtphizuhobeuhsofuhpto")
         XCTAssertEqual("今日は地震があった", spy.text)
     }
+    func testOutset() {
+        feed("fqyg\\iqioy")
+        XCTAssertEqual("全角　空白", spy.text)
+    }
+    
+    func testOutset2() {
+        feed("se\\\\dsu\\\\t")
+        XCTAssertEqual("1①2③", spy.text)
+    }
 }

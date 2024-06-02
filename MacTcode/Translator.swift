@@ -7,33 +7,6 @@
 
 import Cocoa
 
-/// 入力イベントタイプ
-enum InputEventType {
-    /// プリンタブル文字
-    /// - Parameter key: Int: 入力した文字がTコード文字の場合、そのキー番号
-    case printable(Int?)
-    /// エンターキー
-    case enter
-    /// 矢印キー
-    case left, right, up, down
-    /// スペースバー
-    case space
-    /// deleteキーまたは ^H
-    case delete
-    /// それ以外
-    case unknown
-}
-
-/// 入力イベント
-struct InputEvent {
-    /// タイプ
-    var type: InputEventType
-    /// キーに対応する文字がある場合、その文字
-    var text: String?
-    /// 元となった生イベント
-    // var event: NSEvent
-}
-
 /// NSEventをInputEventに変換する
 class Translator {
     static let nKeys = 40
@@ -43,6 +16,16 @@ class Translator {
         "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
         ";", "q", "j", "k", "x", "b", "m", "w", "v", "z",
     ]
+    static func strToKey(_ string: String!) -> Int? {
+        return layout.firstIndex(of: string)
+    }
+    static func keyToStr(_ key: Int) -> String? {
+        if (0..<nKeys).contains(key) {
+            return layout[key]
+        } else {
+            return nil
+        }
+    }
     static func translate(event: NSEvent!) -> InputEvent {
         NSLog("event.keyCode = \(event.keyCode); event.characters = \(event.characters ?? "nil"); event.modifierFlags = \(event.modifierFlags)")
         
@@ -54,12 +37,17 @@ class Translator {
         }
         
         let type: InputEventType = if printable {
-            .printable(layout.firstIndex(of: text!))
+            if text == " " {
+                .space
+            } else {
+                .printable(strToKey(text!))
+            }
         } else {
             switch(text) {
             case " ": .space
             case "\010": .delete
             case "\n": .enter
+            case "\033": .escape
             default:
                 switch(event.keyCode) {
                 case 38: .enter
