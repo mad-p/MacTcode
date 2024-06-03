@@ -7,6 +7,8 @@
 
 import Cocoa
 
+let nKeys = 40
+
 /// 入力イベントに対して、キーマップで対応するコマンド
 enum Command {
     /// イベントを処理せず、そのままclientに送る
@@ -19,200 +21,143 @@ enum Command {
     case text(String)
     /// アクションを実行
     case action(Action)
+    /// キーマップ
+    case keymap(Keymap)
 }
 
-enum KeymapEntry {
-    /// まだコマンドが確定しない
-    case next(Keymap)
-    /// コマンドのうち、textまたはaction
-    case command(Command)
-}
-
-/// キーマップの抽象クラス
-protocol Keymap {
-    /// キーマップの名前を返す
-    var name: String { get }
-    /// 次の入力に対応するコマンドを返す
-    func lookup(input: InputEvent) -> KeymapEntry?
-    /// 入力に対応するコマンドを上書きする。入力として受け付けられなければfalseを返す
-    func replace(input: InputEvent, entry: KeymapEntry?) -> Bool
-}
-
-/// ストロークからコマンドへの対応
-final class StrokeKeymap: Keymap {
-    var name: String
-    var map: [KeymapEntry?]
-    
-    init!(_ name: String, fromArray chars: [String]) {
-        self.name = name
-        guard chars.count == Translator.nKeys else {
-            NSLog("StrokeKeymap \(name) fromChars: must have \(Translator.nKeys) characters")
+/// NSEventをInputEventに変換する
+class Translator {
+    static var layout: [String] = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+        "'", ",", ".", "p", "y", "f", "g", "c", "r", "l",
+        "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
+        ";", "q", "j", "k", "x", "b", "m", "w", "v", "z",
+    ]
+    static func strToKey(_ string: String!) -> Int? {
+        return layout.firstIndex(of: string)
+    }
+    static func keyToStr(_ key: Int) -> String? {
+        if (0..<nKeys).contains(key) {
+            return layout[key]
+        } else {
             return nil
         }
-        map = chars.map { char in
-                .command(.text(char))
+    }
+    static func translate(event: NSEvent!) -> InputEvent {
+        NSLog("event.keyCode = \(event.keyCode); event.characters = \(event.characters ?? "nil"); event.modifierFlags = \(event.modifierFlags)")
+        
+        let text = event.characters
+        let printable = if text != nil {
+            text!.allSatisfy({ $0.isLetter || $0.isNumber || $0.isPunctuation })
+        } else {
+            false
+        }
+        
+        let type: InputEventType =
+        if event.modifierFlags.contains(.option)
+            || event.modifierFlags.contains(.command)
+            || event.modifierFlags.contains(.function)
+        {
+            .unknown
+        } else if printable {
+            if text == " " {
+                .space
+            } else {
+                .printable
+            }
+        } else {
+            switch(text) {
+            case " ": .space
+            case "\u{08}": .delete
+            case "\n": .enter
+            case "\u{1b}": .escape
+            default:
+                switch(event.keyCode) {
+                case 38: .enter
+                case 123: .left
+                case 124: .right
+                case 125: .down
+                case 126: .up
+                case 51: .delete
+                default: .unknown
+                }
+            }
+        }
+        let event = InputEvent(type: type, text: text)
+        NSLog("  translated to \(event)")
+        return event
+    }
+}
+
+/// イベントからコマンドへの対応
+class Keymap {
+    var name: String
+    var map: [InputEvent: Command] = [:]
+    init(_ name: String) {
+        self.name = name
+    }
+    init!(_ name: String, fromArray chars: [String]) {
+        self.name = name
+        guard chars.count == nKeys else {
+            NSLog("Keymap \(name) fromChars: must have \(nKeys) characters")
+            return nil
+        }
+        for i in 0..<nKeys {
+            let key = InputEvent(type: .printable, text: Translator.keyToStr(i))
+            add(key, .text(chars[i]))
         }
     }
     convenience init!(_ name: String, fromChars chars: String) {
         self.init(name, fromArray: chars.map{String($0)})
     }
-
-    func lookup(input: InputEvent) -> KeymapEntry? {
-        switch input.type {
-        case .printable(let key):
-            if let i = key {
-                if (0..<Translator.nKeys).contains(i) {
-                    // NSLog("Keymap \(name) lookup(\(input)) got \(String(describing: map[i]))")
-                    return map[i]
-                } else {
-                    // NSLog("Keymap \(name) lookup(\(input)) out of range")
-                    return nil
-                }
-            }
-        default:
-            break
-        }
-        // NSLog("Keymap \(name) lookup(\(input)) not supported")
-        return nil
-    }
-    
-    func replace(input: InputEvent, entry: KeymapEntry?) -> Bool {
-        switch input.type {
-        case .printable(let keyNum):
-            if let k = keyNum {
-                map[k] = entry
-                NSLog("Keymap \(name) replace(\(input)) set new entry \(String(describing: entry))")
-                return true
-            }
-        default:
-            break
-        }
-        NSLog("Keymap \(name) replace(\(input)) not supported")
-        return false
-    }
-    
-    init?(_ name: String, from2d: String!) {
+    init!(_ name: String, from2d: String!) {
         self.name = name
-        map = []
         let table = from2d.components(separatedBy: "\n").map { $0.map { String($0) }}
-        guard table.count == Translator.nKeys else {
-            NSLog("StrokeKeymap \(name) from2d: must have \(Translator.nKeys) lines")
+        guard table.count == nKeys else {
+            NSLog("2Dkeymap \(name) from2d: must have \(nKeys) lines")
             return nil
         }
         
-        var failed: Bool = false
-        // i: first stroke
-        for i in 0..<Translator.nKeys {
-            let column = (0..<Translator.nKeys).map { j in // j: second stroke
-                table[j][i]
-            }
-            if let columnmap = StrokeKeymap("\(name)_column\(i)", fromArray: column) {
-                map.append(KeymapEntry.next(columnmap))
-            } else {
+        // check if we have exactly nKeys in each row
+        var failed = false
+        for j in 0..<nKeys {
+            if table[j].count != nKeys {
+                NSLog("2DKeymap \(name) row \(j) must have \(nKeys) chars")
                 failed = true
             }
         }
-        
         if failed {
-            NSLog("StrokeKeymap \(name) from2d: had erroneous definition")
+            NSLog("2DKeymap \(name) from2d: had erroneous definition")
             return nil
         }
-    }
-}
-
-/// 文字からコマンドへの対応
-class SparseMap: Keymap {
-    var name: String
-    var map: [String: KeymapEntry] = [:]
-    init(_ name: String) {
-        self.name = name
-    }
-    func lookup(input: InputEvent) -> KeymapEntry? {
-        if let str = input.text {
-            // NSLog("Keymap \(name) lookup(\(input)) got \(String(describing: map[str]))")
-            return map[str]
-        }
-        // NSLog("Keymap \(name) lookup(\(input)) not supported")
-        return nil
-    }
-    func add(_ str: String, _ entry: KeymapEntry) {
-        NSLog("Keymap \(name) add(\(str)) set new entry \(String(describing: entry))")
-        map[str] = entry
-    }
-    func replace(input: InputEvent, entry: KeymapEntry?) -> Bool {
-        if let str = input.text {
-            if let e = entry {
-                add(str, e)
-            } else {
-                NSLog("Keymap \(name) replace(\(str)) cleared entry")
-                map.removeValue(forKey: str)
+        
+        // i: first stroke (column in table)
+        for i in 0..<nKeys {
+            let columnKey = InputEvent(type: .printable, text: Translator.keyToStr(i))
+            let columnMap = Keymap("\(name)_column\(i)")
+            add(columnKey, .keymap(columnMap))
+            // j: second stroke (row in table)
+            for j in 0..<nKeys {
+                let rowKey = InputEvent(type: .printable, text: Translator.keyToStr(j))
+                columnMap.add(rowKey, .text(table[j][i]))
             }
-            return true
+        }
+    }
+    func lookup(input: InputEvent) -> Command? {
+        return map[input]
+    }
+    func add(_ key: InputEvent, _ entry: Command) {
+        NSLog("Keymap \(name) add(\(key) set new entry \(String(describing: entry))")
+        map[key] = entry
+    }
+    func replace(input: InputEvent, entry: Command?) -> Bool {
+        if let e = entry {
+            add(input, e)
         } else {
-            NSLog("Keymap \(name) replace(\(input)) not supported")
-            return false
+            NSLog("Keymap \(name) replace(\(input)) cleared entry")
+            map.removeValue(forKey: input)
         }
-    }
-}
-
-class UnionMap: Keymap {
-    var name: String
-    var keymaps: [Keymap]
-    init(_ name: String, keymaps: [Keymap]) {
-        self.name = name
-        self.keymaps = keymaps
-    }
-    func lookup(input: InputEvent) -> KeymapEntry? {
-        var found: KeymapEntry? = nil
-        _ = keymaps.first(where: { map in
-            if let entry = map.lookup(input: input) {
-                found = entry
-                return true
-            } else {
-                return false
-            }
-        })
-        // NSLog("Keymap \(name) lookup(\(input)) got \(String(describing: found))")
-        return found
-    }
-    func replace(input: InputEvent, entry: KeymapEntry?) -> Bool {
-        var done = false
-        // もしすでにエントリが存在すれば上書きする
-        _ = keymaps.first(where: { map in
-            if (map.lookup(input: input)) != nil {
-                done = map.replace(input: input, entry: entry)
-                if done {
-                    NSLog("Keymap \(name) replace(\(input)) replaced in submap \(map.name)")
-                }
-                return done
-            } else {
-                return false
-            }
-        })
-        // 存在しなければそのinputで定義できる最初のマップに定義する
-        if !done {
-            _ = keymaps.first(where: { map in
-                done = map.replace(input: input, entry: entry)
-                if (done) {
-                    NSLog("Keymap \(name) replace(\(input)) replaced in submap \(map.name)")
-                }
-                return done
-            })
-        }
-        if !done {
-            NSLog("Keymap \(name) replace(\(input)) not supported")
-        }
-        return done
-    }
-    
-    static func wrap(_ keymap: Keymap?) -> Keymap {
-        if let keymap = keymap {
-            let sparse = SparseMap(keymap.name + "_sparse")
-            let union = UnionMap(keymap.name + "_wrapper", keymaps: [sparse, keymap])
-            return union
-        }
-        NSLog("Given keymap is nil")
-        return SparseMap("nullmap")
+        return true
     }
 }
 
@@ -229,12 +174,12 @@ class KeymapResolver {
             // NSLog("traverse: i=\(i) input: \(keySequence[i]) in keymap: \(map.name)")
             if let next = map.lookup(input: keySequence[i]) {
                 switch next {
-                case .next(let keymap):
+                case .keymap(let keymap):
                     // NSLog("traverse:  got next: keymap \(keymap.name)")
                     lastmap = map
                     map = keymap
                     // continue
-                case .command(_):
+                default:
                     // keySequence[i]で最初にコマンドが得られた
                     // NSLog("traverse found first command: seq: \(keySequence) -> depth \(i) last key \(keySequence[i]) in map \(map.name)")
                     return (i, keySequence[i], map)
@@ -260,22 +205,22 @@ class KeymapResolver {
         let (_, key, map) = traverse(keySequence: keySequence, keymap: keymap)
         if let entry = map.lookup(input: key) {
             switch entry {
-            case .next(_):
+            case .keymap(_):
                 return .pending   // 定義済みシーケンスのprefix部分
-            case .command(let command):
-                return command    // 見つかった。シーケンスの途中でも見つかったらそれを返す
+            default:
+                return entry    // 見つかった。シーケンスの途中でも見つかったらそれを返す
             }
         } else {
             return .passthrough   // このキーマップにそのシーケンスはない
         }
     }
-    static func replace(keySequence: [InputEvent], keymap: Keymap, entry newEntry: KeymapEntry) -> Bool {
+    static func replace(keySequence: [InputEvent], keymap: Keymap, entry newEntry: Command) -> Bool {
         let (_, key, map) = traverse(keySequence: keySequence, keymap: keymap)
         if let entry = map.lookup(input: key) {
             switch entry {
-            case .next(_):
+            case .keymap(_):
                 break      // リプレースしようと思ったところにはすでにキーマップが入ってた
-            case .command(_):
+            default:
                 if map.replace(input: key, entry: newEntry) {
                     return true    // 見つかった。リプレースした
                 }
@@ -288,26 +233,19 @@ class KeymapResolver {
         // 追加できなかった。自動で中間マップを作ったりはしない
         return false
     }
-    static func define(keys: [Int], keymap: Keymap, entry: KeymapEntry) -> Bool {
-        let events = keys.map { InputEvent(type: .printable($0), text: Translator.keyToStr($0)) }
+    static func define(keys: [Int], keymap: Keymap, entry: Command) -> Bool {
+        let events = keys.map { InputEvent(type: .printable, text: Translator.keyToStr($0)) }
         return replace(keySequence: events, keymap: keymap, entry: entry)
-    }
-    static func define(keys: [Int], keymap: Keymap, command: Command) -> Bool {
-        let entry = KeymapEntry.command(command)
-        return define(keys: keys, keymap: keymap, entry: entry)
     }
     static func define(keys: [Int], keymap: Keymap, action: Action) -> Bool {
-        return define(keys: keys, keymap: keymap, command: Command.action(action))
+        return define(keys: keys, keymap: keymap, entry: Command.action(action))
     }
-    static func define(sequence: String, keymap: Keymap, entry: KeymapEntry) -> Bool {
-        let events = sequence.map { InputEvent(type: .printable(Translator.strToKey(String($0))), text: String($0)) }
+    static func define(sequence: String, keymap: Keymap, entry: Command) -> Bool {
+        let events = sequence.map { InputEvent(type: .printable, text: String($0)) }
         return replace(keySequence: events, keymap: keymap, entry: entry)
     }
-    static func define(sequence: String, keymap: Keymap, command: Command) -> Bool {
-        let entry = KeymapEntry.command(command)
-        return define(sequence: sequence, keymap: keymap, entry: entry)
-    }
+    
     static func define(sequence: String, keymap: Keymap, action: Action) -> Bool {
-        return define(sequence: sequence, keymap: keymap, command: Command.action(action))
+        return define(sequence: sequence, keymap: keymap, entry: Command.action(action))
     }
 }

@@ -48,6 +48,10 @@ final class TranslationTests: XCTestCase {
         feed("a ")
         XCTAssertEqual("a", spy.text)
     }
+    func testSendFirstBySpace2() {
+        feed("\\\\ ")
+        XCTAssertEqual("\\\\", spy.text)
+    }
     func testInput() {
         feed("tesoteso")
         XCTAssertEqual("のがのが", spy.text)

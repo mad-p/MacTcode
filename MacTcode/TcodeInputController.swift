@@ -49,12 +49,7 @@ class TcodeMainloop {
                 reset()
                 return true
             }
-            switch topLevelEntry {
-            case .next(_):
-                return false // can't happen
-            case .command(let cmd):
-                command = cmd
-            }
+            command = topLevelEntry
         }
         if command == nil {
             command = KeymapResolver.resolve(keySequence: seq, keymap: TcodeKeymap.map)
@@ -76,6 +71,10 @@ class TcodeMainloop {
                 return true
             case .action(let action):
                 command = action.execute(client: baseInputText, input: seq)
+            case .keymap(_):
+                // can't happen
+                NSLog("handler have Command.keymap???")
+                return false
             }
         }
         return true // can't happen

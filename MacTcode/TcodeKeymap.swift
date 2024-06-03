@@ -9,7 +9,7 @@ import Cocoa
 
 class TcodeKeymap {
     static var map: Keymap = {
-        if let map1 = StrokeKeymap("TCode2D", from2d: """
+        if let map = Keymap("TCode2D", from2d: """
 ■■■■■■■■■■ヮヰヱヵヶ請境系探象ゎゐゑ■■盛革突温捕■■■■■依繊借須訳
 ■■■■■■■■■■丑臼宴縁曳尚賀岸責漁於汚乙穏■益援周域荒■■■■■織父枚乱香
 ■■■■■■■…■■鬼虚狭脅驚舎喜幹丘糖奇既菊却享康徒景処ぜ■■■■■譲ヘ模降走
@@ -51,23 +51,20 @@ class TcodeKeymap {
 替沼?辞献■■■■■ゅ修究答養復並浦ユ冷ぬ展警型誰組選党択体例満津準遊戸ひょ価与
 還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ
 """) {
-            let map2 = SparseMap("TCodeCommandMap")
-            let map3 = UnionMap("TCodeMap", keymaps: [map2, map1])
-            if !(KeymapResolver.define(sequence: "hu", keymap: map3, action: PostfixBushuAction()) &&
-                KeymapResolver.define(sequence: "uh", keymap: map3, action: PostfixMazegakiAction(inflection: false)) &&
-                KeymapResolver.define(sequence: "58", keymap: map3, action: PostfixMazegakiAction(inflection: true))) {
+            if !(KeymapResolver.define(sequence: "hu", keymap: map, action: PostfixBushuAction()) &&
+                KeymapResolver.define(sequence: "uh", keymap: map, action: PostfixMazegakiAction(inflection: false)) &&
+                KeymapResolver.define(sequence: "58", keymap: map, action: PostfixMazegakiAction(inflection: true))) {
                 NSLog("TCodeMap definition error")
             }
-            _ = KeymapResolver.define(sequence: "\\", keymap: map3, entry: KeymapEntry.next(
-                UnionMap.wrap(StrokeKeymap("outset1", fromChars: "√∂『』　《》【】“┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡"))
-                ))
-            _ = KeymapResolver.define(sequence: "\\\\", keymap: map3, entry: KeymapEntry.next(
-                UnionMap.wrap(StrokeKeymap("outset2", fromChars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"))))
+            _ = KeymapResolver.define(sequence: "\\", keymap: map, entry: Command.keymap(
+                Keymap("outset1", fromChars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡")))
+            _ = KeymapResolver.define(sequence: "\\\\", keymap: map, entry: Command.keymap(
+                Keymap("outset2", fromChars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩")))
             
-            return map3
+            return map
         }
         NSLog("TcodeMap definition error")
-        return SparseMap("nullmap")
+        return Keymap("nullmap")
     }()
 }
 
@@ -92,26 +89,21 @@ class ResetAllStateAction: Action {
     func execute(client: any MyInputText, input: [InputEvent]) -> Command {
         return .processed
     }
-    static func isResetAction(entry: KeymapEntry) -> Bool {
+    static func isResetAction(entry: Command) -> Bool {
         switch entry {
-        case .next(_):
+        case .action(let action):
+            return action is ResetAllStateAction
+        default:
             return false
-        case .command(let command):
-            switch command {
-            case .action(let action):
-                return action is ResetAllStateAction
-            default:
-                return false
-            }
         }
     }
 }
 
 class TopLevelMap {
     static var map = {
-        let map = SparseMap("TopLevelMap")
-        _ = map.replace(input: InputEvent(type: .space, text: " "), entry: .command(.action(PendingEmitterAction())))
-        _ = map.replace(input: InputEvent(type: .escape, text: "\033"), entry: .command(.action(ResetAllStateAction())))
+        let map = Keymap("TopLevelMap")
+        _ = map.replace(input: InputEvent(type: .space, text: " "), entry: .action(PendingEmitterAction()))
+        _ = map.replace(input: InputEvent(type: .escape, text: "\u{1b}"), entry: .action(ResetAllStateAction()))
         return map
     }()
 }

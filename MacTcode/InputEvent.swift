@@ -10,8 +10,7 @@ import Foundation
 /// 入力イベントタイプ
 enum InputEventType {
     /// プリンタブル文字
-    /// - Parameter Int: 入力した文字がTコード文字の場合、そのキー番号
-    case printable(_ key: Int?)
+    case printable
     /// エンターキー
     case enter
     /// 矢印キー
@@ -27,9 +26,38 @@ enum InputEventType {
 }
 
 /// 入力イベント
-struct InputEvent {
+struct InputEvent: Hashable, CustomStringConvertible {
     /// タイプ
     var type: InputEventType
     /// キーに対応する文字がある場合、その文字
     var text: String?
+    /// ログ用表現
+    var description: String {
+        let t = if text == nil { "" } else { ", \(text!)" }
+        return "InputEvent(\(type)\(t))"
+    }
+    
+    /// printableのときのみtextを考慮する
+    static func == (lhs: InputEvent, rhs: InputEvent) -> Bool {
+        if lhs.type != rhs.type {
+            return false
+        }
+        switch lhs.type {
+        case .printable:
+            return (lhs.text == rhs.text)
+        default:
+            return true
+        }
+    }
+    
+    /// printableのときのみtextを考慮する
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(type)
+        switch type {
+        case .printable:
+            hasher.combine(text)
+        default:
+            break
+        }
+    }
 }
