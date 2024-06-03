@@ -30,7 +30,7 @@
 		9DEA6D3A2C0AC7F90005BB18 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D392C0AC7F90005BB18 /* Action.swift */; };
 		9DEA6D3E2C0B40320005BB18 /* RecentTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D3D2C0B40320005BB18 /* RecentTextTests.swift */; };
 		9DEA6D402C0B6C680005BB18 /* TranslationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D3F2C0B6C680005BB18 /* TranslationTests.swift */; };
-		9DEA6D422C0B94360005BB18 /* RecentText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D412C0B94360005BB18 /* RecentText.swift */; };
+		9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */; };
 		9DEA6D442C0C0FD10005BB18 /* InputEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */; };
 /* End PBXBuildFile section */
 
@@ -80,7 +80,7 @@
 		9DEA6D392C0AC7F90005BB18 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		9DEA6D3D2C0B40320005BB18 /* RecentTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextTests.swift; sourceTree = "<group>"; };
 		9DEA6D3F2C0B6C680005BB18 /* TranslationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationTests.swift; sourceTree = "<group>"; };
-		9DEA6D412C0B94360005BB18 /* RecentText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentText.swift; sourceTree = "<group>"; };
+		9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextClient.swift; sourceTree = "<group>"; };
 		9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEvent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -150,7 +150,7 @@
 				9DEA6D372C0AC0DA0005BB18 /* Keymap.swift */,
 				9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */,
 				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
-				9DEA6D412C0B94360005BB18 /* RecentText.swift */,
+				9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */,
 				9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */,
 			);
 			path = MacTcode;
@@ -322,7 +322,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */,
-				9DEA6D422C0B94360005BB18 /* RecentText.swift in Sources */,
+				9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */,
 				9DEA6D442C0C0FD10005BB18 /* InputEvent.swift in Sources */,
 				9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,

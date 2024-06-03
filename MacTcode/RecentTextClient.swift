@@ -7,7 +7,7 @@
 
 import Cocoa
 
-class RecentText: MyInputText {
+class RecentTextClient: Client {
     static let maxLength: Int = 20
     var text: String
     init(_ string: String) {
@@ -52,7 +52,7 @@ class RecentText: MyInputText {
         trim()
     }
     func trim() {
-        let m = RecentText.maxLength
+        let m = RecentTextClient.maxLength
         if text.count > m {
             let newStart = text.index(text.endIndex, offsetBy: -m)
             text.replaceSubrange(text.startIndex..<newStart, with: "")
@@ -66,5 +66,45 @@ class RecentText: MyInputText {
     func append(_ newString: String) {
         text.append(newString)
         trim()
+    }
+}
+
+/// クライアントのカーソル周辺の文字列、もし得られなければrecentCharsを扱うMyInputText
+/// clientをMyInputTextにしておくことで、テストのときにclientをspyとして使える
+class MirroringClient: Client {
+    let client: Client
+    let recent: RecentTextClient
+    let target: Client
+    let useRecent: Bool
+    init(client: Client, recent: RecentTextClient) {
+        self.client = client
+        self.recent = recent
+        let cursor = client.selectedRange()
+        (target, useRecent) = if cursor.location == NSNotFound {
+            (recent, true)
+        } else {
+            (client, false)
+        }
+    }
+    func selectedRange() -> NSRange {
+        return target.selectedRange()
+    }
+    func string(
+        from range: NSRange,
+        actualRange: NSRangePointer!
+    ) -> String! {
+        return target.string(from: range, actualRange: actualRange)
+    }
+    func insertText(
+        _ string: String!,
+        replacementRange rr: NSRange
+    ) {
+        target.insertText(string, replacementRange: rr)
+        if !useRecent {
+            recent.append(string)
+        }
+    }
+    func sendBackspace() {
+        target.sendBackspace()
     }
 }

@@ -10,14 +10,14 @@ import Cocoa
 @testable import MacTcode
 
 final class TranslationTests: XCTestCase {
-    var mainloop: TcodeMainloop!
-    var spy: RecentText!
+    var mainloop: TcodeMode!
+    var spy: RecentTextClient!
     
-    func stubCharEvent(_ char: String) -> NSEvent {
-        return NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: 0)!
+    func stubCharEvent(_ char: String) -> InputEvent {
+        return Translator.translate(event: NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: 0)!)
     }
-    func stubCodeEvent(_ code: Int, char: String = "a") -> NSEvent {
-        return NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: UInt16(code))!
+    func stubCodeEvent(_ code: Int, char: String = "a") -> InputEvent {
+        return Translator.translate(event: NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: UInt16(code))!)
     }
     func feed(_ sequence: String) {
         sequence.forEach { char in
@@ -29,8 +29,8 @@ final class TranslationTests: XCTestCase {
 
     override func setUpWithError() throws {
         super.setUp()
-        spy = RecentText("")
-        mainloop = TcodeMainloop()
+        spy = RecentTextClient("")
+        mainloop = TcodeMode()
         NSLog("setUp!")
     }
     

@@ -68,37 +68,6 @@ class TcodeKeymap {
     }()
 }
 
-class PendingEmitterAction: Action {
-    func execute(client: any MyInputText, input: [InputEvent]) -> Command {
-        let range: Range<Int> = if input.count == 1 {
-            0..<1 // only the last
-        } else {
-            0..<input.count - 1 // all but last
-        }
-        if input.count >= 1 {
-            let str = range.map { i in
-                input[i].text ?? ""
-            }.joined()
-            return .text(str)
-        }
-        return .processed
-    }
-}
-
-class ResetAllStateAction: Action {
-    func execute(client: any MyInputText, input: [InputEvent]) -> Command {
-        return .processed
-    }
-    static func isResetAction(entry: Command) -> Bool {
-        switch entry {
-        case .action(let action):
-            return action is ResetAllStateAction
-        default:
-            return false
-        }
-    }
-}
-
 class TopLevelMap {
     static var map = {
         let map = Keymap("TopLevelMap")

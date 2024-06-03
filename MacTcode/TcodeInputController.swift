@@ -11,11 +11,11 @@ import InputMethodKit
 @objc(TcodeInputController)
 class TcodeInputController: IMKInputController {
     // private var candidatesWindow: IMKCandidates = IMKCandidates()
-    let mainloop: TcodeMainloop
+    let mode: TcodeMode
     
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         // self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleColumnScrollingCandidatePanel)
-        mainloop = TcodeMainloop()
+        mode = TcodeMode()
         super.init(server: server, delegate: delegate, client: inputClient)
         NSLog("TcodeInputController: init")
     }
@@ -24,20 +24,21 @@ class TcodeInputController: IMKInputController {
         guard let client = sender as? IMKTextInput else {
             return false
         }
-        return mainloop.handle(event, client: Wrapper(client))
+        let inputEvent = Translator.translate(event: event)
+        return mode.handle(inputEvent, client: ClientWrapper(client))
     }
 
 }
 
-class TcodeMainloop {
-    var recentText = RecentText("")
+class TcodeMode {
+    var recentText = RecentTextClient("")
     var pending: [InputEvent] = []
     func reset() {
-        recentText = RecentText("")
+        recentText = RecentTextClient("")
         pending = []
     }
-    func handle(_ event: NSEvent!, client: MyInputText!) -> Bool {
-        let inputEvent = Translator.translate(event: event)
+    func handle(_ inputEvent: InputEvent, client: Client!) -> Bool {
+        let baseInputText = MirroringClient(client: client, recent: recentText)
         let seq = pending + [inputEvent]
         pending = []
         // TODO pendingを処理するコマンドだけ、resolveより前に処理しなければならない
@@ -56,7 +57,6 @@ class TcodeMainloop {
         }
         while command != nil {
             NSLog("execute command \(command!);  recentText = \(recentText.text)")
-            let baseInputText = BaseInputText(client: client, recent: recentText)
             
             switch command! {
             case .passthrough:
@@ -82,7 +82,7 @@ class TcodeMainloop {
 }
 
 /// IMKTextInputをMyInputTextに見せかけるラッパー
-class Wrapper: MyInputText {
+class ClientWrapper: Client {
     let client: IMKTextInput
     init(_ client: IMKTextInput!) {
         self.client = client
@@ -109,45 +109,5 @@ class Wrapper: MyInputText {
         
         backspaceDown?.post(tap: .cghidEventTap)
         backspaceUp?.post(tap: .cghidEventTap)
-    }
-}
-
-/// クライアントのカーソル周辺の文字列、もし得られなければrecentCharsを扱うMyInputText
-/// clientをMyInputTextにしておくことで、テストのときにclientをspyとして使える
-class BaseInputText: MyInputText {
-    let client: MyInputText
-    let recent: RecentText
-    let target: MyInputText
-    let useRecent: Bool
-    init(client: MyInputText, recent: RecentText) {
-        self.client = client
-        self.recent = recent
-        let cursor = client.selectedRange()
-        (target, useRecent) = if cursor.location == NSNotFound {
-            (recent, true)
-        } else {
-            (client, false)
-        }
-    }
-    func selectedRange() -> NSRange {
-        return target.selectedRange()
-    }
-    func string(
-        from range: NSRange,
-        actualRange: NSRangePointer!
-    ) -> String! {
-        return target.string(from: range, actualRange: actualRange)
-    }
-    func insertText(
-        _ string: String!,
-        replacementRange rr: NSRange
-    ) {
-        target.insertText(string, replacementRange: rr)
-        if !useRecent {
-            recent.append(string)
-        }
-    }
-    func sendBackspace() {
-        target.sendBackspace()
     }
 }
