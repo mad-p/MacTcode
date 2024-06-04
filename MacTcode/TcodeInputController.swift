@@ -9,10 +9,10 @@ import Cocoa
 import InputMethodKit
 
 @objc(TcodeInputController)
-class TcodeInputController: IMKInputController {
+class TcodeInputController: IMKInputController, ModeHolder {
     // private var candidatesWindow: IMKCandidates = IMKCandidates()
-    let mode: TcodeMode
-    
+    var mode: Mode
+
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         // self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleColumnScrollingCandidatePanel)
         mode = TcodeMode()
@@ -25,52 +25,65 @@ class TcodeInputController: IMKInputController {
             return false
         }
         let inputEvent = Translator.translate(event: event)
-        return mode.handle(inputEvent, client: ClientWrapper(client))
+        return mode.handle(inputEvent, client: ClientWrapper(client), modeHolder: self)
     }
 
+    func setMode(_ mode: Mode) {
+        self.mode = mode
+    }
 }
 
-class TcodeMode {
+class TcodeMode: Mode, MultiStroke {
     var recentText = RecentTextClient("")
     var pending: [InputEvent] = []
-    func reset() {
-        recentText = RecentTextClient("")
+    var map = TcodeKeymap.map
+    var quickMap: Keymap = TopLevelMap.map
+    func resetPending() {
         pending = []
     }
-    func handle(_ inputEvent: InputEvent, client: Client!) -> Bool {
+    func reset() {
+        recentText = RecentTextClient("")
+        resetPending()
+    }
+    func removeLastPending() {
+        if pending.count > 0 {
+            pending.removeLast()
+        }
+    }
+    func handle(_ inputEvent: InputEvent, client: Client!, modeHolder: ModeHolder) -> Bool {
         let baseInputText = MirroringClient(client: client, recent: recentText)
         let seq = pending + [inputEvent]
-        pending = []
-        // TODO pendingを処理するコマンドだけ、resolveより前に処理しなければならない
+        
+        // 複数キーからなるキーシーケンスの途中でも処理するコマンドはquickMapに入れておく
         // - spaceでpendingを送る
         // - escapeで取り消す
-        var command: Command? = nil
-        if let topLevelEntry = TopLevelMap.map.lookup(input: inputEvent) {
-            if ResetAllStateAction.isResetAction(entry: topLevelEntry) {
-                reset()
-                return true
-            }
-            command = topLevelEntry
-        }
-        if command == nil {
-            command = KeymapResolver.resolve(keySequence: seq, keymap: TcodeKeymap.map)
+        // - deleteで1文字消す
+        var command: Command? =
+        if let topLevelEntry = quickMap.lookup(input: inputEvent) {
+            topLevelEntry
+        } else {
+            KeymapResolver.resolve(keySequence: seq, keymap: map)
         }
         while command != nil {
             NSLog("execute command \(command!);  recentText = \(recentText.text)")
             
             switch command! {
             case .passthrough:
+                resetPending()
                 return false
             case .processed:
+                resetPending()
                 return true
             case .pending:
                 pending = seq
                 return true
             case .text(let string):
+                resetPending()
                 baseInputText.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 return true
             case .action(let action):
-                command = action.execute(client: baseInputText, input: seq)
+                command = action.execute(client: baseInputText, mode: self, modeHolder: modeHolder)
+                resetPending()
             case .keymap(_):
                 // can't happen
                 NSLog("handler have Command.keymap???")

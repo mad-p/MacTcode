@@ -144,7 +144,7 @@ class PostfixMazegakiAction: Action {
     init(inflection: Bool) {
         self.inflection = inflection
     }
-    func execute(client: Client, input: [InputEvent]) -> Command {
+    func execute(client: Client, mode: Mode, modeHolder: ModeHolder) -> Command {
         let cursor = client.selectedRange()
         var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
         

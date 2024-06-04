@@ -10,8 +10,18 @@ import Cocoa
 @testable import MacTcode
 
 final class TranslationTests: XCTestCase {
-    var mainloop: TcodeMode!
+    var mode: TcodeMode!
     var spy: RecentTextClient!
+    
+    class HolderSpy: ModeHolder {
+        var mode: Mode
+        init(mode: Mode) {
+            self.mode = mode
+        }
+        func setMode(_ mode: Mode) {
+            self.mode = mode
+        }
+    }
     
     func stubCharEvent(_ char: String) -> InputEvent {
         return Translator.translate(event: NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: 0)!)
@@ -22,7 +32,7 @@ final class TranslationTests: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = mainloop.handle(event, client: spy)
+            let ret = mode.handle(event, client: spy, modeHolder: HolderSpy(mode: mode))
             XCTAssertTrue(ret)
         }
     }
@@ -30,18 +40,18 @@ final class TranslationTests: XCTestCase {
     override func setUpWithError() throws {
         super.setUp()
         spy = RecentTextClient("")
-        mainloop = TcodeMode()
+        mode = TcodeMode()
         NSLog("setUp!")
     }
     
     override func tearDownWithError() throws {
-        mainloop = nil
+        mode = nil
         super.tearDown()
     }
     
     func testPassthrough() {
         let event = stubCharEvent("A")
-        let ret = mainloop.handle(event, client: spy)
+        let ret = mode.handle(event, client: spy, modeHolder: HolderSpy(mode: mode))
         XCTAssertFalse(ret)
     }
     func testSendFirstBySpace() {

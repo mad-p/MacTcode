@@ -96,12 +96,9 @@ class Keymap {
     init(_ name: String) {
         self.name = name
     }
-    init!(_ name: String, fromArray chars: [String]) {
+    init(_ name: String, fromArray chars: [String]) {
         self.name = name
-        guard chars.count == nKeys else {
-            NSLog("Keymap \(name) fromChars: must have \(nKeys) characters")
-            return nil
-        }
+        precondition(chars.count == nKeys, "Keymap \(name) fromChars: must have \(nKeys) characters")
         for i in 0..<nKeys {
             let key = InputEvent(type: .printable, text: Translator.keyToStr(i))
             add(key, .text(chars[i]))
@@ -110,26 +107,19 @@ class Keymap {
     convenience init!(_ name: String, fromChars chars: String) {
         self.init(name, fromArray: chars.map{String($0)})
     }
-    init!(_ name: String, from2d: String!) {
+    init(_ name: String, from2d: String!) {
         self.name = name
         let table = from2d.components(separatedBy: "\n").map { $0.map { String($0) }}
-        guard table.count == nKeys else {
-            NSLog("2Dkeymap \(name) from2d: must have \(nKeys) lines")
-            return nil
-        }
-        
+        precondition(table.count == nKeys, "2Dkeymap \(name) from2d: must have \(nKeys) lines")
         // check if we have exactly nKeys in each row
-        var failed = false
+        var ok = true
         for j in 0..<nKeys {
             if table[j].count != nKeys {
                 NSLog("2DKeymap \(name) row \(j) must have \(nKeys) chars")
-                failed = true
+                ok = false
             }
         }
-        if failed {
-            NSLog("2DKeymap \(name) from2d: had erroneous definition")
-            return nil
-        }
+        precondition(ok, "2DKeymap \(name) from2d: had erroneous definition in rows")
         
         // i: first stroke (column in table)
         for i in 0..<nKeys {
@@ -147,14 +137,16 @@ class Keymap {
         return map[input]
     }
     func add(_ key: InputEvent, _ entry: Command) {
-        NSLog("Keymap \(name) add(\(key) set new entry \(String(describing: entry))")
+        if map[key] != nil {
+            NSLog("Keymap \(name) replace \(key) to new entry \(String(describing: entry))")
+        }
         map[key] = entry
     }
     func replace(input: InputEvent, entry: Command?) -> Bool {
         if let e = entry {
             add(input, e)
         } else {
-            NSLog("Keymap \(name) replace(\(input)) cleared entry")
+            NSLog("Keymap \(name) undefine \(input)")
             map.removeValue(forKey: input)
         }
         return true

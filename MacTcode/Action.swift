@@ -7,50 +7,44 @@
 
 import Cocoa
 
-protocol Client {
-    func selectedRange() -> NSRange
-    func string(
-        from range: NSRange,
-        actualRange: NSRangePointer!
-    ) -> String!
-    func insertText(
-        _ string: String!,
-        replacementRange: NSRange
-    )
-    func sendBackspace()
-}
-
 protocol Action {
-    func execute(client: Client, input: [InputEvent]) -> Command
+    func execute(client: Client, mode: Mode, modeHolder: ModeHolder) -> Command
 }
 
-class PendingEmitterAction: Action {
-    func execute(client: any Client, input: [InputEvent]) -> Command {
-        let range: Range<Int> = if input.count == 1 {
-            0..<1 // only the last
-        } else {
-            0..<input.count - 1 // all but last
-        }
-        if input.count >= 1 {
-            let str = range.map { i in
-                input[i].text ?? ""
-            }.joined()
-            return .text(str)
+/// キーシーケンスのprefixとしてたまっているものを入力する
+class EmitPendingAction: Action {
+    func execute(client: any Client, mode: Mode, modeHolder: ModeHolder) -> Command {
+        if let pending = mode as? MultiStroke {
+            let input = pending.pending
+            if input.count > 0 {
+                let str = input.map { $0.text ?? "" }.joined()
+                return .text(str)
+            }
         }
         return .processed
     }
 }
 
+/// キーシーケンスの途中だったら最後のものを消す
+/// シーケンスでなければ、入力イベントをそのままクライアントに渡す
+class RemoveLastPendingAction: Action {
+    func execute(client: any Client, mode: Mode, modeHolder: ModeHolder) -> Command {
+        if let pending = mode as? MultiStroke {
+            if pending.pending.count > 0 {
+                // pendingキーがあればひとつずつ消す
+                pending.removeLastPending()
+            }
+            return .processed
+        }
+        // なければそのままクライアントに送る
+        return .passthrough
+    }
+}
+
+/// 途中までのキーシーケンス、入力モードなどを全部キャンセルする
 class ResetAllStateAction: Action {
-    func execute(client: any Client, input: [InputEvent]) -> Command {
+    func execute(client: any Client, mode: Mode, modeHolder: ModeHolder) -> Command {
+        mode.reset()
         return .processed
-    }
-    static func isResetAction(entry: Command) -> Bool {
-        switch entry {
-        case .action(let action):
-            return action is ResetAllStateAction
-        default:
-            return false
-        }
     }
 }

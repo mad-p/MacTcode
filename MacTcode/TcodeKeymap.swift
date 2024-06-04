@@ -9,7 +9,7 @@ import Cocoa
 
 class TcodeKeymap {
     static var map: Keymap = {
-        if let map = Keymap("TCode2D", from2d: """
+        let map = Keymap("TCode2D", from2d: """
 ■■■■■■■■■■ヮヰヱヵヶ請境系探象ゎゐゑ■■盛革突温捕■■■■■依繊借須訳
 ■■■■■■■■■■丑臼宴縁曳尚賀岸責漁於汚乙穏■益援周域荒■■■■■織父枚乱香
 ■■■■■■■…■■鬼虚狭脅驚舎喜幹丘糖奇既菊却享康徒景処ぜ■■■■■譲ヘ模降走
@@ -50,29 +50,27 @@ class TcodeKeymap {
 留列刻豆看■■↓■■竹注介具失司迎華許補左態花栄ザ調混ポ決ミ州払乗庫状団計夫食総
 替沼?辞献■■■■■ゅ修究答養復並浦ユ冷ぬ展警型誰組選党択体例満津準遊戸ひょ価与
 還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ
-""") {
-            if !(KeymapResolver.define(sequence: "hu", keymap: map, action: PostfixBushuAction()) &&
-                KeymapResolver.define(sequence: "uh", keymap: map, action: PostfixMazegakiAction(inflection: false)) &&
-                KeymapResolver.define(sequence: "58", keymap: map, action: PostfixMazegakiAction(inflection: true))) {
-                NSLog("TCodeMap definition error")
-            }
-            _ = KeymapResolver.define(sequence: "\\", keymap: map, entry: Command.keymap(
-                Keymap("outset1", fromChars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡")))
-            _ = KeymapResolver.define(sequence: "\\\\", keymap: map, entry: Command.keymap(
-                Keymap("outset2", fromChars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩")))
-            
-            return map
+""")
+        if !(KeymapResolver.define(sequence: "hu", keymap: map, action: PostfixBushuAction()) &&
+             KeymapResolver.define(sequence: "uh", keymap: map, action: PostfixMazegakiAction(inflection: false)) &&
+             KeymapResolver.define(sequence: "58", keymap: map, action: PostfixMazegakiAction(inflection: true))) {
+            NSLog("TCodeMap definition error")
         }
-        NSLog("TcodeMap definition error")
-        return Keymap("nullmap")
+        _ = KeymapResolver.define(sequence: "\\", keymap: map, entry: Command.keymap(
+            Keymap("outset1", fromChars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡")))
+        _ = KeymapResolver.define(sequence: "\\\\", keymap: map, entry: Command.keymap(
+            Keymap("outset2", fromChars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩")))
+        
+        return map
     }()
 }
 
 class TopLevelMap {
     static var map = {
         let map = Keymap("TopLevelMap")
-        _ = map.replace(input: InputEvent(type: .space, text: " "), entry: .action(PendingEmitterAction()))
+        _ = map.replace(input: InputEvent(type: .space, text: " "), entry: .action(EmitPendingAction()))
         _ = map.replace(input: InputEvent(type: .escape, text: "\u{1b}"), entry: .action(ResetAllStateAction()))
+        _ = map.replace(input: InputEvent(type: .delete, text: "\u{08}"), entry: .action(RemoveLastPendingAction()))
         return map
     }()
 }

@@ -32,6 +32,8 @@
 		9DEA6D402C0B6C680005BB18 /* TranslationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D3F2C0B6C680005BB18 /* TranslationTests.swift */; };
 		9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */; };
 		9DEA6D442C0C0FD10005BB18 /* InputEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */; };
+		9DEA6D462C0E45950005BB18 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D452C0E45950005BB18 /* Client.swift */; };
+		9DEA6D482C0EB0430005BB18 /* Mode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D472C0EB0430005BB18 /* Mode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +84,8 @@
 		9DEA6D3F2C0B6C680005BB18 /* TranslationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationTests.swift; sourceTree = "<group>"; };
 		9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextClient.swift; sourceTree = "<group>"; };
 		9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEvent.swift; sourceTree = "<group>"; };
+		9DEA6D452C0E45950005BB18 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		9DEA6D472C0EB0430005BB18 /* Mode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +141,7 @@
 				9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */,
 				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
 				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
+				9DEA6D472C0EB0430005BB18 /* Mode.swift */,
 				9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */,
 				9D0F3CE02C04D570005A0CAC /* Config.swift */,
 				9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */,
@@ -152,6 +157,7 @@
 				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
 				9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */,
 				9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */,
+				9DEA6D452C0E45950005BB18 /* Client.swift */,
 			);
 			path = MacTcode;
 			sourceTree = "<group>";
@@ -323,8 +329,10 @@
 			files = (
 				9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */,
 				9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */,
+				9DEA6D482C0EB0430005BB18 /* Mode.swift in Sources */,
 				9DEA6D442C0C0FD10005BB18 /* InputEvent.swift in Sources */,
 				9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */,
+				9DEA6D462C0E45950005BB18 /* Client.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
 				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
 				9DEA6D382C0AC0DA0005BB18 /* Keymap.swift in Sources */,
@@ -512,7 +520,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -543,7 +551,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.3.1;
+				MARKETING_VERSION = 1.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
