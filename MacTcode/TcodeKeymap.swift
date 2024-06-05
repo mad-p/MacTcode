@@ -51,14 +51,13 @@ class TcodeKeymap {
 替沼?辞献■■■■■ゅ修究答養復並浦ユ冷ぬ展警型誰組選党択体例満津準遊戸ひょ価与
 還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ
 """)
-        if !(KeymapResolver.define(sequence: "hu", keymap: map, action: PostfixBushuAction()) &&
-             KeymapResolver.define(sequence: "uh", keymap: map, action: PostfixMazegakiAction(inflection: false)) &&
-             KeymapResolver.define(sequence: "58", keymap: map, action: PostfixMazegakiAction(inflection: true))) {
-            NSLog("TCodeMap definition error")
-        }
-        _ = KeymapResolver.define(sequence: "\\", keymap: map, entry: Command.keymap(
+        KeymapResolver.define(sequence: "hu", keymap: map, action: PostfixBushuAction())
+        KeymapResolver.define(sequence: "uh", keymap: map, action: PostfixMazegakiAction(inflection: false))
+        KeymapResolver.define(sequence: "58", keymap: map, action: PostfixMazegakiAction(inflection: true))
+        KeymapResolver.define(sequence: "90", keymap: map, action: ZenkakuModeAction())
+        KeymapResolver.define(sequence: "\\", keymap: map, entry: Command.keymap(
             Keymap("outset1", fromChars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡")))
-        _ = KeymapResolver.define(sequence: "\\\\", keymap: map, entry: Command.keymap(
+        KeymapResolver.define(sequence: "\\\\", keymap: map, entry: Command.keymap(
             Keymap("outset2", fromChars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩")))
         
         return map
@@ -68,9 +67,9 @@ class TcodeKeymap {
 class TopLevelMap {
     static var map = {
         let map = Keymap("TopLevelMap")
-        _ = map.replace(input: InputEvent(type: .space, text: " "), entry: .action(EmitPendingAction()))
-        _ = map.replace(input: InputEvent(type: .escape, text: "\u{1b}"), entry: .action(ResetAllStateAction()))
-        _ = map.replace(input: InputEvent(type: .delete, text: "\u{08}"), entry: .action(RemoveLastPendingAction()))
+        map.replace(input: InputEvent(type: .space, text: " "), entry: .action(EmitPendingAction()))
+        map.replace(input: InputEvent(type: .escape, text: "\u{1b}"), entry: .action(ResetAllStateAction()))
+        map.replace(input: InputEvent(type: .delete, text: "\u{08}"), entry: .action(RemoveLastPendingAction()))
         return map
     }()
 }

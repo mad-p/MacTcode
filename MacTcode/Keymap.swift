@@ -142,14 +142,13 @@ class Keymap {
         }
         map[key] = entry
     }
-    func replace(input: InputEvent, entry: Command?) -> Bool {
+    func replace(input: InputEvent, entry: Command?) {
         if let e = entry {
             add(input, e)
         } else {
             NSLog("Keymap \(name) undefine \(input)")
             map.removeValue(forKey: input)
         }
-        return true
     }
 }
 
@@ -206,38 +205,32 @@ class KeymapResolver {
             return .passthrough   // このキーマップにそのシーケンスはない
         }
     }
-    static func replace(keySequence: [InputEvent], keymap: Keymap, entry newEntry: Command) -> Bool {
+    static func replace(keySequence: [InputEvent], keymap: Keymap, entry newEntry: Command) {
         let (_, key, map) = traverse(keySequence: keySequence, keymap: keymap)
         if let entry = map.lookup(input: key) {
             switch entry {
             case .keymap(_):
                 break      // リプレースしようと思ったところにはすでにキーマップが入ってた
             default:
-                if map.replace(input: key, entry: newEntry) {
-                    return true    // 見つかった。リプレースした
-                }
+                map.replace(input: key, entry: newEntry)
             }
         }
-        // 最後に探索した場所に追加できればする
-        if map.replace(input: key, entry: newEntry) {
-            return true
-        }
-        // 追加できなかった。自動で中間マップを作ったりはしない
-        return false
+        // 最後に探索した場所に追加する
+        map.replace(input: key, entry: newEntry)
     }
-    static func define(keys: [Int], keymap: Keymap, entry: Command) -> Bool {
+    static func define(keys: [Int], keymap: Keymap, entry: Command) {
         let events = keys.map { InputEvent(type: .printable, text: Translator.keyToStr($0)) }
-        return replace(keySequence: events, keymap: keymap, entry: entry)
+        replace(keySequence: events, keymap: keymap, entry: entry)
     }
-    static func define(keys: [Int], keymap: Keymap, action: Action) -> Bool {
-        return define(keys: keys, keymap: keymap, entry: Command.action(action))
+    static func define(keys: [Int], keymap: Keymap, action: Action) {
+        define(keys: keys, keymap: keymap, entry: Command.action(action))
     }
-    static func define(sequence: String, keymap: Keymap, entry: Command) -> Bool {
+    static func define(sequence: String, keymap: Keymap, entry: Command) {
         let events = sequence.map { InputEvent(type: .printable, text: String($0)) }
-        return replace(keySequence: events, keymap: keymap, entry: entry)
+        replace(keySequence: events, keymap: keymap, entry: entry)
     }
     
-    static func define(sequence: String, keymap: Keymap, action: Action) -> Bool {
-        return define(sequence: sequence, keymap: keymap, entry: Command.action(action))
+    static func define(sequence: String, keymap: Keymap, action: Action) {
+        define(sequence: sequence, keymap: keymap, entry: Command.action(action))
     }
 }

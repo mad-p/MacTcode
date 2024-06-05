@@ -85,9 +85,7 @@ class TcodeMode: Mode, MultiStroke {
                 command = action.execute(client: baseInputText, mode: self, modeHolder: modeHolder)
                 resetPending()
             case .keymap(_):
-                // can't happen
-                NSLog("handler have Command.keymap???")
-                return false
+                preconditionFailure("Keymap resolved to .keymap??")
             }
         }
         return true // can't happen

@@ -33,8 +33,8 @@ class RemoveLastPendingAction: Action {
             if pending.pending.count > 0 {
                 // pendingキーがあればひとつずつ消す
                 pending.removeLastPending()
+                return .processed
             }
-            return .processed
         }
         // なければそのままクライアントに送る
         return .passthrough

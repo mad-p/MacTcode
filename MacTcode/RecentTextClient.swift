@@ -8,10 +8,11 @@
 import Cocoa
 
 class RecentTextClient: Client {
-    static let maxLength: Int = 20
+    var maxLength: Int = 20
     var text: String
-    init(_ string: String) {
+    init(_ string: String, _ maxLengeth: Int = 20) {
         self.text = string
+        self.maxLength = maxLengeth
     }
     func selectedRange() -> NSRange {
         return NSRange(location: text.count, length: 0)
@@ -52,7 +53,7 @@ class RecentTextClient: Client {
         trim()
     }
     func trim() {
-        let m = RecentTextClient.maxLength
+        let m = maxLength
         if text.count > m {
             let newStart = text.index(text.endIndex, offsetBy: -m)
             text.replaceSubrange(text.startIndex..<newStart, with: "")
