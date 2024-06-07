@@ -83,7 +83,7 @@ class Translator {
                 }
             }
         }
-        let event = InputEvent(type: type, text: text)
+        let event = InputEvent(type: type, text: text, event: event)
         NSLog("  translated to \(event)")
         return event
     }

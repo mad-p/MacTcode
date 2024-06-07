@@ -5,7 +5,7 @@
 //  Created by maeda on 2024/06/02.
 //
 
-import Foundation
+import Cocoa
 
 /// 入力イベントタイプ
 enum InputEventType {
@@ -31,6 +31,8 @@ struct InputEvent: Hashable, CustomStringConvertible {
     var type: InputEventType
     /// キーに対応する文字がある場合、その文字
     var text: String?
+    /// 元となったイベント
+    var event: NSEvent
     /// ログ用表現
     var description: String {
         let t = if text == nil { "" } else { ", \(text!)" }
