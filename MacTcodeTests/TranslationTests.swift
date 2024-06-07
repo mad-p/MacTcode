@@ -55,8 +55,8 @@ final class TranslationTests: XCTestCase {
         XCTAssertFalse(ret)
     }
     func testSendFirstBySpace() {
-        feed("a ")
-        XCTAssertEqual("a", spy.text)
+        feed(" a  ")
+        XCTAssertEqual(" a ", spy.text)
     }
     func testSendFirstBySpace2() {
         feed("\\\\ ")

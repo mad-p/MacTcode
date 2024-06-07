@@ -21,7 +21,7 @@ class EmitPendingAction: Action {
                 return .text(str)
             }
         }
-        return .processed
+        return .text(" ")
     }
 }
 
