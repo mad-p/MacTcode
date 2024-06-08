@@ -195,7 +195,9 @@ class PostfixMazegakiAction: Action {
             NSLog("Mazegaki: sole candidate: \(string)")
             client.insertText(string, replacementRange: target)
         } else {
-            controller.pushMode(MazegakiSelectionMode(controller: controller, mazegaki: mazegaki, target: target))
+            let newMode = MazegakiSelectionMode(controller: controller, mazegaki: mazegaki, target: target)
+            controller.pushMode(newMode)
+            newMode.showWindow()
             NSLog("Mazegaki: more than one candidates: \(candidates)")
         }
         return .processed
@@ -213,12 +215,37 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         self.mazegaki = mazegaki
         self.target = target
         self.candidateWindow = controller.candidateWindow
+        NSLog("MazegakiSelectionMode.init")
+    }
+    func showWindow() {
+        candidateWindow.update()
         candidateWindow.show()
     }
     func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
+        NSLog("MazegakiSelectionMode.handle: \(inputEvent) \(client!) \(controller)")
+        if let selectKeys = candidateWindow.selectionKeys() as? [Int] {
+            NSLog("  selectKeys = \(selectKeys)")
+            if let keyCode = inputEvent.event?.keyCode {
+                NSLog("  keyCode = \(Int(keyCode))")
+                if let index = selectKeys.firstIndex(of: Int(keyCode)) {
+                    NSLog("  index = \(index)")
+                    if let hit = mazegaki.find(hit) {
+                        let candidates = hit.candidates()
+                        if index < candidates.count {
+                            let text = candidates[index]
+                            NSLog("  Candate selected \(text) by key \(inputEvent)")
+                            client.insertText(text, replacementRange: target)
+                            cancel()
+                            return true
+                        }
+                    }
+                }
+            }
+        }
         switch inputEvent.type {
         case .printable, .enter, .left, .right, .up, .down, .space:
             if let event = inputEvent.event {
+                NSLog("Forward to candidateWindow: \([event])")
                 candidateWindow.interpretKeyEvents([event])
             }
             return true
@@ -231,6 +258,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     }
     
     func cancel() {
+        NSLog("MazegakiSelectionMode.cancel")
         candidateWindow.hide()
         controller.popMode()
     }
@@ -238,7 +266,8 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     }
     
     func candidates(_ sender: Any!) -> [Any]! {
-        hit = mazegaki.find(hit)
+        NSLog("MazegakiSelectionMode.candidates")
+        let hit = mazegaki.find(hit)
         if hit == nil {
             cancel()
             return []

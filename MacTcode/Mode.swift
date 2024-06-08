@@ -31,6 +31,8 @@ protocol Controller {
 }
 
 protocol ModeWithCandidates {
+    /// 変換候補Windowを表示する
+    func showWindow()
     /// 変換候補を返す
     func candidates(_ sender: Any!) -> [Any]!
     /// 候補選択された

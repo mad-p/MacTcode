@@ -24,7 +24,7 @@ class TcodeInputController: IMKInputController, Controller {
     }
     
     func setupCandidateWindow() {
-        candidateWindow.setSelectionKeys([
+        let selectionKeys = [
             kVK_ANSI_J,
             kVK_ANSI_K,
             kVK_ANSI_L,
@@ -39,7 +39,9 @@ class TcodeInputController: IMKInputController, Controller {
             kVK_ANSI_8,
             kVK_ANSI_9,
             kVK_ANSI_0,
-        ])
+        ]
+        candidateWindow.setSelectionKeys(selectionKeys)
+        NSLog("selection keys = \(selectionKeys)")
     }
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
@@ -52,7 +54,9 @@ class TcodeInputController: IMKInputController, Controller {
     
     override func candidates(_ sender: Any!) -> [Any]! {
         if let modeWithCandidates = mode as? ModeWithCandidates {
-            return modeWithCandidates.candidates(sender)
+            let ret = modeWithCandidates.candidates(sender)
+            NSLog("TcodeInputController.candidates: returns \(ret!)")
+            return ret
         } else {
             NSLog("*** TcodeInputController.candidates: called for non-ModeWithCandidates???")
             return []
@@ -60,6 +64,7 @@ class TcodeInputController: IMKInputController, Controller {
     }
     
     override func candidateSelected(_ candidateString: NSAttributedString!) {
+        NSLog("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             if let client = self.client as? IMKTextInput {
                 modeWithCandidates.candidateSelected(candidateString, client: ClientWrapper(client))
@@ -72,6 +77,7 @@ class TcodeInputController: IMKInputController, Controller {
     }
     
     override func candidateSelectionChanged(_ candidateString: NSAttributedString!) {
+        NSLog("TcodeInputController.candidateSelectionChanged: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             modeWithCandidates.candidateSelectionChanged(candidateString)
         } else {
@@ -85,6 +91,7 @@ class TcodeInputController: IMKInputController, Controller {
         }
     }
     func pushMode(_ mode: Mode) {
+        NSLog("TcodeInputController.pushMode: \(mode)")
         modeStack = [mode] + modeStack
     }
     func popMode() {

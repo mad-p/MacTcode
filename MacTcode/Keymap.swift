@@ -53,35 +53,52 @@ class Translator {
             false
         }
         
-        let type: InputEventType =
+        var flags = ""
+        if event.modifierFlags.contains(.option) {
+            flags.append(" options")
+        }
+        if event.modifierFlags.contains(.command) {
+            flags.append(" command")
+        }
+        if event.modifierFlags.contains(.function) {
+            flags.append(" function")
+        }
+        if event.modifierFlags.contains(.control) {
+            flags.append(" control")
+        }
+        NSLog(" modifierFlags: \(flags)")
+        
+        var type: InputEventType = .unknown
         if event.modifierFlags.contains(.option)
             || event.modifierFlags.contains(.command)
-            || event.modifierFlags.contains(.function)
         {
-            .unknown
+            type = .unknown
         } else if printable {
             if text != nil && " ',.-=/;".contains(text!) && event.modifierFlags.contains(.control) {
-                .control_punct
+                type = .control_punct
             } else if text == " " {
-                .space
+                type = .space
             } else {
-                .printable
+                type = .printable
             }
         } else {
             switch(text) {
-            case " ": .space
-            case "\u{08}": .delete
-            case "\n": .enter
-            case "\u{1b}": .escape
+            case " ":      type = .space
+            case "\u{08}": type = .delete
+            case "\n":     type = .enter
+            case "\u{1b}": type = .escape
             default:
+                NSLog("Translate by keycode")
                 switch(event.keyCode) {
-                case 38: .enter
-                case 123: .left
-                case 124: .right
-                case 125: .down
-                case 126: .up
-                case 51: .delete
-                default: .unknown
+                case 36:  type = .enter
+                case 123: type = .left
+                case 124: type = .right
+                case 125: type = .down
+                case 126: type = .up
+                case 51:  type = .delete
+                default:
+                    NSLog("  unknown keycode")
+                    type = .unknown
                 }
             }
         }
