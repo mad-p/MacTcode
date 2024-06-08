@@ -116,7 +116,7 @@ final class Bushu {
 }
 
 class PostfixBushuAction: Action {
-    func execute(client: Client, mode: Mode, modeHolder: ModeHolder) -> Command {
+    func execute(client: Client, mode: Mode, controller: Controller) -> Command {
         // postfix bushu
         let cursor = client.selectedRange()
         var ch1: String? = nil

@@ -60,7 +60,9 @@ class Translator {
         {
             .unknown
         } else if printable {
-            if text == " " {
+            if text != nil && " ',.-=/;".contains(text!) && event.modifierFlags.contains(.control) {
+                .control_punct
+            } else if text == " " {
                 .space
             } else {
                 .printable
@@ -100,7 +102,7 @@ class Keymap {
         self.name = name
         precondition(chars.count == nKeys, "Keymap \(name) fromChars: must have \(nKeys) characters")
         for i in 0..<nKeys {
-            let key = InputEvent(type: .printable, text: Translator.keyToStr(i))
+            let key = InputEvent(type: .printable, text: Translator.keyToStr(i), event: NSEvent())
             add(key, .text(chars[i]))
         }
     }

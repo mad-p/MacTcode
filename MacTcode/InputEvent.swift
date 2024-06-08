@@ -21,6 +21,8 @@ enum InputEventType {
     case delete
     /// escapeキーまたは^[
     case escape
+    /// control + ',./=-;`
+    case control_punct
     /// それ以外
     case unknown
 }
@@ -32,7 +34,7 @@ struct InputEvent: Hashable, CustomStringConvertible {
     /// キーに対応する文字がある場合、その文字
     var text: String?
     /// 元となったイベント
-    var event: NSEvent
+    var event: NSEvent?
     /// ログ用表現
     var description: String {
         let t = if text == nil { "" } else { ", \(text!)" }
@@ -45,7 +47,7 @@ struct InputEvent: Hashable, CustomStringConvertible {
             return false
         }
         switch lhs.type {
-        case .printable:
+        case .printable, .control_punct:
             return (lhs.text == rhs.text)
         default:
             return true

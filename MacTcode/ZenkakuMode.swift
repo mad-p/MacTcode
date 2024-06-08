@@ -27,7 +27,7 @@ class ZenkakuMode: Mode {
         }.joined()
     }
     
-    func handle(_ inputEvent: InputEvent, client: (any Client)!, modeHolder: any ModeHolder) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
         switch inputEvent.type {
         case .printable:
             if let instr = inputEvent.text {
@@ -37,7 +37,7 @@ class ZenkakuMode: Mode {
             }
             return false
         case .escape:
-            modeHolder.setMode(TcodeMode())
+            controller.popMode()
             return true
         default:
             return false
@@ -50,8 +50,8 @@ class ZenkakuMode: Mode {
 }
 
 class ZenkakuModeAction: Action {
-    func execute(client: any Client, mode: any Mode, modeHolder: any ModeHolder) -> Command {
-        modeHolder.setMode(ZenkakuMode())
+    func execute(client: any Client, mode: any Mode, controller: any Controller) -> Command {
+        controller.pushMode(ZenkakuMode())
         return .processed
     }
 }

@@ -54,6 +54,10 @@ class TcodeKeymap {
         KeymapResolver.define(sequence: "hu", keymap: map, action: PostfixBushuAction())
         KeymapResolver.define(sequence: "uh", keymap: map, action: PostfixMazegakiAction(inflection: false))
         KeymapResolver.define(sequence: "58", keymap: map, action: PostfixMazegakiAction(inflection: true))
+        // ignore Ctrl-'
+        map.replace(input: InputEvent(type: .control_punct, text: ","), entry: .processed)
+        // passthrough Ctrl-SPC (set-mark)
+        map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
         KeymapResolver.define(sequence: "90", keymap: map, action: ZenkakuModeAction())
         KeymapResolver.define(sequence: "\\", keymap: map, entry: Command.keymap(
             Keymap("outset1", fromChars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡")))

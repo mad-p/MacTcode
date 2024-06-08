@@ -9,15 +9,37 @@ import Cocoa
 import InputMethodKit
 
 @objc(TcodeInputController)
-class TcodeInputController: IMKInputController, ModeHolder {
-    // private var candidatesWindow: IMKCandidates = IMKCandidates()
-    var mode: Mode
-
+class TcodeInputController: IMKInputController, Controller {
+    var modeStack: [Mode]
+    var candidateWindow: IMKCandidates
+    let client: Any!
+    
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
-        // self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleColumnScrollingCandidatePanel)
-        mode = TcodeMode()
+        modeStack = [TcodeMode()]
+        client = inputClient
+        candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
+        setupCandidateWindow()
         NSLog("TcodeInputController: init")
+    }
+    
+    func setupCandidateWindow() {
+        candidateWindow.setSelectionKeys([
+            kVK_ANSI_J,
+            kVK_ANSI_K,
+            kVK_ANSI_L,
+            kVK_ANSI_Semicolon,
+            kVK_ANSI_1,
+            kVK_ANSI_2,
+            kVK_ANSI_3,
+            kVK_ANSI_4,
+            kVK_ANSI_5,
+            kVK_ANSI_6,
+            kVK_ANSI_7,
+            kVK_ANSI_8,
+            kVK_ANSI_9,
+            kVK_ANSI_0,
+        ])
     }
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
@@ -25,11 +47,50 @@ class TcodeInputController: IMKInputController, ModeHolder {
             return false
         }
         let inputEvent = Translator.translate(event: event)
-        return mode.handle(inputEvent, client: ClientWrapper(client), modeHolder: self)
+        return mode.handle(inputEvent, client: ClientWrapper(client), controller: self)
     }
-
-    func setMode(_ mode: Mode) {
-        self.mode = mode
+    
+    override func candidates(_ sender: Any!) -> [Any]! {
+        if let modeWithCandidates = mode as? ModeWithCandidates {
+            return modeWithCandidates.candidates(sender)
+        } else {
+            NSLog("*** TcodeInputController.candidates: called for non-ModeWithCandidates???")
+            return []
+        }
+    }
+    
+    override func candidateSelected(_ candidateString: NSAttributedString!) {
+        if let modeWithCandidates = mode as? ModeWithCandidates {
+            if let client = self.client as? IMKTextInput {
+                modeWithCandidates.candidateSelected(candidateString, client: ClientWrapper(client))
+            } else {
+                NSLog("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")
+            }
+        } else {
+            NSLog("*** TcodeInputController.candidateSelected: called for non-ModeWithCandidates???")
+        }
+    }
+    
+    override func candidateSelectionChanged(_ candidateString: NSAttributedString!) {
+        if let modeWithCandidates = mode as? ModeWithCandidates {
+            modeWithCandidates.candidateSelectionChanged(candidateString)
+        } else {
+            NSLog("*** TcodeInputController.candidates: called for non-ModeWithCandidates???")
+        }
+    }
+ 
+    var mode: Mode {
+        get {
+            modeStack.first!
+        }
+    }
+    func pushMode(_ mode: Mode) {
+        modeStack = [mode] + modeStack
+    }
+    func popMode() {
+        if modeStack.count > 1 {
+            modeStack.removeFirst()
+        }
     }
 }
 
@@ -50,7 +111,7 @@ class TcodeMode: Mode, MultiStroke {
             pending.removeLast()
         }
     }
-    func handle(_ inputEvent: InputEvent, client: Client!, modeHolder: ModeHolder) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: Client!, controller: Controller) -> Bool {
         let baseInputText = MirroringClient(client: client, recent: recentText)
         let seq = pending + [inputEvent]
         
@@ -82,7 +143,7 @@ class TcodeMode: Mode, MultiStroke {
                 baseInputText.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 return true
             case .action(let action):
-                command = action.execute(client: baseInputText, mode: self, modeHolder: modeHolder)
+                command = action.execute(client: baseInputText, mode: self, controller: controller)
                 resetPending()
             case .keymap(_):
                 preconditionFailure("Keymap resolved to .keymap??")

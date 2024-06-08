@@ -7,6 +7,7 @@
 
 import XCTest
 import Cocoa
+import InputMethodKit
 @testable import MacTcode
 
 final class ZenkakuModeTest: XCTestCase {
@@ -14,14 +15,19 @@ final class ZenkakuModeTest: XCTestCase {
     var spy: RecentTextClient!
     var holder: HolderSpy!
     
-    class HolderSpy: ModeHolder {
-        var mode: Mode
+    class HolderSpy: Controller {
+        var modeStack: [Mode]
+        var candidateWindow: IMKCandidates = IMKCandidates()
         init(mode: Mode) {
-            self.mode = mode
+            self.modeStack = [mode]
         }
-        func setMode(_ mode: Mode) {
-            self.mode = mode
+        func pushMode(_ mode: Mode) {
+            modeStack = [mode] + modeStack
         }
+        func popMode() {
+            modeStack.removeFirst()
+        }
+        var mode: Mode { get { modeStack.first! } }
     }
     
     func stubCharEvent(_ char: String) -> InputEvent {
@@ -33,7 +39,7 @@ final class ZenkakuModeTest: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = holder.mode.handle(event, client: spy, modeHolder: holder)
+            let ret = holder.mode.handle(event, client: spy, controller: holder)
             XCTAssertTrue(ret)
         }
     }
@@ -57,7 +63,7 @@ final class ZenkakuModeTest: XCTestCase {
     }
     
     func testHan2ZenModeChange() {
-        holder.setMode(TcodeMode())
+        holder.pushMode(TcodeMode())
         feed("teso90123ABC#*zenkaku\u{1b}x y z fudefe")
         XCTAssertEqual("のが１２３ＡＢＣ＃＊ｚｅｎｋａｋｕxyzあいう", spy.text)
     }

@@ -56,12 +56,7 @@ class MazegakiHit {
             if cand.isEmpty {
                 return []
             }
-            if cand.first == "" {
-                cand.removeFirst()
-            }
-            if cand.last == "" {
-                cand.removeLast()
-            }
+            cand = cand.filter({ $0 != ""})
             return cand
         }
         return []
@@ -144,7 +139,7 @@ class PostfixMazegakiAction: Action {
     init(inflection: Bool) {
         self.inflection = inflection
     }
-    func execute(client: Client, mode: Mode, modeHolder: ModeHolder) -> Command {
+    func execute(client: Client, mode: Mode, controller: Controller) -> Command {
         let cursor = client.selectedRange()
         var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
         
@@ -182,21 +177,23 @@ class PostfixMazegakiAction: Action {
         if candidates.isEmpty {
             return .processed
         }
-        
+
+        let inputLength = hit!.length
+        var target: NSRange
+        if cursor.length > 0 {
+            target = cursor
+        } else {
+            let (location, length) = if cursor.location >= inputLength {
+                (cursor.location - inputLength, inputLength)
+            } else {
+                (0, NSNotFound)
+            }
+            target = NSRange(location: location, length: length)
+        }
         if candidates.count == 1 {
             let string = candidates.first!
-            let inputLength = hit!.length
             NSLog("Mazegaki: sole candidate: \(string)")
-            if cursor.length > 0 {
-                           client.insertText(string, replacementRange: cursor)
-            } else {
-                let (location, length) = if cursor.location >= inputLength {
-                    (cursor.location - inputLength, inputLength)
-                } else {
-                    (0, NSNotFound)
-                }
-                client.insertText(string, replacementRange: NSRange(location: location, length: length))
-            }
+            client.insertText(string, replacementRange: target)
         } else {
             NSLog("Mazegaki: more than one candidates: \(candidates)")
         }
@@ -204,3 +201,59 @@ class PostfixMazegakiAction: Action {
     }
 }
 
+class MazegakiSelectionMode: Mode, ModeWithCandidates {
+    let mazegaki: Mazegaki
+    var hit: MazegakiHit? = nil
+    let controller: Controller
+    let target: NSRange
+    let candidateWindow: IMKCandidates
+    init(controller: Controller, mazegaki: Mazegaki!, target: NSRange) {
+        self.controller = controller
+        self.mazegaki = mazegaki
+        self.target = target
+        self.candidateWindow = controller.candidateWindow
+        candidateWindow.show()
+    }
+    func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
+        switch inputEvent.type {
+        case .printable, .enter, .left, .right, .up, .down, .space:
+            if let event = inputEvent.event {
+                candidateWindow.interpretKeyEvents([event])
+            }
+            return true
+        case .delete, .escape:
+            cancel()
+            return true
+        case .control_punct, .unknown:
+            return true
+        }
+    }
+    
+    func cancel() {
+        candidateWindow.hide()
+        controller.popMode()
+    }
+    func reset() {
+    }
+    
+    func candidates(_ sender: Any!) -> [Any]! {
+        hit = mazegaki.find(hit)
+        if hit == nil {
+            cancel()
+            return []
+        } else {
+            return hit!.candidates()
+        }
+    }
+    
+    func candidateSelected(_ candidateString: NSAttributedString!, client: (any Client)!) {
+        client.insertText(candidateString.string, replacementRange: target)
+        cancel()
+    }
+    
+    func candidateSelectionChanged(_ candidateString: NSAttributedString!) {
+        
+    }
+    
+    
+}

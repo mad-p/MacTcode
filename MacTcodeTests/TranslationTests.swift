@@ -7,19 +7,23 @@
 
 import XCTest
 import Cocoa
+import InputMethodKit
 @testable import MacTcode
 
 final class TranslationTests: XCTestCase {
     var mode: TcodeMode!
     var spy: RecentTextClient!
     
-    class HolderSpy: ModeHolder {
+    class HolderSpy: Controller {
         var mode: Mode
+        var candidateWindow: IMKCandidates = IMKCandidates() // dummy
         init(mode: Mode) {
             self.mode = mode
         }
-        func setMode(_ mode: Mode) {
+        func pushMode(_ mode: Mode) {
             self.mode = mode
+        }
+        func popMode() {
         }
     }
     
@@ -32,7 +36,7 @@ final class TranslationTests: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = mode.handle(event, client: spy, modeHolder: HolderSpy(mode: mode))
+            let ret = mode.handle(event, client: spy, controller: HolderSpy(mode: mode))
             XCTAssertTrue(ret)
         }
     }
@@ -51,7 +55,7 @@ final class TranslationTests: XCTestCase {
     
     func testPassthrough() {
         let event = stubCharEvent("A")
-        let ret = mode.handle(event, client: spy, modeHolder: HolderSpy(mode: mode))
+        let ret = mode.handle(event, client: spy, controller: HolderSpy(mode: mode))
         XCTAssertFalse(ret)
     }
     func testSendFirstBySpace() {
