@@ -195,6 +195,7 @@ class PostfixMazegakiAction: Action {
             NSLog("Mazegaki: sole candidate: \(string)")
             client.insertText(string, replacementRange: target)
         } else {
+            controller.pushMode(MazegakiSelectionMode(controller: controller, mazegaki: mazegaki, target: target))
             NSLog("Mazegaki: more than one candidates: \(candidates)")
         }
         return .processed

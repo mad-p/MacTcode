@@ -14,6 +14,7 @@
 		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
 		9D868A012C05F98700128D48 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D868A002C05F98700128D48 /* main@2x.tiff */; };
 		9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */; };
+		9D8BFECA2C146DF800B99BA2 /* MazegakiSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC92C146DF800B99BA2 /* MazegakiSelectionTests.swift */; };
 		9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */; };
 		9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */; };
 		9D8C8DCA2C01ACF1003D8A43 /* KeymapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */; };
@@ -63,6 +64,7 @@
 		9D4818D82C0368DB00906504 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = main.tiff; sourceTree = "<group>"; };
 		9D868A002C05F98700128D48 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeTest.swift; sourceTree = "<group>"; };
+		9D8BFEC92C146DF800B99BA2 /* MazegakiSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiSelectionTests.swift; sourceTree = "<group>"; };
 		9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacTcode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeApp.swift; sourceTree = "<group>"; };
 		9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				9DEA6D3D2C0B40320005BB18 /* RecentTextTests.swift */,
 				9DEA6D3F2C0B6C680005BB18 /* TranslationTests.swift */,
 				9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */,
+				9D8BFEC92C146DF800B99BA2 /* MazegakiSelectionTests.swift */,
 			);
 			path = MacTcodeTests;
 			sourceTree = "<group>";
@@ -359,6 +362,7 @@
 				9DC8D49A2C0632C900DCB6A2 /* MazegakiTests.swift in Sources */,
 				9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */,
 				9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */,
+				9D8BFECA2C146DF800B99BA2 /* MazegakiSelectionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -528,7 +532,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -559,7 +563,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
