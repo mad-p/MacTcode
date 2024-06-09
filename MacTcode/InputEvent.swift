@@ -89,7 +89,7 @@ class Translator {
         
         let text = event.characters
         let printable = if text != nil {
-            text!.allSatisfy({ $0.isLetter || $0.isNumber || $0.isPunctuation })
+            text!.allSatisfy({ $0.isLetter || $0.isNumber || $0.isPunctuation || $0.isMathSymbol })
         } else {
             false
         }

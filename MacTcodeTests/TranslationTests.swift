@@ -75,8 +75,8 @@ final class TranslationTests: XCTestCase {
         XCTAssertEqual("晴れだね", spy.text)
     }
     func testMazeAutoKakutei() {
-        feed("zbtphizuhobeuhsofuhpto")
-        XCTAssertEqual("今日は地震があった", spy.text)
+        feed("zbtphizawvfe.ouhtid;hpto")
+        XCTAssertEqual("今日は調査に行った", spy.text)
     }
     func testOutset() {
         feed("fqyg\\iqioy")

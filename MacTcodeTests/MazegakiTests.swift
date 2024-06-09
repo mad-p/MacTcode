@@ -26,35 +26,37 @@ final class MazegakiTests: XCTestCase {
         XCTAssertNil(m.key(4, offset: 4))
     }
     func testMazegakiFind() {
-        let m1 = Mazegaki("今日は地しん", inflection: false, fixed: false)
-        let r1 = m1.find(nil)
-        XCTAssertNotNil(r1)
-        XCTAssertEqual("地しん", r1!.key)
-        XCTAssertTrue(r1!.found)
-        XCTAssertEqual(3, r1!.length)
-        let r1_1 = m1.find(r1)
-        XCTAssertNotNil(r1_1)
-        XCTAssertTrue(r1_1!.found)
-        XCTAssertEqual("しん", r1_1!.key)
-        XCTAssertEqual(2, r1_1!.length)
-        let r1_2 = m1.find(r1_1)
-        XCTAssertFalse(r1_2!.found)
+        let m1 = Mazegaki("今日のはにわ", inflection: false, fixed: false)
+        let rs1 = m1.find()
+        XCTAssertEqual(3, rs1.count)
+        
+        let r1 = rs1[0]
+        XCTAssertEqual("はにわ", r1.key)
+        XCTAssertTrue(r1.found)
+        XCTAssertEqual(3, r1.length)
+        
+        let r2 = rs1[1]
+        XCTAssertEqual("にわ", r2.key)
+        XCTAssertTrue(r2.found)
+        XCTAssertEqual(2, r2.length)
+
+        let r3 = rs1[2]
+        XCTAssertEqual("わ", r3.key)
+        XCTAssertTrue(r3.found)
+        XCTAssertEqual(1, r3.length)
         
         let m2 = Mazegaki("今日は地信ん", inflection: false, fixed: false)
-        let r2 = m2.find(nil)
-        XCTAssertNotNil(r2)
-        XCTAssertFalse(r2!.found)
+        let rs2 = m2.find()
+        XCTAssertEqual(0, rs2.count)
     }
     func testMazegakiFindFixed() {
-        let m1 = Mazegaki("地しん", inflection: false, fixed: true)
-        let r1 = m1.find(nil)
-        XCTAssertNotNil(r1)
-        XCTAssertEqual("地しん", r1!.key)
-        XCTAssertTrue(r1!.found)
-        
-        let r1_1 = m1.find(r1)
-        XCTAssertNotNil(r1_1)
-        XCTAssertFalse(r1_1!.found)
+        let m1 = Mazegaki("はにわ", inflection: false, fixed: true)
+        let rs1 = m1.find()
+        XCTAssertEqual(1, rs1.count)
+        let r1 = rs1[0]
+        XCTAssertEqual("はにわ", r1.key)
+        XCTAssertTrue(r1.found)
+        XCTAssertEqual(3, r1.length)
     }
     func testMazegakiNonYomiChars() {
         let m1 = Mazegaki("なんだ、さくじょ", inflection: false, fixed: false)
@@ -62,31 +64,28 @@ final class MazegakiTests: XCTestCase {
     }
     func testMazegakiHitCands() {
         let m1 = Mazegaki("地しん", inflection: false, fixed: true)
-        let r1 = m1.find(nil)
-        let c1 = r1?.candidates()
+        let rs1 = m1.find()
+        XCTAssertEqual(1, rs1.count)
+        let c1 = rs1[0].candidates()
         XCTAssertEqual(["地震"], c1)
         let m2 = Mazegaki("そう作", inflection: false, fixed: true)
-        let r2 = m2.find(nil)
-        let c2 = r2?.candidates()
-        XCTAssertEqual(Set(["操作", "創作"]), Set(c2!))
+        let rs2 = m2.find()
+        XCTAssertEqual(1, rs2.count)
+        let c2 = rs2[0].candidates()
+        XCTAssertEqual(Set(["操作", "創作"]), Set(c2))
     }
     func testMazegakiInflection() {
-        let m = Mazegaki("うけたまわる", inflection: true, fixed: true)
-        let expected: [(Bool, [String])] = [
-            (true, ["承る"]),
-            (true, ["受けたまわる", "承けたまわる", "請けたまわる"]),
-            (false, [])
-        ]
-        var r: MazegakiHit? = nil
-        expected.forEach { (found, cand) in
-            r = m.find(r)
-            XCTAssertNotNil(r)
-            NSLog("found=\(found)  r!.found=\(r!.found)")
-            XCTAssertEqual(found, r!.found)
-            if (r!.found) {
-                let c = r!.candidates()
-                XCTAssertEqual(cand, c)
-            }
+        let m = Mazegaki("うけたまわる", inflection: true, fixed: false)
+        let rs = m.find()
+        let expectedResult = ["承る", "賜る", "回る", "割る"]
+        let nonExpectedResult = ["賜", "玉"]
+        let allCandidates = rs.flatMap{ $0.candidates() }
+        expectedResult.forEach { str in
+            XCTAssertTrue(allCandidates.contains(str), "\(str) should be in candidates")
         }
+        nonExpectedResult.forEach { str in
+            XCTAssertFalse(allCandidates.contains(str), "\(str) should not be in candidates")
+        }
+
     }
 }
