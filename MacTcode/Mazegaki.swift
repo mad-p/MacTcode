@@ -41,7 +41,9 @@ final class MazegakiDict {
     }
 }
 
+/// 特定の読み、活用部分に対応する候補全体を表わす
 class MazegakiHit {
+    var yomi: [String] = []
     var found: Bool = false // 見つかったかどうか
     var key: String = ""    // dictを見るときのキー
     var length: Int = 0     // 読みの長さ
@@ -52,14 +54,25 @@ class MazegakiHit {
             return []
         }
         if let dictEntry = MazegakiDict.i.dict[key] {
+            let inflection = yomi.suffix(offset).joined()
             var cand = dictEntry.components(separatedBy: "/")
             if cand.isEmpty {
                 return []
             }
             cand = cand.filter({ $0 != ""})
+            cand = cand.map { $0 + inflection }
             return cand
         }
         return []
+    }
+    func duplicate() -> MazegakiHit {
+        var newHit = MazegakiHit()
+        newHit.yomi = yomi
+        newHit.found = found
+        newHit.key = key
+        newHit.length = length
+        newHit.offset = offset
+        return newHit
     }
 }
 
@@ -67,6 +80,7 @@ class Mazegaki {
     static var maxInflection = 4 // 活用部分の最大長
     static var inflectionCharsMin = 0x3041 // 活用部分に許される文字コードポイントの下限
     static var inflectionCharsMax = 0x30fe // 活用部分に許される文字上限
+    static var inflectionRange = inflectionCharsMin...inflectionCharsMax
     static var nonYomiCharacters =
         ["、", "。", "，", "．", "・", "「", "」", "（", "）"] // 読み部分に許されない文字
     
@@ -97,37 +111,71 @@ class Mazegaki {
         }
         var chars = yomi.suffix(i)
         if offset > 0 && chars.count > offset {
+            let infChars = chars.suffix(offset)
+            if !infChars.allSatisfy({
+                let charCode = $0.unicodeScalars.first!.value
+                return Mazegaki.inflectionRange.contains(Int(charCode))
+            }) {
+                return nil
+            }
             chars = chars.dropLast(offset)
             chars.append(MazegakiDict.inflectionMark)
         }
         if chars.count > 0 {
-            return chars.joined()
+            let res: String = chars.joined()
+            NSLog("Mazegaki.key: yomi=\(yomi.joined())  i=\(i)  offset=\(offset) ->  result=\(res)")
+            return res
         } else {
             return nil
         }
     }
     
-    // max文字以内かつ候補がある最大長さの読みを見つける
-    // 活用しないバージョン
-    // from:に前回のヒット結果が指定された場合、それよりも短い読みをさがす
-    func find(_ from: MazegakiHit?) -> MazegakiHit? {
+    /// max文字以内かつ候補がある最大長さの読みを見つける
+    /// from:に前回のヒット結果が指定された場合、それよりも短い読みをさがす
+    func find(_ from: MazegakiHit?) -> MazegakiHit {
+        // 活用しないとき
+        // - 最大長さを見つける
+        // 活用するとき
+        // - 全体の長さが同じときに、活用部分の長さが短い順で全部見つける
         let result = MazegakiHit()
         result.found = false
-        var i = from != nil ? from!.length - 1 : max
+        var i: Int
+        var offset: Int
+        if inflection {
+            // 活用あり
+            // 前回と同じyomiで、ひとつ長いoffsetから始める
+            i = from != nil ? from!.length : max
+            offset = from != nil ? from!.offset + 1 : 1
+        } else {
+            i = from != nil ? from!.length - 1 : max
+            offset = 0
+        }
+    outerloop:
         while i > 0 {
+            defer { i -= 1 }
             if fixed && i != max {
                 return result
             }
-            if let k = key(i) {
-                if MazegakiDict.i.dict[k] != nil {
-                    result.key = k
-                    result.length = i
-                    result.found = true
-                    result.offset = 0
-                    return result
+            var j = offset
+            offset = (inflection ? 1 : 0) // 次回のiループでのj初期値
+            
+            while j <= Mazegaki.maxInflection {
+                defer { j += 1 }
+                if !inflection && j > 0 {
+                    continue outerloop
+                }
+                
+                if let k = key(i, offset: j) {
+                    if MazegakiDict.i.dict[k] != nil {
+                        result.yomi = yomi.suffix(i)
+                        result.key = k
+                        result.length = i
+                        result.found = true
+                        result.offset = j
+                        return result
+                    }
                 }
             }
-            i -= 1
         }
         return result
     }
@@ -170,15 +218,12 @@ class PostfixMazegakiAction: Action {
         }
         
         let hit = mazegaki.find(nil)
-        if hit == nil {
-            return .processed
-        }
-        let candidates = hit!.candidates()
+        let candidates = hit.candidates()
         if candidates.isEmpty {
             return .processed
         }
 
-        let inputLength = hit!.length
+        let inputLength = hit.length
         var target: NSRange
         if cursor.length > 0 {
             target = cursor
@@ -190,7 +235,7 @@ class PostfixMazegakiAction: Action {
             }
             target = NSRange(location: location, length: length)
         }
-        if candidates.count == 1 {
+        if !inflection && candidates.count == 1 {
             let string = candidates.first!
             NSLog("Mazegaki: sole candidate: \(string)")
             client.insertText(string, replacementRange: target)
@@ -205,6 +250,8 @@ class PostfixMazegakiAction: Action {
 }
 
 class MazegakiSelectionMode: Mode, ModeWithCandidates {
+    let noCandidates: String = "(候補なし)"
+    let map = MazegakiSelectionMap.map
     let mazegaki: Mazegaki
     var hit: MazegakiHit? = nil
     let controller: Controller
@@ -222,6 +269,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         candidateWindow.show()
     }
     func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
+        // キーで選択して確定。右手ホームの4キーの後数字の1～0
         NSLog("MazegakiSelectionMode.handle: \(inputEvent) \(client!) \(controller)")
         if let selectKeys = candidateWindow.selectionKeys() as? [Int] {
             NSLog("  selectKeys = \(selectKeys)")
@@ -229,17 +277,39 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
                 NSLog("  keyCode = \(Int(keyCode))")
                 if let index = selectKeys.firstIndex(of: Int(keyCode)) {
                     NSLog("  index = \(index)")
-                    if let hit = mazegaki.find(hit) {
-                        let candidates = hit.candidates()
-                        if index < candidates.count {
-                            let text = candidates[index]
+                    let hit = mazegaki.find(hit)
+                    let candidates = hit.candidates()
+                    if index < candidates.count {
+                        let text = candidates[index]
+                        if text != noCandidates {
                             NSLog("  Candate selected \(text) by key \(inputEvent)")
                             client.insertText(text, replacementRange: target)
                             cancel()
-                            return true
                         }
                     }
+                    return true
                 }
+            }
+        }
+        if let command = map.lookup(input: inputEvent) {
+            switch command {
+            case .passthrough:
+                break
+            case .processed:
+                return true
+            case .action(let action):
+                NSLog("execute action \(action)")
+                let ret = action.execute(client: client, mode: self, controller: controller)
+                switch ret {
+                case .passthrough:
+                    break
+                case .processed:
+                    return true
+                default:
+                    break
+                }
+            default:
+                break
             }
         }
         switch inputEvent.type {
@@ -256,7 +326,9 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
             return true
         }
     }
-    
+    func update() {
+        candidateWindow.update()
+    }
     func cancel() {
         NSLog("MazegakiSelectionMode.cancel")
         candidateWindow.hide()
@@ -268,11 +340,10 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     func candidates(_ sender: Any!) -> [Any]! {
         NSLog("MazegakiSelectionMode.candidates")
         let hit = mazegaki.find(hit)
-        if hit == nil {
-            cancel()
-            return []
+        if hit.found {
+            return hit.candidates()
         } else {
-            return hit!.candidates()
+            return [noCandidates]
         }
     }
     
@@ -284,6 +355,102 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     func candidateSelectionChanged(_ candidateString: NSAttributedString!) {
         
     }
-    
-    
+}
+
+class MazegakiAction: Action {
+    func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        return .passthrough
+    }
+    func execute(client: any Client, mode mode1: any Mode, controller: any Controller) -> Command {
+        if let mode = mode1 as? MazegakiSelectionMode {
+            return action(client: client, mode: mode, controller: controller)
+        }
+        return .passthrough
+    }
+}
+
+class MazegakiSelectionCancelAction: MazegakiAction {
+    override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        mode.cancel()
+        return .processed
+    }
+}
+/// 次の候補セットに送る(再変換)
+class MazegakiSelectionNextAction: MazegakiAction {
+    override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        let newHit = mode.mazegaki.find(mode.hit) // advance
+        if newHit.found {
+            mode.hit = newHit
+            mode.update()
+        }
+        return .processed
+    }
+}
+/// 直前の候補を出すことを試みる
+/// 送りがなモードならば送りがなを縮める
+/// そうでなければ読みをのばす
+class MazegakiSelectionPreviousAction: MazegakiAction {
+    override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        if let hit = mode.hit {
+            var tryHit = hit.duplicate()
+            if hit.length < hit.yomi.count {
+                tryHit.length = hit.length + 1
+            } else if mode.mazegaki.inflection && hit.offset > 1 {
+                tryHit.offset = hit.offset - 1
+            } else {
+                return .processed
+            }
+            let newHit = mode.mazegaki.find(mode.mazegaki.find(tryHit))
+            if newHit.found &&
+                !(newHit.length == hit.length && newHit.offset == hit.offset) {
+                mode.hit = newHit
+                mode.update()
+                return .processed
+            }
+        }
+        return .processed
+    }
+}
+/// 変換を最初からやり直す
+class MazegakiSelectionRestartAction: MazegakiAction {
+    override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        mode.hit = nil
+        mode.update()
+        return .processed
+    }
+}
+/// 送りがな部分をのばす
+class MazegakiSelectionOkuriNobashiAction: MazegakiAction {
+    override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        if mode.hit != nil && mode.hit!.offset < Mazegaki.maxInflection {
+            mode.hit!.offset += 1
+        }
+        mode.update()
+        return .processed
+    }
+}
+/// 送りがな部分を縮める
+class MazegakiSelectionOkuriChijimeAction: MazegakiAction {
+    override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        if mode.hit != nil && mode.hit!.offset > 1 {
+            mode.hit!.offset -= 1
+        }
+        mode.update()
+        return .processed
+    }
+}
+
+class MazegakiSelectionMap {
+    static var map = {
+        let map = Keymap("MazegakiSelectionMap")
+        map.replace(input: InputEvent(type: .escape, text: "\u{1b}"), entry: .action(MazegakiSelectionCancelAction()))
+        map.replace(input: InputEvent(type: .space, text: " "),       entry: .action(MazegakiSelectionNextAction()))
+        map.replace(input: InputEvent(type: .down, text: " "),        entry: .action(MazegakiSelectionNextAction()))
+        map.replace(input: InputEvent(type: .delete, text: "\u{08}"), entry: .action(MazegakiSelectionPreviousAction()))
+        map.replace(input: InputEvent(type: .up, text: "\u{08}"),     entry: .action(MazegakiSelectionPreviousAction()))
+        map.replace(input: InputEvent(type: .printable, text: "<"),   entry: .action(MazegakiSelectionOkuriNobashiAction()))
+        map.replace(input: InputEvent(type: .printable, text: ">"),   entry: .action(MazegakiSelectionOkuriChijimeAction()))
+        map.replace(input: InputEvent(type: .printable, text: "!"),   entry: .action(MazegakiSelectionRestartAction()))
+        return map
+    }()
 }

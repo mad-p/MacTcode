@@ -37,6 +37,8 @@ final class MazegakiTests: XCTestCase {
         XCTAssertTrue(r1_1!.found)
         XCTAssertEqual("しん", r1_1!.key)
         XCTAssertEqual(2, r1_1!.length)
+        let r1_2 = m1.find(r1_1)
+        XCTAssertFalse(r1_2!.found)
         
         let m2 = Mazegaki("今日は地信ん", inflection: false, fixed: false)
         let r2 = m2.find(nil)
@@ -67,5 +69,24 @@ final class MazegakiTests: XCTestCase {
         let r2 = m2.find(nil)
         let c2 = r2?.candidates()
         XCTAssertEqual(Set(["操作", "創作"]), Set(c2!))
+    }
+    func testMazegakiInflection() {
+        let m = Mazegaki("うけたまわる", inflection: true, fixed: true)
+        let expected: [(Bool, [String])] = [
+            (true, ["承る"]),
+            (true, ["受けたまわる", "承けたまわる", "請けたまわる"]),
+            (false, [])
+        ]
+        var r: MazegakiHit? = nil
+        expected.forEach { (found, cand) in
+            r = m.find(r)
+            XCTAssertNotNil(r)
+            NSLog("found=\(found)  r!.found=\(r!.found)")
+            XCTAssertEqual(found, r!.found)
+            if (r!.found) {
+                let c = r!.candidates()
+                XCTAssertEqual(cand, c)
+            }
+        }
     }
 }
