@@ -49,7 +49,7 @@ final class ZenkakuModeTest: XCTestCase {
         spy = RecentTextClient("", 99)
         mode = ZenkakuMode()
         holder = HolderSpy(mode: mode)
-        NSLog("setUp!")
+        Log.i("setUp!")
     }
     
     override func tearDownWithError() throws {

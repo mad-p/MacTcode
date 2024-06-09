@@ -15,6 +15,7 @@
 		9D868A012C05F98700128D48 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D868A002C05F98700128D48 /* main@2x.tiff */; };
 		9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */; };
 		9D8BFECA2C146DF800B99BA2 /* MazegakiSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC92C146DF800B99BA2 /* MazegakiSelectionTests.swift */; };
+		9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFECB2C15D64F00B99BA2 /* Log.swift */; };
 		9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */; };
 		9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */; };
 		9D8C8DCA2C01ACF1003D8A43 /* KeymapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */; };
@@ -65,6 +66,7 @@
 		9D868A002C05F98700128D48 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeTest.swift; sourceTree = "<group>"; };
 		9D8BFEC92C146DF800B99BA2 /* MazegakiSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiSelectionTests.swift; sourceTree = "<group>"; };
+		9D8BFECB2C15D64F00B99BA2 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacTcode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeApp.swift; sourceTree = "<group>"; };
 		9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -147,6 +149,7 @@
 				9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */,
 				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
 				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
+				9D8BFECB2C15D64F00B99BA2 /* Log.swift */,
 				9DEA6D472C0EB0430005BB18 /* Mode.swift */,
 				9DEA6D492C0F987B0005BB18 /* ZenkakuMode.swift */,
 				9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */,
@@ -344,6 +347,7 @@
 				9DEA6D462C0E45950005BB18 /* Client.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
 				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
+				9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */,
 				9DEA6D382C0AC0DA0005BB18 /* Keymap.swift in Sources */,
 				9DEA6D3A2C0AC7F90005BB18 /* Action.swift in Sources */,
 				9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */,

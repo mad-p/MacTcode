@@ -51,7 +51,7 @@ class Keymap {
         var ok = true
         for j in 0..<nKeys {
             if table[j].count != nKeys {
-                NSLog("2DKeymap \(name) row \(j) must have \(nKeys) chars")
+                Log.i("2DKeymap \(name) row \(j) must have \(nKeys) chars")
                 ok = false
             }
         }
@@ -74,7 +74,7 @@ class Keymap {
     }
     func add(_ key: InputEvent, _ entry: Command) {
         if map[key] != nil {
-            NSLog("Keymap \(name) replace \(key) to new entry \(String(describing: entry))")
+            Log.i("Keymap \(name) replace \(key) to new entry \(String(describing: entry))")
         }
         map[key] = entry
     }
@@ -82,7 +82,7 @@ class Keymap {
         if let e = entry {
             add(input, e)
         } else {
-            NSLog("Keymap \(name) undefine \(input)")
+            Log.i("Keymap \(name) undefine \(input)")
             map.removeValue(forKey: input)
         }
     }
@@ -98,28 +98,28 @@ class KeymapResolver {
         var map = keymap
         var lastmap = keymap
         for i in 0..<keySequence.count {
-            // NSLog("traverse: i=\(i) input: \(keySequence[i]) in keymap: \(map.name)")
+            // Log.i("traverse: i=\(i) input: \(keySequence[i]) in keymap: \(map.name)")
             if let next = map.lookup(input: keySequence[i]) {
                 switch next {
                 case .keymap(let keymap):
-                    // NSLog("traverse:  got next: keymap \(keymap.name)")
+                    // Log.i("traverse:  got next: keymap \(keymap.name)")
                     lastmap = map
                     map = keymap
                     // continue
                 default:
                     // keySequence[i]で最初にコマンドが得られた
-                    // NSLog("traverse found first command: seq: \(keySequence) -> depth \(i) last key \(keySequence[i]) in map \(map.name)")
+                    // Log.i("traverse found first command: seq: \(keySequence) -> depth \(i) last key \(keySequence[i]) in map \(map.name)")
                     return (i, keySequence[i], map)
                 }
             } else {
-                // NSLog("traverse found first undefined: seq: \(keySequence) -> depth \(i) last key \(keySequence[i]) in map \(map.name)")
+                // Log.i("traverse found first undefined: seq: \(keySequence) -> depth \(i) last key \(keySequence[i]) in map \(map.name)")
                 // 途中で未定義キーに出会った
                 return (i, keySequence[i], map)
             }
         }
         // 最後まで行ったがまだキーマップ
         let i = keySequence.count - 1
-        // NSLog("traverse reached lastmap \(lastmap.name) i=\(i) event=\(keySequence[i])")
+        // Log.i("traverse reached lastmap \(lastmap.name) i=\(i) event=\(keySequence[i])")
         return (i, keySequence[i], lastmap)
     }
     /// keySequenceでkeymapを探索し、最初に見つかったcommandを返す

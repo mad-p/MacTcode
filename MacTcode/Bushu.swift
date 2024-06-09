@@ -20,7 +20,7 @@ final class Bushu {
     private var equivTable: [String: String] = [:]
 
     func readDictionary() {
-        NSLog("Read bushu dictionary...")
+        Log.i("Read bushu dictionary...")
         composeTable = [:]
         decomposeTable = [:]
         equivTable = [:]
@@ -37,12 +37,12 @@ final class Bushu {
                     }
                 } else {
                     if line.count > 0 {
-                        NSLog("Invalid bushu.dic entry: \(line)")
+                        Log.i("Invalid bushu.dic entry: \(line)")
                     }
                 }
             }
         }
-        NSLog("\(composeTable.count) bushu entries read")
+        Log.i("\(composeTable.count) bushu entries read")
     }
     
     private init() {
@@ -135,18 +135,18 @@ class PostfixBushuAction: Action {
                 ch1 = chars[0]
                 ch2 = chars[1]
                 if (ch1 != nil) && (ch2 != nil) {
-                    NSLog("Bushu \(ch1!)\(ch2!)")
+                    Log.i("Bushu \(ch1!)\(ch2!)")
                 }
             }
         }
         if (ch1 == nil) || (ch2 == nil) {
-            NSLog("Bushu henkan: no input")
+            Log.i("Bushu henkan: no input")
         } else {
             if let ch = Bushu.i.compose(char1: ch1!, char2: ch2!) {
-                NSLog("Bushu \(ch1!)\(ch2!) -> \(ch)")
+                Log.i("Bushu \(ch1!)\(ch2!) -> \(ch)")
                 client.insertText(ch, replacementRange: replaceRange)
             } else {
-                NSLog("Bushu henkan no candidates for \(ch1!)\(ch2!)")
+                Log.i("Bushu henkan no candidates for \(ch1!)\(ch2!)")
             }
         }
         return .processed

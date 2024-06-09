@@ -85,7 +85,7 @@ class Translator {
         }
     }
     static func translate(event: NSEvent!) -> InputEvent {
-        NSLog("event.keyCode = \(event.keyCode); event.characters = \(event.characters ?? "nil"); event.modifierFlags = \(event.modifierFlags)")
+        Log.i("event.keyCode = \(event.keyCode); event.characters = \(event.characters ?? "nil"); event.modifierFlags = \(event.modifierFlags)")
         
         let text = event.characters
         let printable = if text != nil {
@@ -107,7 +107,7 @@ class Translator {
         if event.modifierFlags.contains(.control) {
             flags.append(" control")
         }
-        NSLog(" modifierFlags: \(flags)")
+        Log.i(" modifierFlags: \(flags)")
         
         var type: InputEventType = .unknown
         if event.modifierFlags.contains(.option)
@@ -129,7 +129,7 @@ class Translator {
             case "\n":     type = .enter
             case "\u{1b}": type = .escape
             default:
-                NSLog("Translate by keycode")
+                Log.i("Translate by keycode")
                 switch(event.keyCode) {
                 case 36:  type = .enter
                 case 123: type = .left
@@ -138,13 +138,13 @@ class Translator {
                 case 126: type = .up
                 case 51:  type = .delete
                 default:
-                    NSLog("  unknown keycode")
+                    Log.i("  unknown keycode")
                     type = .unknown
                 }
             }
         }
         let event = InputEvent(type: type, text: text, event: event)
-        NSLog("  translated to \(event)")
+        Log.i("  translated to \(event)")
         return event
     }
 }

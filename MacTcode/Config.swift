@@ -14,11 +14,11 @@ class Config {
                 let configContent = try String(contentsOfFile: configFilePath, encoding: .utf8)
                 return configContent
             } catch {
-                NSLog("Failed to read file: \(error)")
+                Log.i("Failed to read file: \(error)")
                 return nil
             }
         } else {
-            NSLog("Config file \(file) not found in bundle")
+            Log.i("Config file \(file) not found in bundle")
             return nil
         }
     }

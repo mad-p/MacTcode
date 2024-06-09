@@ -36,10 +36,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.image = icon
         statusItem.button?.image?.isTemplate = true
         self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel, styleType: kIMKMain)
-        NSLog("AppDelegate launched")
+        Log.i("AppDelegate launched")
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        NSLog("AppDelegate terminated")
+        Log.i("AppDelegate terminated")
     }
 }

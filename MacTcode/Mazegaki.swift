@@ -19,7 +19,7 @@ final class MazegakiDict {
     static let inflectionMark = "—"
     
     func readDictionary() {
-        NSLog("Read mazegaki dictionary...")
+        Log.i("Read mazegaki dictionary...")
         dict = [:]
         if let mazedic = Config.loadConfig(file: "mazegaki.dic") {
             for line in mazedic.components(separatedBy: .newlines) {
@@ -28,12 +28,12 @@ final class MazegakiDict {
                     dict[kv[0]] = kv[1]
                 } else {
                     if line.count > 0 {
-                        NSLog("Invalid mazegaki.dic line: \(line)")
+                        Log.i("Invalid mazegaki.dic line: \(line)")
                     }
                 }
             }
         }
-        NSLog("\(dict.count) mazegaki entries read")
+        Log.i("\(dict.count) mazegaki entries read")
     }
     
     private init() {
@@ -70,7 +70,7 @@ class MazegakiHit {
         return []
     }
     func duplicate() -> MazegakiHit {
-        var newHit = MazegakiHit()
+        let newHit = MazegakiHit()
         newHit.yomi = yomi
         newHit.found = found
         newHit.key = key
@@ -127,7 +127,7 @@ class Mazegaki {
         }
         if chars.count > 0 {
             let res: String = chars.joined()
-            // NSLog("Mazegaki.key: yomi=\(yomi.joined())  i=\(i)  offset=\(offset) ->  result=\(res)")
+            // Log.i("Mazegaki.key: yomi=\(yomi.joined())  i=\(i)  offset=\(offset) ->  result=\(res)")
             return res
         } else {
             return nil
@@ -186,7 +186,7 @@ class Mazegaki {
             }
             target = NSRange(location: location, length: length)
         }
-        NSLog("Kakutei \(string)")
+        Log.i("Kakutei \(string)")
         client.insertText(string, replacementRange: target)
         return true
     }
@@ -212,16 +212,16 @@ class PostfixMazegakiAction: Action {
                 (0, cursor.location)
             }
             if let text = client.string(from: NSRange(location: startPos, length: length), actualRange: &replaceRange) {
-                NSLog("Online mazegaki from \(text)")
+                Log.i("Online mazegaki from \(text)")
                 mazegaki = Mazegaki(text, inflection: inflection, fixed: false)
             } else {
-                NSLog("No yomi")
+                Log.i("No yomi")
                 return .processed
             }
         } else {
             // mazegaki henkan from selection
             if let text = client.string(from: cursor, actualRange: &replaceRange) {
-                NSLog("Offline mazegaki \(text)")
+                Log.i("Offline mazegaki \(text)")
                 mazegaki = Mazegaki(text, inflection: inflection, fixed: true)
             } else {
                 return .processed
@@ -240,7 +240,7 @@ class PostfixMazegakiAction: Action {
         let newMode = MazegakiSelectionMode(controller: controller, mazegaki: mazegaki, hits: hits)
         controller.pushMode(newMode)
         newMode.showWindow()
-        // NSLog("Mazegaki: more than one candidates")
+        // Log.i("Mazegaki: more than one candidates")
         
         return .processed
     }
@@ -259,7 +259,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         self.candidateWindow = controller.candidateWindow
         self.hits = hits
         self.row = 0
-        NSLog("MazegakiSelectionMode.init")
+        Log.i("MazegakiSelectionMode.init")
     }
     func showWindow() {
         candidateWindow.update()
@@ -267,13 +267,13 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     }
     func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
         // キーで選択して確定。右手ホームの4キーの後数字の1～0
-        NSLog("MazegakiSelectionMode.handle: \(inputEvent) \(client!) \(controller)")
+        Log.i("MazegakiSelectionMode.handle: \(inputEvent) \(client!) \(controller)")
         if let selectKeys = candidateWindow.selectionKeys() as? [Int] {
-            NSLog("  selectKeys = \(selectKeys)")
+            Log.i("  selectKeys = \(selectKeys)")
             if let keyCode = inputEvent.event?.keyCode {
-                NSLog("  keyCode = \(Int(keyCode))")
+                Log.i("  keyCode = \(Int(keyCode))")
                 if let index = selectKeys.firstIndex(of: Int(keyCode)) {
-                    NSLog("  index = \(index)")
+                    Log.i("  index = \(index)")
                     let candidates = hits[row].candidates()
                     if index < candidates.count {
                         if Mazegaki.submit(hit: hits[row], index: index, client: client) {
@@ -291,7 +291,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
             case .processed:
                 return true
             case .action(let action):
-                NSLog("execute action \(action)")
+                Log.i("execute action \(action)")
                 let ret = action.execute(client: client, mode: self, controller: controller)
                 switch ret {
                 case .passthrough:
@@ -308,7 +308,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         switch inputEvent.type {
         case .printable, .enter, .left, .right, .up, .down, .space:
             if let event = inputEvent.event {
-                NSLog("Forward to candidateWindow: \([event])")
+                Log.i("Forward to candidateWindow: \([event])")
                 candidateWindow.interpretKeyEvents([event])
             }
             return true
@@ -323,7 +323,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         candidateWindow.update()
     }
     func cancel() {
-        NSLog("MazegakiSelectionMode.cancel")
+        Log.i("MazegakiSelectionMode.cancel")
         candidateWindow.hide()
         controller.popMode()
     }
@@ -331,7 +331,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     }
     
     func candidates(_ sender: Any!) -> [Any]! {
-        NSLog("MazegakiSelectionMode.candidates")
+        Log.i("MazegakiSelectionMode.candidates")
         return hits[row].candidates()
     }
     

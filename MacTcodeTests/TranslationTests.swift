@@ -45,7 +45,7 @@ final class TranslationTests: XCTestCase {
         super.setUp()
         spy = RecentTextClient("")
         mode = TcodeMode()
-        NSLog("setUp!")
+        Log.i("setUp!")
     }
     
     override func tearDownWithError() throws {

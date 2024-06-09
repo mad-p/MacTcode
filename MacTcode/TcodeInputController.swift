@@ -20,7 +20,7 @@ class TcodeInputController: IMKInputController, Controller {
         candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
         setupCandidateWindow()
-        NSLog("TcodeInputController: init")
+        Log.i("TcodeInputController: init")
     }
     
     func setupCandidateWindow() {
@@ -41,7 +41,7 @@ class TcodeInputController: IMKInputController, Controller {
             kVK_ANSI_0,
         ]
         candidateWindow.setSelectionKeys(selectionKeys)
-        NSLog("selection keys = \(selectionKeys)")
+        Log.i("selection keys = \(selectionKeys)")
     }
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
@@ -55,33 +55,33 @@ class TcodeInputController: IMKInputController, Controller {
     override func candidates(_ sender: Any!) -> [Any]! {
         if let modeWithCandidates = mode as? ModeWithCandidates {
             let ret = modeWithCandidates.candidates(sender)
-            NSLog("TcodeInputController.candidates: returns \(ret!)")
+            Log.i("TcodeInputController.candidates: returns \(ret!)")
             return ret
         } else {
-            NSLog("*** TcodeInputController.candidates: called for non-ModeWithCandidates???")
+            Log.i("*** TcodeInputController.candidates: called for non-ModeWithCandidates???")
             return []
         }
     }
     
     override func candidateSelected(_ candidateString: NSAttributedString!) {
-        NSLog("TcodeInputController.candidateSelected: \(candidateString.string)")
+        Log.i("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             if let client = self.client as? IMKTextInput {
                 modeWithCandidates.candidateSelected(candidateString, client: ClientWrapper(client))
             } else {
-                NSLog("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")
+                Log.i("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")
             }
         } else {
-            NSLog("*** TcodeInputController.candidateSelected: called for non-ModeWithCandidates???")
+            Log.i("*** TcodeInputController.candidateSelected: called for non-ModeWithCandidates???")
         }
     }
     
     override func candidateSelectionChanged(_ candidateString: NSAttributedString!) {
-        NSLog("TcodeInputController.candidateSelectionChanged: \(candidateString.string)")
+        Log.i("TcodeInputController.candidateSelectionChanged: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             modeWithCandidates.candidateSelectionChanged(candidateString)
         } else {
-            NSLog("*** TcodeInputController.candidates: called for non-ModeWithCandidates???")
+            Log.i("*** TcodeInputController.candidates: called for non-ModeWithCandidates???")
         }
     }
  
@@ -91,7 +91,7 @@ class TcodeInputController: IMKInputController, Controller {
         }
     }
     func pushMode(_ mode: Mode) {
-        NSLog("TcodeInputController.pushMode: \(mode)")
+        Log.i("TcodeInputController.pushMode: \(mode)")
         modeStack = [mode] + modeStack
     }
     func popMode() {
@@ -133,7 +133,7 @@ class TcodeMode: Mode, MultiStroke {
             KeymapResolver.resolve(keySequence: seq, keymap: map)
         }
         while command != nil {
-            NSLog("execute command \(command!);  recentText = \(recentText.text)")
+            Log.i("execute command \(command!);  recentText = \(recentText.text)")
             
             switch command! {
             case .passthrough:

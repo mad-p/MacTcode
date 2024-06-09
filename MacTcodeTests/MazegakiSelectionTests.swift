@@ -97,7 +97,7 @@ final class MazegakiSelectionTests: XCTestCase {
         super.setUp()
         spy = RecentTextClient("")
         controller = ControllerSpy(mode: TcodeMode(), client: spy)
-        NSLog("setUp!")
+        Log.i("setUp!")
     }
     
     override func tearDownWithError() throws {
