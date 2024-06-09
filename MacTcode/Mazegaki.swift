@@ -42,7 +42,7 @@ final class MazegakiDict {
 }
 
 /// 特定の読み、活用部分に対応する候補全体を表わす
-class MazegakiHit {
+class MazegakiHit: Comparable {
     var yomi: [String] = []
     var found: Bool = false // 見つかったかどうか
     var key: String = ""    // dictを見るときのキー
@@ -77,6 +77,18 @@ class MazegakiHit {
         newHit.length = length
         newHit.offset = offset
         return newHit
+    }
+    static func < (lhs: MazegakiHit, rhs: MazegakiHit) -> Bool {
+        return lhs.offset < rhs.offset ||
+        lhs.length > rhs.length
+    }
+    
+    static func == (lhs: MazegakiHit, rhs: MazegakiHit) -> Bool {
+        return lhs.found == rhs.found &&
+        lhs.yomi == rhs.yomi &&
+        lhs.key == rhs.key &&
+        lhs.length == rhs.length &&
+        lhs.offset == rhs.offset
     }
 }
 
@@ -158,7 +170,7 @@ class Mazegaki {
                 }
             }
         }
-        return result
+        return result.sorted()
     }
     
     /// 確定するコンビニメソッド
