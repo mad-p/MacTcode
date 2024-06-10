@@ -410,9 +410,8 @@ class MazegakiSelectionOkuriNobashiAction: MazegakiAction {
         if mode.mazegaki.inflection {
             let offset = mode.hits[mode.row].offset
             if offset < Mazegaki.maxInflection {
-                let newOffset = offset + 1
                 if let newRow = ((mode.row+1)..<mode.hits.count).first(where: { r in
-                    mode.hits[r].offset == newOffset
+                    mode.hits[r].offset != offset
                 }) {
                     mode.row = newRow
                     mode.update()
@@ -428,13 +427,19 @@ class MazegakiSelectionOkuriChijimeAction: MazegakiAction {
         if mode.mazegaki.inflection {
             let offset = mode.hits[mode.row].offset
             if offset > 1 {
-                let newOffset = offset - 1
-                if let newRow = ((mode.row+1)..<mode.hits.count).first(where: { r in
-                    mode.hits[r].offset == newOffset
+                if let index = (1...mode.row).first(where: { r in
+                    (0..<mode.hits.count).contains(mode.row - r) &&
+                    mode.hits[mode.row - r].offset != offset
                 }) {
-                    mode.row = newRow
+                    mode.row = mode.row - index
+                    mode.update()
+                } else {
+                    mode.row = 0
                     mode.update()
                 }
+            } else {
+                mode.row = 0
+                mode.update()
             }
         }
         return .processed

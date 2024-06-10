@@ -4,7 +4,7 @@ ARCDIR_RELEASE=build/archive.release.xcarchive
 .PHONY: build releaseBuild reload
 
 build:
-	xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR)
+	xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR) OTHER_SWIFT_FLAGS='-D ENABLE_NSLOG'
 
 releaseBuild:
 	xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR_RELEASE) -configuration Release

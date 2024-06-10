@@ -9,7 +9,7 @@ import Cocoa
 
 class Log {
     static func i(_ message: String) {
-#if DEBUG
+#if ENABLE_NSLOG
         NSLog (message)
 #endif
     }
