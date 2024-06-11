@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import InputMethodKit
 
 /// 入力イベントタイプ
 enum InputEventType {
@@ -23,6 +24,10 @@ enum InputEventType {
     case escape
     /// control + ',./=-;`
     case control_punct
+    /// tab
+    case tab
+    /// control_g
+    case control_g
     /// それ以外
     case unknown
 }
@@ -41,7 +46,7 @@ struct InputEvent: Hashable, CustomStringConvertible {
         return "InputEvent(\(type)\(t))"
     }
     
-    /// printableのときのみtextを考慮する
+    /// printable, control_punctのときのみtextを考慮する
     static func == (lhs: InputEvent, rhs: InputEvent) -> Bool {
         if lhs.type != rhs.type {
             return false
@@ -117,6 +122,8 @@ class Translator {
         } else if printable {
             if text != nil && " ',.-=/;".contains(text!) && event.modifierFlags.contains(.control) {
                 type = .control_punct
+            } else if text == "\u{07}" && event.modifierFlags.contains(.control) {
+                type = .control_g
             } else if text == " " {
                 type = .space
             } else {
@@ -128,15 +135,18 @@ class Translator {
             case "\u{08}": type = .delete
             case "\n":     type = .enter
             case "\u{1b}": type = .escape
+            case "\u{07}": type = .control_g
+            case "\u{09}": type = .tab
             default:
                 Log.i("Translate by keycode")
-                switch(event.keyCode) {
-                case 36:  type = .enter
-                case 123: type = .left
-                case 124: type = .right
-                case 125: type = .down
-                case 126: type = .up
-                case 51:  type = .delete
+                switch(Int(event.keyCode)) {
+                case kVK_Return:     type = .enter
+                case kVK_Tab:        type = .tab
+                case kVK_LeftArrow:  type = .left
+                case kVK_RightArrow: type = .right
+                case kVK_DownArrow:  type = .down
+                case kVK_UpArrow:    type = .up
+                case kVK_Delete:     type = .delete
                 default:
                     Log.i("  unknown keycode")
                     type = .unknown

@@ -264,6 +264,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     let hits: [MazegakiHit]
     let controller: Controller
     let candidateWindow: IMKCandidates
+    var candidateString: String = ""
     var row: Int
     init(controller: Controller, mazegaki: Mazegaki!, hits: [MazegakiHit]) {
         self.controller = controller
@@ -301,30 +302,24 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
             case .passthrough:
                 break
             case .processed:
-                return true
+                break
             case .action(let action):
                 Log.i("execute action \(action)")
                 let ret = action.execute(client: client, mode: self, controller: controller)
-                switch ret {
-                case .passthrough:
-                    break
-                case .processed:
-                    return true
-                default:
-                    break
-                }
+                break
             default:
                 break
             }
+            return true
         }
         switch inputEvent.type {
-        case .printable, .enter, .left, .right, .up, .down, .space:
+        case .printable, .enter, .left, .right, .up, .down, .space, .tab:
             if let event = inputEvent.event {
                 Log.i("Forward to candidateWindow: \([event])")
                 candidateWindow.interpretKeyEvents([event])
             }
             return true
-        case .delete, .escape:
+        case .delete, .escape, .control_g:
             cancel()
             return true
         case .control_punct, .unknown:
@@ -348,13 +343,14 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     }
     
     func candidateSelected(_ candidateString: NSAttributedString!, client: (any Client)!) {
-        if Mazegaki.submit(hit: hits[row], string: candidateString.string, client: client) {
-            cancel()
-        }
+        Log.i("candidateSelected \(candidateString.string)")
+        _ = Mazegaki.submit(hit: hits[row], string: candidateString.string, client: client)
+        cancel()
     }
     
     func candidateSelectionChanged(_ candidateString: NSAttributedString!) {
-        
+        self.candidateString = candidateString.string
+        Log.i("candidateSelectionChanged \(candidateString.string)")
     }
 }
 
@@ -372,10 +368,21 @@ class MazegakiAction: Action {
 
 class MazegakiSelectionCancelAction: MazegakiAction {
     override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        Log.i("CancelAction")
         mode.cancel()
         return .processed
     }
 }
+
+class MazegakiSelectionKakuteiAction: MazegakiAction {
+    override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        Log.i("KakuteiAction")
+        _ = Mazegaki.submit(hit: mode.hits[mode.row], string: mode.candidateString, client: client)
+        mode.cancel()
+        return .processed
+    }
+}
+
 /// 次の候補セットに送る(いわゆる再変換)
 class MazegakiSelectionNextAction: MazegakiAction {
     override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
@@ -399,6 +406,7 @@ class MazegakiSelectionPreviousAction: MazegakiAction {
 /// 変換を最初からやり直す
 class MazegakiSelectionRestartAction: MazegakiAction {
     override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
+        Log.i("RestartAction")
         mode.row = 0
         mode.update()
         return .processed
@@ -450,6 +458,9 @@ class MazegakiSelectionMap {
     static var map = {
         let map = Keymap("MazegakiSelectionMap")
         map.replace(input: InputEvent(type: .escape, text: "\u{1b}"), entry: .action(MazegakiSelectionCancelAction()))
+        map.replace(input: InputEvent(type: .control_g, text: "\u{07}"), entry: .action(MazegakiSelectionCancelAction()))
+        map.replace(input: InputEvent(type: .enter, text: "\u{0a}"),  entry: .action(MazegakiSelectionKakuteiAction()))
+        map.replace(input: InputEvent(type: .tab, text: "\u{09}"),    entry: .action(MazegakiSelectionKakuteiAction()))
         map.replace(input: InputEvent(type: .space, text: " "),       entry: .action(MazegakiSelectionNextAction()))
         map.replace(input: InputEvent(type: .down, text: " "),        entry: .action(MazegakiSelectionNextAction()))
         map.replace(input: InputEvent(type: .delete, text: "\u{08}"), entry: .action(MazegakiSelectionPreviousAction()))
