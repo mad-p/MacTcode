@@ -25,7 +25,9 @@
 	</array>
 	<key>tsInputMethodIconFileKey</key>
 	<string>main.tiff</string>
-	<key>tsInputMethodIconFileKeyDark</key>
+	<key>tsInputMethodAlternateIconFileKey</key>
 	<string>mainw.tiff</string>
+	<key>TISIconIsTemplate</key>
+	<true/>
 </dict>
 </plist>
