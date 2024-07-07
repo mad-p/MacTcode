@@ -530,14 +530,14 @@
 				INFOPLIST_FILE = MacTcode/Info.plist;
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSPrincipalClass = "$(PRODUCT_MODULE_NAME).NSManualApplication";
+				INFOPLIST_KEY_NSPrincipalClass = MacTcode.NSManualApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.5.3;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
+				MARKETING_VERSION = 0.8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"SWIFT_ACTIVE_COMPILATION_CONDITIONS[arch=*]" = ENABLE_NSLOG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -562,14 +562,14 @@
 				INFOPLIST_FILE = MacTcode/Info.plist;
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSPrincipalClass = "$(PRODUCT_MODULE_NAME).NSManualApplication";
+				INFOPLIST_KEY_NSPrincipalClass = MacTcode.NSManualApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.5.3;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.inputmethod.MacTcode";
+				MARKETING_VERSION = 0.8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
