@@ -32,10 +32,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         self.server = IMKServer(name: Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String, bundleIdentifier: Bundle.main.bundleIdentifier)
         self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel, styleType: kIMKMain)
-        Log.i("AppDelegate launched")
+        Log.i("★AppDelegate launched self=\(ObjectIdentifier(self))")
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        Log.i("AppDelegate terminated")
+        Log.i("★AppDelegate terminated self=\(ObjectIdentifier(self))")
     }
 }

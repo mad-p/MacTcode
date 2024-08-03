@@ -11,10 +11,10 @@ protocol Client {
     func selectedRange() -> NSRange
     func string(
         from range: NSRange,
-        actualRange: NSRangePointer!
+        actualRange: NSRangePointer
     ) -> String!
     func insertText(
-        _ string: String!,
+        _ string: String,
         replacementRange: NSRange
     )
     func sendBackspace()

@@ -40,4 +40,9 @@ final class RecentTextTests: XCTestCase {
         r.insertText("なるほどね", replacementRange: rr)
         XCTAssertEqual("気持ちなるほどねです", r.text)
     }
+    func testReplaceLast() {
+        let r = RecentTextClient("気持ちいい朝です")
+        r.replaceLast(length: 2, with: "だよ")
+        XCTAssertEqual("気持ちいい朝だよ", r.text)
+    }
 }

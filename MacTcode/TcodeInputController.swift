@@ -11,16 +11,20 @@ import InputMethodKit
 @objc(TcodeInputController)
 class TcodeInputController: IMKInputController, Controller {
     var modeStack: [Mode]
-    var candidateWindow: IMKCandidates
-    let client: Any!
+    let candidateWindow: IMKCandidates
+    let recentText = RecentTextClient("")
     
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         modeStack = [TcodeMode()]
-        client = inputClient
         candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
         setupCandidateWindow()
-        Log.i("TcodeInputController: init")
+        Log.i("★★TcodeInputController: init self=\(ObjectIdentifier(self))")
+    }
+
+    override func inputControllerWillClose() {
+        Log.i("★★TcodeInputController: inputControllerWillClose self=\(ObjectIdentifier(self))")
+        super.inputControllerWillClose()
     }
     
     func setupCandidateWindow() {
@@ -41,7 +45,6 @@ class TcodeInputController: IMKInputController, Controller {
             kVK_ANSI_0,
         ]
         candidateWindow.setSelectionKeys(selectionKeys)
-        Log.i("selection keys = \(selectionKeys)")
     }
     
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
@@ -56,7 +59,8 @@ class TcodeInputController: IMKInputController, Controller {
             return false
         }
         let inputEvent = Translator.translate(event: event)
-        return mode.handle(inputEvent, client: ClientWrapper(client), controller: self)
+        let baseInputText = MirroringClient(client: ClientWrapper(client), recent: recentText)
+        return mode.handle(inputEvent, client: baseInputText, controller: self)
     }
     
     override func candidates(_ sender: Any!) -> [Any]! {
@@ -73,8 +77,9 @@ class TcodeInputController: IMKInputController, Controller {
     override func candidateSelected(_ candidateString: NSAttributedString!) {
         Log.i("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
-            if let client = self.client as? IMKTextInput {
-                modeWithCandidates.candidateSelected(candidateString, client: ClientWrapper(client))
+            if let client = self.client() {
+                let baseInputText = MirroringClient(client: ClientWrapper(client), recent: recentText)
+                modeWithCandidates.candidateSelected(candidateString, client: baseInputText)
             } else {
                 Log.i("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")
             }
@@ -109,7 +114,6 @@ class TcodeInputController: IMKInputController, Controller {
 }
 
 class TcodeMode: Mode, MultiStroke {
-    var recentText = RecentTextClient("")
     var pending: [InputEvent] = []
     var map = TcodeKeymap.map
     var quickMap: Keymap = TopLevelMap.map
@@ -117,7 +121,6 @@ class TcodeMode: Mode, MultiStroke {
         pending = []
     }
     func reset() {
-        recentText = RecentTextClient("")
         resetPending()
     }
     func removeLastPending() {
@@ -126,7 +129,6 @@ class TcodeMode: Mode, MultiStroke {
         }
     }
     func handle(_ inputEvent: InputEvent, client: Client!, controller: Controller) -> Bool {
-        let baseInputText = MirroringClient(client: client, recent: recentText)
         let seq = pending + [inputEvent]
         
         // 複数キーからなるキーシーケンスの途中でも処理するコマンドはquickMapに入れておく
@@ -140,7 +142,7 @@ class TcodeMode: Mode, MultiStroke {
             KeymapResolver.resolve(keySequence: seq, keymap: map)
         }
         while command != nil {
-            Log.i("execute command \(command!);  recentText = \(recentText.text)")
+            Log.i("execute command \(command!)")
             
             switch command! {
             case .passthrough:
@@ -154,10 +156,10 @@ class TcodeMode: Mode, MultiStroke {
                 return true
             case .text(let string):
                 resetPending()
-                baseInputText.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 return true
             case .action(let action):
-                command = action.execute(client: baseInputText, mode: self, controller: controller)
+                command = action.execute(client: client, mode: self, controller: controller)
                 resetPending()
             case .keymap(_):
                 preconditionFailure("Keymap resolved to .keymap??")
@@ -178,12 +180,12 @@ class ClientWrapper: Client {
     }
     func string(
         from range: NSRange,
-        actualRange: NSRangePointer!
+        actualRange: NSRangePointer
     ) -> String! {
         return client.string(from: range, actualRange: actualRange)
     }
     func insertText(
-        _ string: String!,
+        _ string: String,
         replacementRange rr: NSRange
     ) {
         client.insertText(string, replacementRange: rr)

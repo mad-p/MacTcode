@@ -19,7 +19,7 @@ class RecentTextClient: Client {
     }
     func string(
         from range: NSRange,
-        actualRange: NSRangePointer!
+        actualRange: NSRangePointer
     ) -> String! {
         var s = range.location
         if s < 0 {
@@ -36,7 +36,7 @@ class RecentTextClient: Client {
         return String(text[from..<to])
     }
     func insertText(
-        _ newString: String!,
+        _ newString: String,
         replacementRange rr: NSRange
     ) {
         if rr.location == NSNotFound {
@@ -68,6 +68,10 @@ class RecentTextClient: Client {
         text.append(newString)
         trim()
     }
+    func replaceLast(length: Int, with newString: String) {
+        let start = text.index(text.endIndex, offsetBy: -length)
+        text.replaceSubrange(start..<text.endIndex, with: newString)
+    }
 }
 
 /// クライアントのカーソル周辺の文字列、もし得られなければrecentCharsを扱うMyInputText
@@ -81,10 +85,13 @@ class MirroringClient: Client {
         self.client = client
         self.recent = recent
         let cursor = client.selectedRange()
-        (target, useRecent) = if cursor.location == NSNotFound {
-            (recent, true)
+        Log.i("MirroringClient: client returned cursor = \(cursor)")
+        if cursor.location == NSNotFound {
+            Log.i("MirroringClient uses recent")
+            (target, useRecent) = (recent, true)
         } else {
-            (client, false)
+            Log.i("MirroringClient uses client")
+            (target, useRecent) = (client, false)
         }
     }
     func selectedRange() -> NSRange {
@@ -92,17 +99,38 @@ class MirroringClient: Client {
     }
     func string(
         from range: NSRange,
-        actualRange: NSRangePointer!
+        actualRange: NSRangePointer
     ) -> String! {
         return target.string(from: range, actualRange: actualRange)
     }
     func insertText(
-        _ string: String!,
+        _ string: String,
         replacementRange rr: NSRange
     ) {
-        target.insertText(string, replacementRange: rr)
-        if !useRecent {
-            recent.append(string)
+        if useRecent {
+            // replacementRangeが使えそうにないclientの場合は、BackSpaceを送ってから文字列を送る
+            if rr.length != NSNotFound && rr.length < 10 {
+                Log.i("Sending \(rr.length) BackSpaces and then \(string)")
+                let now = DispatchTime.now()
+                for i in 0..<rr.length {
+                    DispatchQueue.main.asyncAfter(deadline: now + 0.05 * Double(i)) {
+                        self.client.sendBackspace()
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: now + 0.05 * Double(rr.length)) {
+                    self.client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                }
+            } else {
+                client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                recent.insertText(string, replacementRange: rr)
+            }
+        } else {
+            client.insertText(string, replacementRange: rr)
+            if rr.length == NSNotFound {
+                recent.append(string)
+            } else {
+                recent.replaceLast(length: rr.length, with: string)
+            }
         }
     }
     func sendBackspace() {

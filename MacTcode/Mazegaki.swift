@@ -198,7 +198,7 @@ class Mazegaki {
             }
             target = NSRange(location: location, length: length)
         }
-        Log.i("Kakutei \(string)")
+        Log.i("Kakutei \(string)  client=\(type(of:client))")
         client.insertText(string, replacementRange: target)
         return true
     }
@@ -280,7 +280,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     }
     func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
         // キーで選択して確定。右手ホームの4キーの後数字の1～0
-        Log.i("MazegakiSelectionMode.handle: \(inputEvent) \(client!) \(controller)")
+        Log.i("MazegakiSelectionMode.handle: event=\(inputEvent) client=\(client!) controller=\(controller)")
         if let selectKeys = candidateWindow.selectionKeys() as? [Int] {
             Log.i("  selectKeys = \(selectKeys)")
             if let keyCode = inputEvent.event?.keyCode {
@@ -305,7 +305,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
                 break
             case .action(let action):
                 Log.i("execute action \(action)")
-                let ret = action.execute(client: client, mode: self, controller: controller)
+                _ = action.execute(client: client, mode: self, controller: controller)
                 break
             default:
                 break
