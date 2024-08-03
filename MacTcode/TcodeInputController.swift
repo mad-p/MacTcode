@@ -48,6 +48,13 @@ class TcodeInputController: IMKInputController, Controller {
         guard let client = sender as? IMKTextInput else {
             return false
         }
+        // ログイン画面では変換しないでそのまま入力する
+        Log.i("handle: client=\(type(of: client))")
+        let bid = client.bundleIdentifier()
+        Log.i("  client.bundleIdentifier=\(bid ?? "nil")")
+        if bid == "com.apple.loginwindow" {
+            return false
+        }
         let inputEvent = Translator.translate(event: event)
         return mode.handle(inputEvent, client: ClientWrapper(client), controller: self)
     }
