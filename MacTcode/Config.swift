@@ -7,6 +7,7 @@
 
 import Cocoa
 
+/// 設定ファイル回りの処理
 class Config {
     static func loadConfig(file: String) -> String? {
         if let configFilePath = Bundle.main.path(forResource: file, ofType: nil) {

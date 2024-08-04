@@ -38,6 +38,18 @@
 		9DEA6D462C0E45950005BB18 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D452C0E45950005BB18 /* Client.swift */; };
 		9DEA6D482C0EB0430005BB18 /* Mode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D472C0EB0430005BB18 /* Mode.swift */; };
 		9DEA6D4A2C0F987B0005BB18 /* ZenkakuMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEA6D492C0F987B0005BB18 /* ZenkakuMode.swift */; };
+		9DEAFE162C5F9B3000E8B5E3 /* EmitPendingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE152C5F9B3000E8B5E3 /* EmitPendingAction.swift */; };
+		9DEAFE182C5F9B5400E8B5E3 /* RemoveLastPendingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE172C5F9B5400E8B5E3 /* RemoveLastPendingAction.swift */; };
+		9DEAFE1A2C5F9B7900E8B5E3 /* ResetAllStateAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE192C5F9B7900E8B5E3 /* ResetAllStateAction.swift */; };
+		9DEAFE1F2C5F9E5F00E8B5E3 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE1E2C5F9E5F00E8B5E3 /* Command.swift */; };
+		9DEAFE212C5F9E8600E8B5E3 /* KeymapResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE202C5F9E8600E8B5E3 /* KeymapResolver.swift */; };
+		9DEAFE232C5F9EE300E8B5E3 /* Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE222C5F9EE300E8B5E3 /* Translator.swift */; };
+		9DEAFE252C5FA25D00E8B5E3 /* MultiStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE242C5FA25D00E8B5E3 /* MultiStroke.swift */; };
+		9DEAFE272C5FA2A800E8B5E3 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE262C5FA2A800E8B5E3 /* Controller.swift */; };
+		9DEAFE292C5FA2CF00E8B5E3 /* ModeWithCandidates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE282C5FA2CF00E8B5E3 /* ModeWithCandidates.swift */; };
+		9DEAFE2B2C5FB18700E8B5E3 /* MirroringClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE2A2C5FB18700E8B5E3 /* MirroringClient.swift */; };
+		9DEAFE2D2C5FB24500E8B5E3 /* ZenkakuModeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE2C2C5FB24500E8B5E3 /* ZenkakuModeAction.swift */; };
+		9DEAFE332C5FD35D00E8B5E3 /* TcodeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE322C5FD35D00E8B5E3 /* TcodeMode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,6 +108,18 @@
 		9DEA6D452C0E45950005BB18 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		9DEA6D472C0EB0430005BB18 /* Mode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mode.swift; sourceTree = "<group>"; };
 		9DEA6D492C0F987B0005BB18 /* ZenkakuMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuMode.swift; sourceTree = "<group>"; };
+		9DEAFE152C5F9B3000E8B5E3 /* EmitPendingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmitPendingAction.swift; sourceTree = "<group>"; };
+		9DEAFE172C5F9B5400E8B5E3 /* RemoveLastPendingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveLastPendingAction.swift; sourceTree = "<group>"; };
+		9DEAFE192C5F9B7900E8B5E3 /* ResetAllStateAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetAllStateAction.swift; sourceTree = "<group>"; };
+		9DEAFE1E2C5F9E5F00E8B5E3 /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
+		9DEAFE202C5F9E8600E8B5E3 /* KeymapResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeymapResolver.swift; sourceTree = "<group>"; };
+		9DEAFE222C5F9EE300E8B5E3 /* Translator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translator.swift; sourceTree = "<group>"; };
+		9DEAFE242C5FA25D00E8B5E3 /* MultiStroke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStroke.swift; sourceTree = "<group>"; };
+		9DEAFE262C5FA2A800E8B5E3 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
+		9DEAFE282C5FA2CF00E8B5E3 /* ModeWithCandidates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeWithCandidates.swift; sourceTree = "<group>"; };
+		9DEAFE2A2C5FB18700E8B5E3 /* MirroringClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirroringClient.swift; sourceTree = "<group>"; };
+		9DEAFE2C2C5FB24500E8B5E3 /* ZenkakuModeAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeAction.swift; sourceTree = "<group>"; };
+		9DEAFE322C5FD35D00E8B5E3 /* TcodeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeMode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,30 +180,26 @@
 		9D8C8DB62C01ACEE003D8A43 /* MacTcode */ = {
 			isa = PBXGroup;
 			children = (
+				9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */,
+				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
+				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
+				9DEAFE1E2C5F9E5F00E8B5E3 /* Command.swift */,
+				9D0F3CE02C04D570005A0CAC /* Config.swift */,
+				9D8BFECB2C15D64F00B99BA2 /* Log.swift */,
+				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
+				9DEAFE312C5FB30400E8B5E3 /* Zenkaku */,
+				9D4818D82C0368DB00906504 /* main.tiff */,
+				9D868A002C05F98700128D48 /* main@2x.tiff */,
 				9DDFC1642C09982F00BAADB5 /* mainw.tiff */,
 				9DDFC1652C09982F00BAADB5 /* mainw@2x.tiff */,
-				9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */,
-				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
-				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
-				9D8BFECB2C15D64F00B99BA2 /* Log.swift */,
-				9DEA6D472C0EB0430005BB18 /* Mode.swift */,
-				9DEA6D492C0F987B0005BB18 /* ZenkakuMode.swift */,
-				9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */,
-				9D0F3CE02C04D570005A0CAC /* Config.swift */,
-				9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */,
-				9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */,
 				9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */,
-				9D868A002C05F98700128D48 /* main@2x.tiff */,
-				9D0F3CE62C04E139005A0CAC /* bushu.dic */,
-				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
-				9D4818D82C0368DB00906504 /* main.tiff */,
+				9DEAFE1B2C5F9D1B00E8B5E3 /* Bushu */,
+				9DEAFE2F2C5FB2D200E8B5E3 /* Client */,
+				9DEAFE2E2C5FB2B300E8B5E3 /* Keymap */,
+				9DEAFE1C2C5F9D4C00E8B5E3 /* Mazegaki */,
+				9DEAFE302C5FB2EC00E8B5E3 /* Mode */,
 				9D8C8DBD2C01ACF0003D8A43 /* Preview Content */,
-				9DEA6D372C0AC0DA0005BB18 /* Keymap.swift */,
-				9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */,
-				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
-				9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */,
-				9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */,
-				9DEA6D452C0E45950005BB18 /* Client.swift */,
+				9DEAFE1D2C5F9DC300E8B5E3 /* Tcode */,
 			);
 			path = MacTcode;
 			sourceTree = "<group>";
@@ -213,6 +233,78 @@
 				9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */,
 			);
 			path = MacTcodeUITests;
+			sourceTree = "<group>";
+		};
+		9DEAFE1B2C5F9D1B00E8B5E3 /* Bushu */ = {
+			isa = PBXGroup;
+			children = (
+				9D0F3CE62C04E139005A0CAC /* bushu.dic */,
+				9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */,
+			);
+			path = Bushu;
+			sourceTree = "<group>";
+		};
+		9DEAFE1C2C5F9D4C00E8B5E3 /* Mazegaki */ = {
+			isa = PBXGroup;
+			children = (
+				9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */,
+				9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */,
+			);
+			path = Mazegaki;
+			sourceTree = "<group>";
+		};
+		9DEAFE1D2C5F9DC300E8B5E3 /* Tcode */ = {
+			isa = PBXGroup;
+			children = (
+				9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */,
+				9DEAFE322C5FD35D00E8B5E3 /* TcodeMode.swift */,
+				9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */,
+			);
+			path = Tcode;
+			sourceTree = "<group>";
+		};
+		9DEAFE2E2C5FB2B300E8B5E3 /* Keymap */ = {
+			isa = PBXGroup;
+			children = (
+				9DEAFE152C5F9B3000E8B5E3 /* EmitPendingAction.swift */,
+				9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */,
+				9DEA6D372C0AC0DA0005BB18 /* Keymap.swift */,
+				9DEAFE202C5F9E8600E8B5E3 /* KeymapResolver.swift */,
+				9DEAFE242C5FA25D00E8B5E3 /* MultiStroke.swift */,
+				9DEAFE172C5F9B5400E8B5E3 /* RemoveLastPendingAction.swift */,
+				9DEAFE192C5F9B7900E8B5E3 /* ResetAllStateAction.swift */,
+				9DEAFE222C5F9EE300E8B5E3 /* Translator.swift */,
+			);
+			path = Keymap;
+			sourceTree = "<group>";
+		};
+		9DEAFE2F2C5FB2D200E8B5E3 /* Client */ = {
+			isa = PBXGroup;
+			children = (
+				9DEA6D452C0E45950005BB18 /* Client.swift */,
+				9DEAFE2A2C5FB18700E8B5E3 /* MirroringClient.swift */,
+				9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */,
+			);
+			path = Client;
+			sourceTree = "<group>";
+		};
+		9DEAFE302C5FB2EC00E8B5E3 /* Mode */ = {
+			isa = PBXGroup;
+			children = (
+				9DEAFE262C5FA2A800E8B5E3 /* Controller.swift */,
+				9DEA6D472C0EB0430005BB18 /* Mode.swift */,
+				9DEAFE282C5FA2CF00E8B5E3 /* ModeWithCandidates.swift */,
+			);
+			path = Mode;
+			sourceTree = "<group>";
+		};
+		9DEAFE312C5FB30400E8B5E3 /* Zenkaku */ = {
+			isa = PBXGroup;
+			children = (
+				9DEA6D492C0F987B0005BB18 /* ZenkakuMode.swift */,
+				9DEAFE2C2C5FB24500E8B5E3 /* ZenkakuModeAction.swift */,
+			);
+			path = Zenkaku;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -352,17 +444,29 @@
 			buildActionMask = 2147483647;
 			files = (
 				9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */,
+				9DEAFE292C5FA2CF00E8B5E3 /* ModeWithCandidates.swift in Sources */,
 				9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */,
+				9DEAFE162C5F9B3000E8B5E3 /* EmitPendingAction.swift in Sources */,
+				9DEAFE332C5FD35D00E8B5E3 /* TcodeMode.swift in Sources */,
+				9DEAFE212C5F9E8600E8B5E3 /* KeymapResolver.swift in Sources */,
 				9DEA6D482C0EB0430005BB18 /* Mode.swift in Sources */,
+				9DEAFE1A2C5F9B7900E8B5E3 /* ResetAllStateAction.swift in Sources */,
+				9DEAFE1F2C5F9E5F00E8B5E3 /* Command.swift in Sources */,
+				9DEAFE2B2C5FB18700E8B5E3 /* MirroringClient.swift in Sources */,
 				9DEA6D442C0C0FD10005BB18 /* InputEvent.swift in Sources */,
+				9DEAFE2D2C5FB24500E8B5E3 /* ZenkakuModeAction.swift in Sources */,
 				9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */,
 				9DEA6D462C0E45950005BB18 /* Client.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
 				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
 				9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */,
+				9DEAFE272C5FA2A800E8B5E3 /* Controller.swift in Sources */,
 				9DEA6D382C0AC0DA0005BB18 /* Keymap.swift in Sources */,
 				9DEA6D3A2C0AC7F90005BB18 /* Action.swift in Sources */,
 				9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */,
+				9DEAFE252C5FA25D00E8B5E3 /* MultiStroke.swift in Sources */,
+				9DEAFE182C5F9B5400E8B5E3 /* RemoveLastPendingAction.swift in Sources */,
+				9DEAFE232C5F9EE300E8B5E3 /* Translator.swift in Sources */,
 				9DEA6D4A2C0F987B0005BB18 /* ZenkakuMode.swift in Sources */,
 				9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */,
 			);

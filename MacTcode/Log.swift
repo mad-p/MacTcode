@@ -7,6 +7,7 @@
 
 import Cocoa
 
+/// ログ出力
 class Log {
     static func i(_ message: String) {
 #if ENABLE_NSLOG

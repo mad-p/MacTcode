@@ -7,6 +7,7 @@
 
 import Cocoa
 
+/// IMKTextInputのラッパー
 protocol Client {
     func selectedRange() -> NSRange
     func string(

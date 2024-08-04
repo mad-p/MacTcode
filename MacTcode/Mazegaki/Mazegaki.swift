@@ -212,6 +212,7 @@ class PostfixMazegakiAction: Action {
     }
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
         let cursor = client.selectedRange()
+        Log.i("PostfixMazegakiAction: selectedRange -> \(cursor)")
         var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
         
         var mazegaki: Mazegaki
@@ -223,6 +224,7 @@ class PostfixMazegakiAction: Action {
             } else {
                 (0, cursor.location)
             }
+            Log.i("PostfixMazegakiAction: start=\(startPos) length=\(length)")
             if let text = client.string(from: NSRange(location: startPos, length: length), actualRange: &replaceRange) {
                 Log.i("Online mazegaki from \(text)")
                 mazegaki = Mazegaki(text, inflection: inflection, fixed: false)

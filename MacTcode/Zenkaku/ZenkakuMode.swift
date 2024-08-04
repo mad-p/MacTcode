@@ -7,6 +7,7 @@
 
 import Cocoa
 
+/// 全角入力モード
 class ZenkakuMode: Mode {
     static let zenkaku = {
         return "　！”＃＄％＆’（）＊＋，−．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［￥］＾＿‘ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝￣"
@@ -27,11 +28,11 @@ class ZenkakuMode: Mode {
         }.joined()
     }
     
-    func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: Client!, controller: Controller) -> Bool {
         switch inputEvent.type {
         case .printable:
-            if let instr = inputEvent.text {
-                let string = han2zen(instr)
+            if let inputString = inputEvent.text {
+                let string = han2zen(inputString)
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 return true
             }
@@ -49,9 +50,3 @@ class ZenkakuMode: Mode {
     }
 }
 
-class ZenkakuModeAction: Action {
-    func execute(client: any Client, mode: any Mode, controller: any Controller) -> Command {
-        controller.pushMode(ZenkakuMode())
-        return .processed
-    }
-}

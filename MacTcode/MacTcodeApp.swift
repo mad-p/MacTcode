@@ -10,6 +10,8 @@ import InputMethodKit
 
 // Copied from https://github.com/ensan-hcl/Typut (MIT License)
 
+
+/// アプリケーションのエントリポイント
 class NSManualApplication: NSApplication {
     private let appDelegate = AppDelegate()
 
@@ -24,6 +26,7 @@ class NSManualApplication: NSApplication {
     }
 }
 
+/// main
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var server = IMKServer()
