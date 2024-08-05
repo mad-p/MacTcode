@@ -14,13 +14,14 @@ build:
 
 releaseBuild $(WORKDIR)/$(APPNAME):
 	CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR_RELEASE) -configuration Release -destination 'generic/platform=macOS'
+	rm -rf $(WORKDIR)/$(APPNAME)
+	cp -r $(ARCDIR_RELEASE)/Products/Applications/$(APPNAME) $(WORKDIR)
 
 reload: build
 	pkill "MacTcode" || true
 	sudo rm -rf /Library/Input\ Methods/$(APPNAME)
 	sudo cp -r $(ARCDIR)/Products/Applications/$(APPNAME) /Library/Input\ Methods/
 	mkdir -p $(WORKDIR)
-	cp -r $(ARCDIR_RELEASE)/Products/Applications/$(APPNAME) $(WORKDIR)
 
 releaseReload: releaseBuild
 	pkill "MacTcode" || true
