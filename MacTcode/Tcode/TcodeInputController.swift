@@ -13,6 +13,7 @@ class TcodeInputController: IMKInputController, Controller {
     var modeStack: [Mode]
     let candidateWindow: IMKCandidates
     let recentText = RecentTextClient("")
+    var baseInputText: ContextClient?
     
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         modeStack = [TcodeMode()]
@@ -59,7 +60,7 @@ class TcodeInputController: IMKInputController, Controller {
             return false
         }
         let inputEvent = Translator.translate(event: event)
-        let baseInputText = MirroringClient(client: ClientWrapper(client), recent: recentText)
+        baseInputText = ContextClient(client: ClientWrapper(client), recent: recentText)
         return mode.handle(inputEvent, client: baseInputText, controller: self)
     }
     
@@ -78,7 +79,11 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             if let client = self.client() {
-                let baseInputText = MirroringClient(client: ClientWrapper(client), recent: recentText)
+                if let bit = baseInputText {
+                    bit.client = ClientWrapper(client)
+                } else {
+                    baseInputText = ContextClient(client: ClientWrapper(client), recent: recentText)
+                }
                 modeWithCandidates.candidateSelected(candidateString, client: baseInputText)
             } else {
                 Log.i("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")

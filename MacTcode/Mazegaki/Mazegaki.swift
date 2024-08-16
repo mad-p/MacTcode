@@ -104,8 +104,12 @@ class Mazegaki {
     let inflection: Bool // 活用語をさがすかどうか
     let fixed: Bool // 読み長さが固定かどうか
     let max: Int // 読みの最大長さ。fixedの場合はyomiの長さと同じ
+    let context: YomiContext
     
-    init(_ text: String, inflection: Bool, fixed: Bool) {
+    init(_ context: YomiContext, inflection: Bool) {
+        self.context = context
+        let text = context.string
+        self.fixed = context.fromSelection
         yomi = text.map { String($0) }
         let l = yomi.count
         var m = l
@@ -117,7 +121,6 @@ class Mazegaki {
         }
         self.max = m
         self.inflection = inflection
-        self.fixed = fixed
     }
     
     // 検索キーを文字列として返す
@@ -174,32 +177,24 @@ class Mazegaki {
     }
     
     /// 確定するコンビニメソッド
-    static func submit(hit: MazegakiHit, index: Int, client: Client) -> Bool {
+    func submit(hit: MazegakiHit, index: Int, client: Client) -> Bool {
         if !hit.found || index >= hit.candidates().count {
             return false
         }
-        return Mazegaki.submit(hit: hit, string: hit.candidates()[index], client: client)
+        return self.submit(hit: hit, string: hit.candidates()[index], client: client)
     }
     
-    static func submit(hit: MazegakiHit, string: String, client: Client) -> Bool {
+    func submit(hit: MazegakiHit, string: String, client: Client) -> Bool {
+        guard let client = client as? ContextClient else {
+            Log.i("★★Can't happen: Mazegaki.submit: client is not ContextClient")
+            return false
+        }
         if !hit.found {
             return false
         }
-        let inputLength = hit.length
-        let cursor = client.selectedRange()
-        var target: NSRange
-        if cursor.length > 0 {
-            target = cursor
-        } else {
-            let (location, length) = if cursor.location >= inputLength {
-                (cursor.location - inputLength, inputLength)
-            } else {
-                (0, NSNotFound)
-            }
-            target = NSRange(location: location, length: length)
-        }
+        let length = hit.length
         Log.i("Kakutei \(string)  client=\(type(of:client))")
-        client.insertText(string, replacementRange: target)
+        client.replaceYomi(string, length: length, from: context)
         return true
     }
 }
@@ -211,35 +206,22 @@ class PostfixMazegakiAction: Action {
         self.inflection = inflection
     }
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
-        let cursor = client.selectedRange()
-        Log.i("PostfixMazegakiAction: selectedRange -> \(cursor)")
-        var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
-        
-        var mazegaki: Mazegaki
-        
-        if cursor.length == 0 {
-            // mazegaki henkan from recentChars
-            let (startPos, length) = if cursor.location >= maxYomi {
-                (cursor.location - maxYomi, maxYomi)
-            } else {
-                (0, cursor.location)
-            }
-            Log.i("PostfixMazegakiAction: start=\(startPos) length=\(length)")
-            if let text = client.string(from: NSRange(location: startPos, length: length), actualRange: &replaceRange) {
-                Log.i("Online mazegaki from \(text)")
-                mazegaki = Mazegaki(text, inflection: inflection, fixed: false)
-            } else {
-                Log.i("No yomi")
-                return .processed
-            }
+        // postfix bushu
+        guard let client = client as? ContextClient else {
+            Log.i("★★Can't happen: PostfixBushuAction: client is not ContextClient")
+            return .processed
+        }
+        let context = client.getYomi(1, 10)
+        if context.string.count < 1 {
+            Log.i("Mazegaki henkan: no input")
+            return .processed
+        }
+        let text = context.string
+        let mazegaki = Mazegaki(context, inflection: inflection)
+        if context.fromSelection {
+            Log.i("Mazegaki: Offline from selection \(text)")
         } else {
-            // mazegaki henkan from selection
-            if let text = client.string(from: cursor, actualRange: &replaceRange) {
-                Log.i("Offline mazegaki \(text)")
-                mazegaki = Mazegaki(text, inflection: inflection, fixed: true)
-            } else {
-                return .processed
-            }
+            Log.i("Mazegaki: from \(text)")
         }
         
         let hits = mazegaki.find()
@@ -247,7 +229,7 @@ class PostfixMazegakiAction: Action {
             return .processed
         }
         if !inflection && hits.count == 1 && hits[0].candidates().count == 1 {
-            if Mazegaki.submit(hit: hits[0], index: 0, client: client) {
+            if mazegaki.submit(hit: hits[0], index: 0, client: client) {
                 return .processed
             }
         }
@@ -280,7 +262,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         candidateWindow.update()
         candidateWindow.show()
     }
-    func handle(_ inputEvent: InputEvent, client: (any Client)!, controller: any Controller) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: ContextClient!, controller: any Controller) -> Bool {
         // キーで選択して確定。右手ホームの4キーの後数字の1～0
         Log.i("MazegakiSelectionMode.handle: event=\(inputEvent) client=\(client!) controller=\(controller)")
         if let selectKeys = candidateWindow.selectionKeys() as? [Int] {
@@ -291,7 +273,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
                     Log.i("  index = \(index)")
                     let candidates = hits[row].candidates()
                     if index < candidates.count {
-                        if Mazegaki.submit(hit: hits[row], index: index, client: client) {
+                        if mazegaki.submit(hit: hits[row], index: index, client: client) {
                             cancel()
                         }
                     }
@@ -346,7 +328,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     
     func candidateSelected(_ candidateString: NSAttributedString!, client: (any Client)!) {
         Log.i("candidateSelected \(candidateString.string)")
-        _ = Mazegaki.submit(hit: hits[row], string: candidateString.string, client: client)
+        _ = mazegaki.submit(hit: hits[row], string: candidateString.string, client: client)
         cancel()
     }
     
@@ -379,7 +361,7 @@ class MazegakiSelectionCancelAction: MazegakiAction {
 class MazegakiSelectionKakuteiAction: MazegakiAction {
     override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
         Log.i("KakuteiAction")
-        _ = Mazegaki.submit(hit: mode.hits[mode.row], string: mode.candidateString, client: client)
+        _ = mode.mazegaki.submit(hit: mode.hits[mode.row], string: mode.candidateString, client: client)
         mode.cancel()
         return .processed
     }

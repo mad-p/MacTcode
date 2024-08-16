@@ -118,37 +118,27 @@ final class Bushu {
 class PostfixBushuAction: Action {
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
         // postfix bushu
-        let cursor = client.selectedRange()
-        var ch1: String? = nil
-        var ch2: String? = nil
-        var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
-
-        if (cursor.length == 0 && cursor.location >= 2) || cursor.length == 2 {
-            // bushu henkan from selection or previous two chars
-            let location = if cursor.length == 2 {
-                cursor.location
-            } else {
-                cursor.location - 2
-            }
-            if let text = client.string(from: NSRange(location: location, length: 2), actualRange: &replaceRange) {
-                let chars = text.map { String($0) }
-                ch1 = chars[0]
-                ch2 = chars[1]
-                if (ch1 != nil) && (ch2 != nil) {
-                    Log.i("Bushu \(ch1!)\(ch2!)")
-                }
-            }
+        guard let client = client as? ContextClient else {
+            Log.i("★★Can't happen: PostfixBushuAction.execute: client is not ContextClient")
+            return .processed
         }
-        if (ch1 == nil) || (ch2 == nil) {
+        let yomi = client.getYomi(2, 2)
+        if yomi.string.count != 2 {
             Log.i("Bushu henkan: no input")
-        } else {
-            if let ch = Bushu.i.compose(char1: ch1!, char2: ch2!) {
-                Log.i("Bushu \(ch1!)\(ch2!) -> \(ch)")
-                client.insertText(ch, replacementRange: replaceRange)
-            } else {
-                Log.i("Bushu henkan no candidates for \(ch1!)\(ch2!)")
-            }
+            return .processed
         }
+        let chars = yomi.string.map { String($0) }
+        let ch1 = chars[0]
+        let ch2 = chars[1]
+        Log.i("Bushu \(ch1)\(ch2)")
+
+        if let ch = Bushu.i.compose(char1: ch1, char2: ch2) {
+            Log.i("Bushu \(ch1)\(ch2) -> \(ch)")
+            client.replaceYomi(ch, length: 2, from: yomi)
+        } else {
+            Log.i("Bushu henkan no candidates for \(ch1)\(ch2)")
+        }
+
         return .processed
     }
 }

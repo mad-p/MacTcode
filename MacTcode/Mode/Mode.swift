@@ -11,7 +11,7 @@ import InputMethodKit
 /// 入力モード
 protocol Mode {
     /// 入力イベントを処理する
-    func handle(_ inputEvent: InputEvent, client: Client!, controller: Controller) -> Bool
+    func handle(_ inputEvent: InputEvent, client: ContextClient!, controller: Controller) -> Bool
     /// すべての状態を初期状態にする
     func reset()
 }

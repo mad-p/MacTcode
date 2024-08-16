@@ -23,7 +23,7 @@ class TcodeMode: Mode, MultiStroke {
             pending.removeLast()
         }
     }
-    func handle(_ inputEvent: InputEvent, client: Client!, controller: Controller) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: ContextClient!, controller: Controller) -> Bool {
         let seq = pending + [inputEvent]
         
         // 複数キーからなるキーシーケンスの途中でも処理するコマンドはquickMapに入れておく
@@ -61,36 +61,5 @@ class TcodeMode: Mode, MultiStroke {
             }
         }
         return true // can't happen
-    }
-}
-
-/// IMKTextInputをMyInputTextに見せかけるラッパー
-class ClientWrapper: Client {
-    let client: IMKTextInput
-    init(_ client: IMKTextInput!) {
-        self.client = client
-    }
-    func selectedRange() -> NSRange {
-        return client.selectedRange()
-    }
-    func string(
-        from range: NSRange,
-        actualRange: NSRangePointer
-    ) -> String! {
-        return client.string(from: range, actualRange: actualRange)
-    }
-    func insertText(
-        _ string: String,
-        replacementRange rr: NSRange
-    ) {
-        client.insertText(string, replacementRange: rr)
-    }
-    func sendBackspace() {
-        let keyCode: CGKeyCode = 0x33
-        let backspaceDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
-        let backspaceUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
-        
-        backspaceDown?.post(tap: .cghidEventTap)
-        backspaceUp?.post(tap: .cghidEventTap)
     }
 }

@@ -47,9 +47,11 @@
 		9DEAFE252C5FA25D00E8B5E3 /* MultiStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE242C5FA25D00E8B5E3 /* MultiStroke.swift */; };
 		9DEAFE272C5FA2A800E8B5E3 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE262C5FA2A800E8B5E3 /* Controller.swift */; };
 		9DEAFE292C5FA2CF00E8B5E3 /* ModeWithCandidates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE282C5FA2CF00E8B5E3 /* ModeWithCandidates.swift */; };
-		9DEAFE2B2C5FB18700E8B5E3 /* MirroringClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE2A2C5FB18700E8B5E3 /* MirroringClient.swift */; };
+		9DEAFE2B2C5FB18700E8B5E3 /* ContextClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE2A2C5FB18700E8B5E3 /* ContextClient.swift */; };
 		9DEAFE2D2C5FB24500E8B5E3 /* ZenkakuModeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE2C2C5FB24500E8B5E3 /* ZenkakuModeAction.swift */; };
 		9DEAFE332C5FD35D00E8B5E3 /* TcodeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE322C5FD35D00E8B5E3 /* TcodeMode.swift */; };
+		9DEAFE352C6DB3E000E8B5E3 /* ClientWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE342C6DB3E000E8B5E3 /* ClientWrapper.swift */; };
+		9DEAFE372C6DB8CF00E8B5E3 /* YomiContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DEAFE362C6DB8CF00E8B5E3 /* YomiContext.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,9 +119,11 @@
 		9DEAFE242C5FA25D00E8B5E3 /* MultiStroke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStroke.swift; sourceTree = "<group>"; };
 		9DEAFE262C5FA2A800E8B5E3 /* Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		9DEAFE282C5FA2CF00E8B5E3 /* ModeWithCandidates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeWithCandidates.swift; sourceTree = "<group>"; };
-		9DEAFE2A2C5FB18700E8B5E3 /* MirroringClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MirroringClient.swift; sourceTree = "<group>"; };
+		9DEAFE2A2C5FB18700E8B5E3 /* ContextClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextClient.swift; sourceTree = "<group>"; };
 		9DEAFE2C2C5FB24500E8B5E3 /* ZenkakuModeAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeAction.swift; sourceTree = "<group>"; };
 		9DEAFE322C5FD35D00E8B5E3 /* TcodeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeMode.swift; sourceTree = "<group>"; };
+		9DEAFE342C6DB3E000E8B5E3 /* ClientWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientWrapper.swift; sourceTree = "<group>"; };
+		9DEAFE362C6DB8CF00E8B5E3 /* YomiContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomiContext.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -282,8 +286,10 @@
 			isa = PBXGroup;
 			children = (
 				9DEA6D452C0E45950005BB18 /* Client.swift */,
-				9DEAFE2A2C5FB18700E8B5E3 /* MirroringClient.swift */,
+				9DEAFE2A2C5FB18700E8B5E3 /* ContextClient.swift */,
 				9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */,
+				9DEAFE342C6DB3E000E8B5E3 /* ClientWrapper.swift */,
+				9DEAFE362C6DB8CF00E8B5E3 /* YomiContext.swift */,
 			);
 			path = Client;
 			sourceTree = "<group>";
@@ -443,6 +449,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DEAFE372C6DB8CF00E8B5E3 /* YomiContext.swift in Sources */,
 				9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */,
 				9DEAFE292C5FA2CF00E8B5E3 /* ModeWithCandidates.swift in Sources */,
 				9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */,
@@ -452,12 +459,13 @@
 				9DEA6D482C0EB0430005BB18 /* Mode.swift in Sources */,
 				9DEAFE1A2C5F9B7900E8B5E3 /* ResetAllStateAction.swift in Sources */,
 				9DEAFE1F2C5F9E5F00E8B5E3 /* Command.swift in Sources */,
-				9DEAFE2B2C5FB18700E8B5E3 /* MirroringClient.swift in Sources */,
+				9DEAFE2B2C5FB18700E8B5E3 /* ContextClient.swift in Sources */,
 				9DEA6D442C0C0FD10005BB18 /* InputEvent.swift in Sources */,
 				9DEAFE2D2C5FB24500E8B5E3 /* ZenkakuModeAction.swift in Sources */,
 				9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */,
 				9DEA6D462C0E45950005BB18 /* Client.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
+				9DEAFE352C6DB3E000E8B5E3 /* ClientWrapper.swift in Sources */,
 				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
 				9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */,
 				9DEAFE272C5FA2A800E8B5E3 /* Controller.swift in Sources */,
@@ -656,7 +664,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.8.2;
+				MARKETING_VERSION = 0.8.3;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -693,7 +701,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.8.2;
+				MARKETING_VERSION = 0.8.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

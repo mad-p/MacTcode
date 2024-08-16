@@ -28,7 +28,7 @@ class ZenkakuMode: Mode {
         }.joined()
     }
     
-    func handle(_ inputEvent: InputEvent, client: Client!, controller: Controller) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: ContextClient!, controller: Controller) -> Bool {
         switch inputEvent.type {
         case .printable:
             if let inputString = inputEvent.text {
