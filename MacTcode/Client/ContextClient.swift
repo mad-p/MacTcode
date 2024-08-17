@@ -127,12 +127,14 @@ class ContextClient: Client {
         }
 
         if !fromMirror {
-            // クライアントから取得。選択中の場合はfromが選択範囲となっているはず
-            let range: NSRange = NSRange(location: location, length: getLength)
+            // クライアントから取得。選択中の場合はrangeが選択範囲となっているはず
+            let range = NSRange(location: location, length: getLength)
             Log.i("Trying to get yomi from client: range=\(range)")
             if let text = client.string(from: range, actualRange: &replaceRange) {
-                Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
-                return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
+                if text.count > 0 {
+                    Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
+                    return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
+                }
             }
             // else fall through
         }
@@ -145,8 +147,10 @@ class ContextClient: Client {
         getLength = if recent.text.count < maxLength { recent.text.count } else { maxLength }
         location = recent.text.count - getLength
         if let text = recent.string(from: NSRange(location: location, length: getLength), actualRange: &replaceRange) {
-            Log.i("Yomi taken from mirror: text=\(text) at \(replaceRange)")
-            return YomiContext(string: text, range: replaceRange, fromSelection: false, fromMirror: fromMirror)
+            if text.count > 0 {
+                Log.i("Yomi taken from mirror: text=\(text) at \(replaceRange)")
+                return YomiContext(string: text, range: replaceRange, fromSelection: false, fromMirror: fromMirror)
+            }
         }
         Log.i("No yomi found from mirror")
         return emptyYomiContext
@@ -178,11 +182,7 @@ class ContextClient: Client {
             recent.insertText(string, replacementRange: rr)
         } else {
             client.insertText(string, replacementRange: rr)
-            if rr.length == NSNotFound {
-                recent.append(string)
-            } else {
-                recent.replaceLast(length: rr.length, with: string)
-            }
+            recent.replaceLast(length: rr.length, with: string)
         }
     }
 }

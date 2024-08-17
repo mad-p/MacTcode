@@ -79,8 +79,8 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             if let client = self.client() {
-                if let bit = baseInputText {
-                    bit.client = ClientWrapper(client)
+                if baseInputText != nil {
+                    baseInputText!.client = ClientWrapper(client)
                 } else {
                     baseInputText = ContextClient(client: ClientWrapper(client), recent: recentText)
                 }
