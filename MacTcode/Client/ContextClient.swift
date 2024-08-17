@@ -59,21 +59,32 @@ class ContextClient: Client {
         //     min, maxの指定を満たす場合 → 取れるだけ取る
         //     満たさない場合 →
         //  カーソルの前に文字がない場合 → ミラーから
-        if (cursor.location != NSNotFound &&
-            cursor.length != NSNotFound && cursor.length != 0) {
-            // 選択中
+        if cursor.location == NSNotFound {
+            // カーソルが取得できないクライアント
+            location = 0
+            getLength = 0
+            fromMirror = true
+            fromSelection = false
+            Log.i("No cursor. Using mirror")
+            // fall through to get from mirror
+        } else if (cursor.length != 0 && cursor.length != NSNotFound) { // cursor.location != NSNotFound
+            // 選択がある
             if minLength == maxLength {
+                // min = maxの場合は選択の長さがぴったりの場合のみ返す
                 if cursor.length == minLength {
                     location = cursor.location
                     getLength = cursor.length
                     fromSelection = true
                     fromMirror = false
                     Log.i("Selection exact desired length: location=\(location) length=\(getLength)")
+                    // fall through to get from selection
                 } else {
                     Log.i("Selection length doesn't match for requirement: no result")
                     return emptyYomiContext
                 }
             } else {
+                // min < maxの場合
+                // 選択がmin以上max以下の場合のみ選択から返す。それ以外は取得しない(変換しない)
                 if cursor.length < minLength {
                     Log.i("Selection length (\(cursor.length)) < minLength (\(minLength)): no result")
                     return emptyYomiContext
@@ -86,17 +97,11 @@ class ContextClient: Client {
                     fromSelection = true
                     fromMirror = false
                     Log.i("Selection length matches minLength..maxLength: get all of selection")
+                    // fall through to get from selection
                 }
             }
-        } else if cursor.location == NSNotFound {
-            // カーソルが取得できないクライアント
-            location = 0
-            getLength = 0
-            fromMirror = true
-            fromSelection = false
-            Log.i("No cursor. Using mirror")
-        } else if cursor.length == 0 || cursor.length == NSNotFound {
-            // 選択はない
+        } else { // cursor.location != NSNotFound && (cursor.length == 0 || cursor.length == NSNotFound)
+            // カーソルは取得できるが選択はない場合
             if cursor.location >= minLength {
                 // 最大maxLengthまで取る
                 if cursor.location >= maxLength {
@@ -108,6 +113,7 @@ class ContextClient: Client {
                 fromMirror = false
                 fromSelection = false
                 Log.i("No selection, enough yomi: location=\(location) length=\(getLength)")
+                // fall through to get from selection
             } else {
                 // バッファ先頭であり読みがない、または
                 // 読みが取れないクライアント(Google Docsなど)
@@ -116,20 +122,19 @@ class ContextClient: Client {
                 fromMirror = true
                 fromSelection = false
                 Log.i("No selection, not enough yomi. Using mirror")
+                // fall through to get from mirror
             }
-        } else { // cursor.length > 0
-            location = cursor.location
-            getLength = cursor.length
-            fromMirror = false
-            fromSelection = true
         }
 
         if !fromMirror {
-            // クライアントから取得
-            if let text = client.string(from: NSRange(location: location, length: getLength), actualRange: &replaceRange) {
-                Log.i("Yomi taken from client: text=\(text) at \(replaceRange)")
+            // クライアントから取得。選択中の場合はfromが選択範囲となっているはず
+            let range: NSRange = NSRange(location: location, length: getLength)
+            Log.i("Trying to get yomi from client: range=\(range)")
+            if let text = client.string(from: range, actualRange: &replaceRange) {
+                Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
                 return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
             }
+            // else fall through
         }
         // ミラーから取得
         fromMirror = true
