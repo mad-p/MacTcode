@@ -13,6 +13,7 @@ import InputMethodKit
 
 final class MazegakiSelectionTests: XCTestCase {
     var spy: RecentTextClient!
+    var client: ContextClient!
     var controller: ControllerSpy!
     
     class CandidateWindowSpy: IMKCandidates {
@@ -35,12 +36,12 @@ final class MazegakiSelectionTests: XCTestCase {
     }
     
     class ControllerSpy: Controller {
-        var client: Client
+        var client: ContextClient
         var modeStack: [Mode]
         var mode: Mode { get { modeStack.first! } }
         var candidateWindow: IMKCandidates { get { window } }
         var window: CandidateWindowSpy = CandidateWindowSpy()
-        init(mode: Mode, client: Client) {
+        init(mode: Mode, client: ContextClient) {
             modeStack = [mode]
             self.client = client
         }
@@ -51,7 +52,7 @@ final class MazegakiSelectionTests: XCTestCase {
             modeStack.removeFirst()
         }
         func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-            if let client = sender as? Client {
+            if let client = sender as? ContextClient {
                 self.client = client
             } else {
                 XCTFail()
@@ -88,7 +89,7 @@ final class MazegakiSelectionTests: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = controller.mode.handle(event, client: spy, controller: controller)
+            let ret = controller.mode.handle(event, client: client, controller: controller)
             XCTAssertTrue(ret)
         }
     }
@@ -96,7 +97,8 @@ final class MazegakiSelectionTests: XCTestCase {
     override func setUpWithError() throws {
         super.setUp()
         spy = RecentTextClient("")
-        controller = ControllerSpy(mode: TcodeMode(), client: spy)
+        client = ContextClient(client: spy, recent: RecentTextClient(""))
+        controller = ControllerSpy(mode: TcodeMode(), client: client)
         Log.i("setUp!")
     }
     
@@ -131,7 +133,7 @@ final class MazegakiSelectionTests: XCTestCase {
             NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: "h", charactersIgnoringModifiers: "h", isARepeat: false, keyCode: UInt16(kVK_ANSI_J))!
         ]
         events.forEach { event in
-            XCTAssertTrue(controller.handle(event, client: spy))
+            XCTAssertTrue(controller.handle(event, client: client))
         }
         XCTAssertEqual(events[0].keyCode, controller.window.events[0].keyCode)
         XCTAssertEqual(events[1].keyCode, controller.window.events[1].keyCode)
@@ -141,7 +143,7 @@ final class MazegakiSelectionTests: XCTestCase {
         XCTAssertFalse(controller.window.shown)
         feed("fusxfez,uh")
         let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: "a", charactersIgnoringModifiers: "a", isARepeat: false, keyCode: 124)!
-        _ = controller.handle(event, client: spy)
+        _ = controller.handle(event, client: client)
         let selected: NSAttributedString = NSAttributedString(string: "操作")
         controller.candidateSelected(selected)
         XCTAssertFalse(controller.window.shown)

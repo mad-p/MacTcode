@@ -13,6 +13,7 @@ import InputMethodKit
 final class TranslationTests: XCTestCase {
     var mode: TcodeMode!
     var spy: RecentTextClient!
+    var client: ContextClient!
     
     class HolderSpy: Controller {
         var mode: Mode
@@ -36,7 +37,7 @@ final class TranslationTests: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = mode.handle(event, client: spy, controller: HolderSpy(mode: mode))
+            let ret = mode.handle(event, client: client, controller: HolderSpy(mode: mode))
             XCTAssertTrue(ret)
         }
     }
@@ -44,6 +45,7 @@ final class TranslationTests: XCTestCase {
     override func setUpWithError() throws {
         super.setUp()
         spy = RecentTextClient("")
+        client = ContextClient(client: spy, recent: RecentTextClient(""))
         mode = TcodeMode()
         Log.i("setUp!")
     }
@@ -55,7 +57,7 @@ final class TranslationTests: XCTestCase {
     
     func testPassthrough() {
         let event = stubCharEvent("A")
-        let ret = mode.handle(event, client: spy, controller: HolderSpy(mode: mode))
+        let ret = mode.handle(event, client: client, controller: HolderSpy(mode: mode))
         XCTAssertFalse(ret)
     }
     func testSendFirstBySpace() {

@@ -13,6 +13,7 @@ import InputMethodKit
 final class ZenkakuModeTest: XCTestCase {
     var mode: Mode!
     var spy: RecentTextClient!
+    var client: ContextClient!
     var holder: HolderSpy!
     
     class HolderSpy: Controller {
@@ -39,7 +40,7 @@ final class ZenkakuModeTest: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = holder.mode.handle(event, client: spy, controller: holder)
+            let ret = holder.mode.handle(event, client: client, controller: holder)
             XCTAssertTrue(ret)
         }
     }
@@ -47,6 +48,7 @@ final class ZenkakuModeTest: XCTestCase {
     override func setUpWithError() throws {
         super.setUp()
         spy = RecentTextClient("", 99)
+        client = ContextClient(client: spy, recent: RecentTextClient(""))
         mode = ZenkakuMode()
         holder = HolderSpy(mode: mode)
         Log.i("setUp!")

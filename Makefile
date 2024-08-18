@@ -1,20 +1,19 @@
 ARCDIR=build/archive.xcarchive
 ARCDIR_RELEASE=build/archive.release.xcarchive
 APPNAME=MacTcode.app
-ZIPNAME=MacTcode.zip
 DMGNAME=MacTcode.dmg
 WORKDIR=work
 SIGNING_IDENTITY="Developer ID Application: Kaoru Maeda (8H7RHH924X)"
 BUNDLE_ID=jp.mad-p.inputmethod.MacTcode
 
-.PHONY: build releaseBuild reload
+.PHONY: build releaseBuild reload releaseReload sign dmg notary
 
 build:
 	xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR) OTHER_SWIFT_FLAGS='-D ENABLE_NSLOG'
 
 releaseBuild $(WORKDIR)/$(APPNAME):
-	CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR_RELEASE) -configuration Release -destination 'generic/platform=macOS'
 	rm -rf $(WORKDIR)/$(APPNAME)
+	CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR_RELEASE) -configuration Release -destination 'generic/platform=macOS'
 	cp -r $(ARCDIR_RELEASE)/Products/Applications/$(APPNAME) $(WORKDIR)
 
 reload: build
@@ -42,12 +41,3 @@ dmg $(WORKDIR)/$(DMGNAME): sign
 notary: dmg
 	xcrun notarytool submit $(WORKDIR)/$(DMGNAME) --keychain-profile "MacTcode" --wait
 	xcrun stapler staple $(WORKDIR)/$(DMGNAME)
-
-zip: $(WORKDIR)/$(ZIPNAME)
-$(WORKDIR)/$(ZIPNAME): sign
-	-rm -f $@
-	(cd $(WORKDIR); ditto -c -k -rsrc --sequesterRsrc --keepParent $(APPNAME) $(ZIPNAME) )
-
-zip_notary: $(WORKDIR)/$(ZIPNAME)
-	xcrun notarytool submit $(WORKDIR)/$(ZIPNAME) --keychain-profile "MacTcode"
-
