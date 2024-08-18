@@ -18,12 +18,14 @@ class ContextClient: Client {
         self.recent = recent
     }
     func selectedRange() -> NSRange {
+        Log.i("★★Can't happen.  ContextClient.selectedRange()")
         return client.selectedRange()
     }
     func string(
         from range: NSRange,
         actualRange: NSRangePointer
     ) -> String! {
+        Log.i("★★Can't happen.  ContextClient.string(from:actualRange:)")
         return client.string(from: range, actualRange: actualRange)
     }
     func insertText(
@@ -39,6 +41,7 @@ class ContextClient: Client {
         }
     }
     func sendBackspace() {
+        Log.i("★★Can't happen. ContextClient.sendBackspace()")
         client.sendBackspace()
     }
     // カーソル直前にある読みを取得する
@@ -132,8 +135,11 @@ class ContextClient: Client {
             Log.i("Trying to get yomi from client: range=\(range)")
             if let text = client.string(from: range, actualRange: &replaceRange) {
                 if text.count > 0 {
-                    Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
-                    return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
+                    // Google DocsやSlidesはZero-width spaceを1文字返すことがある。その場合はミラーから取る
+                    if text != "\u{200b}" {
+                        Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
+                        return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
+                    }
                 }
             }
             // else fall through
