@@ -20,7 +20,7 @@ macOS用のT-Codeが使えるIMとして[MacUIM](https://github.com/e-kato/macui
     - [x] 変換候補選択画面
     - [x] 送りがなサポート
 - [x] 全角入力モード (v0.1.4.1)
-- [ ] 配布パッケージ、notarization
+- [x] 配布パッケージ、notarization
 - [ ] configファイルサポート
 - [ ] パスワード入力時はパススルーする
 - [ ] メニュー(config再読み込みとかテンプレ生成とか)
@@ -36,11 +36,14 @@ macOS用のT-Codeが使えるIMとして[MacUIM](https://github.com/e-kato/macui
 
 - GitHubのリリースタグにdmgがある場合は、開いて以下を実施してください
     - `sudo cp -r MacTcode.app /Library/Input\ Methods/`
+        - アップデートの場合はまず消してから
     - ない場合はごめんなさい
 - ログアウトしてログインし直すと、入力ソースとして選択できるようになります
 
 ## 参考文献
 
+- https://github.com/ensan-hcl/azooKey-Desktop
+- https://github.com/google/mozc/
 - [azooKey on macOSの開発知見](https://zenn.dev/azookey/articles/d06b4ee8039ba9)
 - [日本語入力を作るときに必要だった本](https://mzp.booth.pm/items/809262)
 - [Typut](https://github.com/ensan-hcl/Typut)
