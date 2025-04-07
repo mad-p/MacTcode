@@ -135,8 +135,8 @@ class ContextClient: Client {
             Log.i("Trying to get yomi from client: range=\(range)")
             if let text = client.string(from: range, actualRange: &replaceRange) {
                 if text.count > 0 {
-                    // Google DocsやSlidesはZero-width spaceを1文字返すことがある。その場合はミラーから取る
-                    if text != "\u{200b}" {
+                    // Google DocsやSlidesはZero-width spaceまたはアンダースコアを1文字返すことがある。その場合はミラーから取る
+                    if text != "\u{200b}" && text != "_" {
                         Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
                         return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
                     }

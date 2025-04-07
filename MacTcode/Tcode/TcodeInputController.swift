@@ -56,7 +56,7 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("handle: client=\(type(of: client))")
         let bid = client.bundleIdentifier()
         Log.i("  client.bundleIdentifier=\(bid ?? "nil")")
-        if bid == "com.apple.loginwindow" {
+        if bid == "com.apple.loginwindow" || bid == "com.apple.SecurityAgent" {
             return false
         }
         let inputEvent = Translator.translate(event: event)

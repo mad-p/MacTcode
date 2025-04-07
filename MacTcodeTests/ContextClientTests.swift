@@ -200,7 +200,18 @@ final class ContextClientTests: XCTestCase {
         XCTAssertFalse(yomi.fromSelection)
         XCTAssertTrue(yomi.fromMirror)
     }
-
+    func testYomiFromMirrorWhenClientReturnsUnderscore() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 1),
+                                stringReturnValue: "_")
+        let recent = RecentTextClient("あいうえお火水")
+        let context = ContextClient(client: client, recent: recent)
+        let yomi = context.getYomi(1, 3)
+        XCTAssertEqual("お火水", yomi.string)
+        XCTAssertEqual(4, yomi.range.location)
+        XCTAssertEqual(3, yomi.range.length)
+        XCTAssertFalse(yomi.fromSelection)
+        XCTAssertTrue(yomi.fromMirror)
+    }
     func testReplaceYomiFromSelection() {
         let client = ClientStub(selectedRangeValue: NSRange(location: 3, length: 2))
         let recent = RecentTextClient("あいうえお火水")
