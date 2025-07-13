@@ -136,7 +136,7 @@ class ContextClient: Client {
             if let text = client.string(from: range, actualRange: &replaceRange) {
                 if text.count > 0 {
                     // Google DocsやSlidesはZero-width spaceまたはアンダースコアを1文字返すことがある。
-                    // Gemini CLIは改行コードを2つ返す
+                    // Gemini CLIやClaude CodeはUIで表示した文字列から取ってきているようだ。
                     // その場合はミラーから取る
                     if text != "\u{200b}" && // old Google Docs
                         text != "_" && // Google Docs
