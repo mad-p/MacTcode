@@ -135,8 +135,15 @@ class ContextClient: Client {
             Log.i("Trying to get yomi from client: range=\(range)")
             if let text = client.string(from: range, actualRange: &replaceRange) {
                 if text.count > 0 {
-                    // Google DocsやSlidesはZero-width spaceまたはアンダースコアを1文字返すことがある。その場合はミラーから取る
-                    if text != "\u{200b}" && text != "_" {
+                    // Google DocsやSlidesはZero-width spaceまたはアンダースコアを1文字返すことがある。
+                    // Gemini CLIやClaude CodeはUIで表示した文字列から取ってきているようだ。
+                    // その場合はミラーから取る
+                    if text != "\u{200b}" && // old Google Docs
+                        text != "_" && // Google Docs
+                        text != "\n\n" && // Gemini CLI or Claude Code for 部首
+                        text != "xt left)\n\n" && // Gemini CLI for 交ぜ書き
+                        text != "──────╯\n\n\n" // Claude Code for 交ぜ書き
+                    {
                         Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
                         return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
                     }
