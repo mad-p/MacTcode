@@ -9,12 +9,11 @@
 // tc-bushu.el の初期バージョンのアルゴリズムを再現。
 // 元コードはGPLだが、コードコピーはしていないので、MITライセンスで配布できるはず。
 
-import Cocoa
-import InputMethodKit
+import Foundation
 
 final class Bushu {
     static let i = Bushu()
-    
+
     private var composeTable: [[String]: String] = [:]
     private var decomposeTable: [String: [String]] = [:]
     private var equivTable: [String: String] = [:]
@@ -44,16 +43,16 @@ final class Bushu {
         }
         Log.i("\(composeTable.count) bushu entries read")
     }
-    
+
     private init() {
         readDictionary()
     }
-    
+
     func basicCompose(char1: String, char2: String) -> String? {
         return (composeTable[[char1, char2]] ??
                 composeTable[[char2, char1]])
     }
-    
+
     func compose(char1: String, char2: String) -> String? {
         if let ch = basicCompose(char1: char1, char2: char2) {
             return ch
@@ -112,33 +111,5 @@ final class Bushu {
         }
         // not found
         return nil
-    }
-}
-
-class PostfixBushuAction: Action {
-    func execute(client: Client, mode: Mode, controller: Controller) -> Command {
-        // postfix bushu
-        guard let client = client as? ContextClient else {
-            Log.i("★★Can't happen: PostfixBushuAction.execute: client is not ContextClient")
-            return .processed
-        }
-        let yomi = client.getYomi(2, 2)
-        if yomi.string.count != 2 {
-            Log.i("Bushu henkan: no input")
-            return .processed
-        }
-        let chars = yomi.string.map { String($0) }
-        let ch1 = chars[0]
-        let ch2 = chars[1]
-        Log.i("Bushu \(ch1)\(ch2)")
-
-        if let ch = Bushu.i.compose(char1: ch1, char2: ch2) {
-            Log.i("Bushu \(ch1)\(ch2) -> \(ch)")
-            client.replaceYomi(ch, length: 2, from: yomi)
-        } else {
-            Log.i("Bushu henkan no candidates for \(ch1)\(ch2)")
-        }
-
-        return .processed
     }
 }
