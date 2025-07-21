@@ -101,12 +101,21 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 "system": {
   "recentTextMaxLength": 20,
   "excludedApplications": ["com.apple.loginwindow", "com.apple.SecurityAgent"],
+  "keyboardLayout": "dvorak",
+  "keyboardLayoutMapping": [
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+    "'", ",", ".", "p", "y", "f", "g", "c", "r", "l",
+    "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
+    ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
+  ],
   "logEnabled": true
 }
 ```
 
 - **`recentTextMaxLength`**: 最近入力したテキストの保存最大文字数（1-100）
 - **`excludedApplications`**: T-Code処理を無効化するアプリケーションのBundle IDリスト
+- **`keyboardLayout`**: キーボードレイアウトの名前（"dvorak", "qwerty"等）
+- **`keyboardLayoutMapping`**: 40個のキー配列マッピング（文字列配列）
 - **`logEnabled`**: デバッグログの出力有効/無効
 
 ## 設定ファイルのセットアップ
@@ -179,6 +188,30 @@ a b c d e f g h i j k l m n o p q r s t u v w x y z
 - バックスラッシュ（\）やその他の記号は現在サポートされていません
 - 同じキーを重複して指定しないでください
 - キーの順序が候補の番号に対応します（最初のキーが1番目の候補）
+
+### キーボードレイアウトの変更
+
+デフォルトはDvorak配列ですが、QWERTY配列に変更することも可能です：
+
+```json
+"system": {
+  "keyboardLayout": "qwerty",
+  "keyboardLayoutMapping": [
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+    "q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
+    "a", "s", "d", "f", "g", "h", "j", "k", "l", ";",
+    "z", "x", "c", "v", "b", "n", "m", ",", ".", "/"
+  ]
+}
+```
+
+#### キーボードレイアウトについて
+
+- **`keyboardLayout`**: レイアウト名（識別用）
+- **`keyboardLayoutMapping`**: 40個のキー配列
+  - 配列の順序は行ごとに左から右へ（4行×10列）
+  - 1行目: 数字行（1-9, 0）
+  - 2-4行目: 文字行（キーボードの上から下へ）
 
 ### バックスペース動作の調整
 ```json

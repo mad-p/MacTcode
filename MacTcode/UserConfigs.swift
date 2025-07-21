@@ -198,11 +198,20 @@ class UserConfigs {
         let recentTextMaxLength: Int
         let excludedApplications: [String]
         let logEnabled: Bool
+        let keyboardLayout: String
+        let keyboardLayoutMapping: [String]
         
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
             excludedApplications: ["com.apple.loginwindow", "com.apple.SecurityAgent"],
-            logEnabled: true
+            logEnabled: true,
+            keyboardLayout: "dvorak",
+            keyboardLayoutMapping: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+                "'", ",", ".", "p", "y", "f", "g", "c", "r", "l",
+                "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
+                ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
+            ]
         )
     }
     
