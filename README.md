@@ -70,7 +70,7 @@ MacTcodeを一度起動するとディレクトリが作られます。
 プロジェクトルートの`sample-config.json`ファイルに完全なサンプル設定があります。このファイルをコピーして使用してください：
 
 ```bash
-cp sample-config.json ~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/config.json
+cp sample-config.json ~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application\ Support/MacTcode/config.json
 ```
 
 MacTcodeを一度起動するとコピー先ディレクトリが作られます。
