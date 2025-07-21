@@ -135,15 +135,10 @@ class ContextClient: Client {
             Log.i("Trying to get yomi from client: range=\(range)")
             if let text = client.string(from: range, actualRange: &replaceRange) {
                 if text.count > 0 {
-                    // Google DocsやSlidesはZero-width spaceまたはアンダースコアを1文字返すことがある。
-                    // Gemini CLIやClaude CodeはUIで表示した文字列から取ってきているようだ。
-                    // その場合はミラーから取る
-                    if text != "\u{200b}" && // old Google Docs
-                        text != "_" && // Google Docs
-                        text != "\n\n" && // Gemini CLI or Claude Code for 部首
-                        text != "xt left)\n\n" && // Gemini CLI for 交ぜ書き
-                        text != "──────╯\n\n\n" // Claude Code for 交ぜ書き
-                    {
+                    // アプリケーションによって読みが取得できない場合を判定する文字列
+                    // UserConfigsから設定を取得
+                    let ignoreTexts = UserConfigs.shared.ui.yomiIgnoreTexts
+                    if !ignoreTexts.contains(text) {
                         Log.i("Yomi taken from client: text=\(text) at actualRange=\(replaceRange)")
                         return YomiContext(string: text, range: replaceRange, fromSelection: fromSelection, fromMirror: fromMirror)
                     }
@@ -176,15 +171,16 @@ class ContextClient: Client {
         rr.length = length
         if yomiContext.fromMirror {
             // Mirrorから読みを取った場合は、BackSpaceを送ってから文字列を送る
-            if length < 10 {
+            let uiConfig = UserConfigs.shared.ui
+            if length < uiConfig.backspaceLimit {
                 Log.i("Sending \(length) BackSpaces and then \(string)")
                 let now = DispatchTime.now()
                 for i in 0..<rr.length {
-                    DispatchQueue.main.asyncAfter(deadline: now + 0.05 * Double(i)) {
+                    DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(i)) {
                         self.client.sendBackspace()
                     }
                 }
-                DispatchQueue.main.asyncAfter(deadline: now + 0.05 * Double(rr.length)) {
+                DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(rr.length)) {
                     self.client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 }
             } else {

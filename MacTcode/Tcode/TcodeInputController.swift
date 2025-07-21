@@ -29,22 +29,25 @@ class TcodeInputController: IMKInputController, Controller {
     }
     
     func setupCandidateWindow() {
-        let selectionKeys = [
-            kVK_ANSI_J,
-            kVK_ANSI_K,
-            kVK_ANSI_L,
-            kVK_ANSI_Semicolon,
-            kVK_ANSI_1,
-            kVK_ANSI_2,
-            kVK_ANSI_3,
-            kVK_ANSI_4,
-            kVK_ANSI_5,
-            kVK_ANSI_6,
-            kVK_ANSI_7,
-            kVK_ANSI_8,
-            kVK_ANSI_9,
-            kVK_ANSI_0,
+        // UserConfigsから候補選択キーを取得してVirtual Key Codeに変換
+        let configKeys = UserConfigs.shared.ui.candidateSelectionKeys
+        let keyMap: [String: Int] = [
+            "j": kVK_ANSI_J,
+            "k": kVK_ANSI_K,
+            "l": kVK_ANSI_L,
+            ";": kVK_ANSI_Semicolon,
+            "1": kVK_ANSI_1,
+            "2": kVK_ANSI_2,
+            "3": kVK_ANSI_3,
+            "4": kVK_ANSI_4,
+            "5": kVK_ANSI_5,
+            "6": kVK_ANSI_6,
+            "7": kVK_ANSI_7,
+            "8": kVK_ANSI_8,
+            "9": kVK_ANSI_9,
+            "0": kVK_ANSI_0,
         ]
+        let selectionKeys = configKeys.compactMap { keyMap[$0] }
         candidateWindow.setSelectionKeys(selectionKeys)
     }
     
@@ -52,11 +55,12 @@ class TcodeInputController: IMKInputController, Controller {
         guard let client = sender as? IMKTextInput else {
             return false
         }
-        // ログイン画面では変換しないでそのまま入力する
+        // 除外アプリケーションでは変換しないでそのまま入力する
         Log.i("handle: client=\(type(of: client))")
         let bid = client.bundleIdentifier()
         Log.i("  client.bundleIdentifier=\(bid ?? "nil")")
-        if bid == "com.apple.loginwindow" || bid == "com.apple.SecurityAgent" {
+        let excludedApps = UserConfigs.shared.system.excludedApplications
+        if let bundleId = bid, excludedApps.contains(bundleId) {
             return false
         }
         let inputEvent = Translator.translate(event: event)
