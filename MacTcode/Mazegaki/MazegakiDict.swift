@@ -9,10 +9,10 @@ import Cocoa
 
 final class MazegakiDict {
     static let i = MazegakiDict()
-    
+
     var dict: [String: String] = [:]
     static let inflectionMark = "—"
-    
+
     func readDictionary() {
         Log.i("Read mazegaki dictionary...")
         dict = [:]
@@ -30,7 +30,7 @@ final class MazegakiDict {
         }
         Log.i("\(dict.count) mazegaki entries read")
     }
-    
+
     private init() {
         readDictionary()
     }

@@ -13,7 +13,7 @@ import Foundation
 
 final class Bushu {
     static let i = Bushu()
-    
+
     private var composeTable: [[String]: String] = [:]
     private var decomposeTable: [String: [String]] = [:]
     private var equivTable: [String: String] = [:]
@@ -43,16 +43,16 @@ final class Bushu {
         }
         Log.i("\(composeTable.count) bushu entries read")
     }
-    
+
     private init() {
         readDictionary()
     }
-    
+
     func basicCompose(char1: String, char2: String) -> String? {
         return (composeTable[[char1, char2]] ??
                 composeTable[[char2, char1]])
     }
-    
+
     func compose(char1: String, char2: String) -> String? {
         if let ch = basicCompose(char1: char1, char2: char2) {
             return ch
@@ -113,4 +113,3 @@ final class Bushu {
         return nil
     }
 }
-

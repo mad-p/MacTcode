@@ -86,18 +86,18 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     }
     func reset() {
     }
-    
+
     func candidates(_ sender: Any!) -> [Any]! {
         Log.i("MazegakiSelectionMode.candidates")
         return hits[row].candidates()
     }
-    
+
     func candidateSelected(_ candidateString: NSAttributedString!, client: (any Client)!) {
         Log.i("candidateSelected \(candidateString.string)")
         _ = mazegaki.submit(hit: hits[row], string: candidateString.string, client: client)
         cancel()
     }
-    
+
     func candidateSelectionChanged(_ candidateString: NSAttributedString!) {
         self.candidateString = candidateString.string
         Log.i("candidateSelectionChanged \(candidateString.string)")

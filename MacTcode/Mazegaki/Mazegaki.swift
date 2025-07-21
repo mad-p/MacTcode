@@ -18,13 +18,13 @@ class Mazegaki {
     static var inflectionRange = inflectionCharsMin...inflectionCharsMax
     static var nonYomiCharacters =
         ["、", "。", "，", "．", "・", "「", "」", "（", "）"] // 読み部分に許されない文字
-    
+
     let yomi: [String] // 読み部分の文字列、各要素は1文字
     let inflection: Bool // 活用語をさがすかどうか
     let fixed: Bool // 読み長さが固定かどうか
     let max: Int // 読みの最大長さ。fixedの場合はyomiの長さと同じ
     let context: YomiContext
-    
+
     init(_ context: YomiContext, inflection: Bool) {
         self.context = context
         let text = context.string
@@ -41,7 +41,7 @@ class Mazegaki {
         self.max = m
         self.inflection = inflection
     }
-    
+
     // 検索キーを文字列として返す
     func key(_ i: Int, offset: Int = 0) -> String? {
         if i > yomi.count || i == 0 || offset >= i {
@@ -67,7 +67,7 @@ class Mazegaki {
             return nil
         }
     }
-    
+
     /// 全候補の可能性をすべて数えあげる
     func find() -> [MazegakiHit] {
         // 活用しないとき
@@ -94,7 +94,7 @@ class Mazegaki {
         }
         return result.sorted()
     }
-    
+
     /// 確定するコンビニメソッド
     func submit(hit: MazegakiHit, index: Int, client: Client) -> Bool {
         if !hit.found || index >= hit.candidates().count {
@@ -102,7 +102,7 @@ class Mazegaki {
         }
         return self.submit(hit: hit, string: hit.candidates()[index], client: client)
     }
-    
+
     func submit(hit: MazegakiHit, string: String, client: Client) -> Bool {
         guard let client = client as? ContextClient else {
             Log.i("★★Can't happen: Mazegaki.submit: client is not ContextClient")
@@ -142,7 +142,7 @@ class PostfixMazegakiAction: Action {
         } else {
             Log.i("Mazegaki: from \(text)")
         }
-        
+
         let hits = mazegaki.find()
         if hits.isEmpty {
             return .processed
@@ -156,8 +156,7 @@ class PostfixMazegakiAction: Action {
         controller.pushMode(newMode)
         newMode.showWindow()
         // Log.i("Mazegaki: more than one candidates")
-        
+
         return .processed
     }
 }
-

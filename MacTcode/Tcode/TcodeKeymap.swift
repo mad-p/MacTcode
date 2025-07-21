@@ -63,8 +63,7 @@ class TcodeKeymap {
             Keymap("outset1", fromChars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡")))
         KeymapResolver.define(sequence: "\\\\", keymap: map, entry: Command.keymap(
             Keymap("outset2", fromChars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩")))
-        
+
         return map
     }()
 }
-

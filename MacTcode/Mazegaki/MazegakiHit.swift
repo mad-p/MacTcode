@@ -48,7 +48,7 @@ class MazegakiHit: Comparable {
         return lhs.offset < rhs.offset ||
         lhs.length > rhs.length
     }
-    
+
     static func == (lhs: MazegakiHit, rhs: MazegakiHit) -> Bool {
         return lhs.found == rhs.found &&
         lhs.yomi == rhs.yomi &&
