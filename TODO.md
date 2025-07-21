@@ -1,20 +1,11 @@
-## 完了済みタスク
+- [x] Translator.swiftで定義しているlayoutはDvorak配列になっている。これを例えばQWERTYにも変更できるように、設定項目に追加する
+    - [x] SystemConfigにkeyboardLayoutとkeyboardLayoutMappingを追加
+    - [x] Translator.swiftをUserConfigs参照に変更
+    - [x] sample-config.jsonにキーボードレイアウト設定を追加
+    - [x] ConfigParams.mdにQWERTY配列の例とレイアウト説明を追加
 
-1. ✅ **クラス再配置**
-    - ✅ swiftファイルひとつにクラスひとつが対応するように修正
-      - Mazegaki.swift（14個の型）→ 6ファイルに分割
-      - MacTcodeApp.swift（2個の型）→ 2ファイルに分割  
-      - Bushu.swift（2個の型）→ 2ファイルに分割
-      - TcodeKeymap.swift（2個の型）→ 2ファイルに分割
-    - ✅ `make test`でテスト実行可能にMakefile更新
-    - ✅ 全テスト通過確認（45テスト成功）
-
-## 未着手タスク
-
-2. **コンフィグファイル機能を追加**
-    - ソースコード内にハードコーディングされている設定情報をリストアップ
-    - config.jsonのサーチパスを決定
-    - コンフィグ情報のサンプルファイルを作成
-    - コンフィグ情報を保存するクラスを作成
-    - コンフィグ情報の読み込み機能を実装
-    - ソースコード内各所からコンフィグ情報を参照するように修正
+## キーボードレイアウト対応完了
+- Dvorak配列（デフォルト）とQWERTY配列の切り替え対応
+- 設定ファイルでキーマッピングを完全にカスタマイズ可能
+- ユーザーガイドでの詳細な設定方法説明
+- 全47テストが正常実行される状態を維持

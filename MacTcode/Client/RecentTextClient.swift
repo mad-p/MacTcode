@@ -11,9 +11,9 @@ import Cocoa
 class RecentTextClient: Client {
     var maxLength: Int = 20
     var text: String
-    init(_ string: String, _ maxLengeth: Int = 20) {
+    init(_ string: String, _ maxLength: Int = UserConfigs.shared.system.recentTextMaxLength) {
         self.text = string
-        self.maxLength = maxLengeth
+        self.maxLength = maxLength
     }
     func selectedRange() -> NSRange {
         return NSRange(location: text.count, length: 0)

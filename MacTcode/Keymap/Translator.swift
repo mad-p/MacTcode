@@ -10,12 +10,9 @@ import InputMethodKit
 
 /// NSEventをInputEventに変換する
 class Translator {
-    static var layout: [String] = [
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-        "'", ",", ".", "p", "y", "f", "g", "c", "r", "l",
-        "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
-        ";", "q", "j", "k", "x", "b", "m", "w", "v", "z",
-    ]
+    static var layout: [String] {
+        return UserConfigs.shared.system.keyboardLayoutMapping
+    }
     static func strToKey(_ string: String!) -> Int? {
         return layout.firstIndex(of: string)
     }

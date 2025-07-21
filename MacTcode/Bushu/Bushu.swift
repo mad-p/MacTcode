@@ -23,7 +23,8 @@ final class Bushu {
         composeTable = [:]
         decomposeTable = [:]
         equivTable = [:]
-        if let bushuDic = Config.loadConfig(file: "bushu.dic") {
+        let dictionaryFile = UserConfigs.shared.bushu.dictionaryFile
+        if let bushuDic = Config.loadConfig(file: dictionaryFile) {
             for line in bushuDic.components(separatedBy: .newlines) {
                 let chars = line.map {String($0)}
                 if chars.count == 3 {

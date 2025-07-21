@@ -12,12 +12,12 @@
 import Foundation
 
 class Mazegaki {
-    static var maxInflection = 4 // 活用部分の最大長
+    // UserConfigsから設定値を取得するためのcomputed properties
+    static var maxInflection: Int { UserConfigs.shared.mazegaki.maxInflection }
     static var inflectionCharsMin = 0x3041 // 活用部分に許される文字コードポイントの下限
     static var inflectionCharsMax = 0x30fe // 活用部分に許される文字上限
     static var inflectionRange = inflectionCharsMin...inflectionCharsMax
-    static var nonYomiCharacters =
-        ["、", "。", "，", "．", "・", "「", "」", "（", "）"] // 読み部分に許されない文字
+    static var nonYomiCharacters: [String] { UserConfigs.shared.mazegaki.nonYomiCharacters }
 
     let yomi: [String] // 読み部分の文字列、各要素は1文字
     let inflection: Bool // 活用語をさがすかどうか
@@ -119,7 +119,7 @@ class Mazegaki {
 }
 
 class PostfixMazegakiAction: Action {
-    let maxYomi = 10
+    var maxYomi: Int { UserConfigs.shared.mazegaki.maxYomi }
     let inflection : Bool
     init(inflection: Bool) {
         self.inflection = inflection
