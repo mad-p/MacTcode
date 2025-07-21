@@ -6,7 +6,7 @@ WORKDIR=work
 SIGNING_IDENTITY="Developer ID Application: Kaoru Maeda (8H7RHH924X)"
 BUNDLE_ID=jp.mad-p.inputmethod.MacTcode
 
-.PHONY: build releaseBuild reload releaseReload sign dmg notary
+.PHONY: build releaseBuild reload releaseReload sign dmg notary test
 
 build:
 	xcodebuild -workspace MacTcode.xcodeproj/project.xcworkspace -scheme MacTcode clean archive -archivePath $(ARCDIR) OTHER_SWIFT_FLAGS='-D ENABLE_NSLOG'
@@ -41,3 +41,6 @@ dmg $(WORKDIR)/$(DMGNAME): sign
 notary: dmg
 	xcrun notarytool submit $(WORKDIR)/$(DMGNAME) --keychain-profile "MacTcode" --wait
 	xcrun stapler staple $(WORKDIR)/$(DMGNAME)
+
+test:
+	xcodebuild -project MacTcode.xcodeproj -scheme MacTcode -destination 'platform=macOS' test
