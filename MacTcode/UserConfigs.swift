@@ -210,7 +210,8 @@ class UserConfigs {
     
     private func loadConfig() {
         guard FileManager.default.fileExists(atPath: configURL.path) else {
-            Log.i("Config file not found. Using default configuration.")
+            // This log message can be output before logEnabled is set
+            NSLog("Config file not found. Using default configuration.")
             return
         }
         
@@ -223,10 +224,10 @@ class UserConfigs {
             try validateConfiguration(loadedConfig)
             
             configData = loadedConfig
-            Log.i("Configuration loaded and validated successfully.")
+            NSLog("Configuration loaded and validated successfully.")
             delegate?.userConfigsDidChange(self)
         } catch {
-            Log.i("Failed to load configuration: \(error). Using default configuration.")
+            NSLog("Failed to load configuration: \(error). Using default configuration.")
             configData = .default
         }
     }

@@ -9,10 +9,11 @@ import Cocoa
 
 /// 最近入力した文字を保存しておくClient
 class RecentTextClient: Client {
-    var maxLength: Int { UserConfigs.shared.system.recentTextMaxLength }
+    var maxLength: Int = 20
     var text: String
-    init(_ string: String, _ maxLengeth: Int? = nil) {
+    init(_ string: String, _ len: Int? = nil) {
         self.text = string
+        self.maxLength = len ?? UserConfigs.shared.system.recentTextMaxLength
     }
     func selectedRange() -> NSRange {
         return NSRange(location: text.count, length: 0)
