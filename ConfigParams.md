@@ -129,7 +129,7 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 # MacTcodeを一度起動するとディレクトリが作られます
 
 # サンプル設定ファイルをコピー
-cp sample-config.json ~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/config.json
+cp sample-config.json ~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application\ Support/MacTcode/config.json
 ```
 
 ### 2. 設定を編集
