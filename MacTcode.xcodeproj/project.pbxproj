@@ -259,14 +259,6 @@
 			path = MacTcodeUITests;
 			sourceTree = "<group>";
 		};
-		9DA358D02E2DEE6A00323184 /* Mazegaki */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Mazegaki;
-			path = MacTcode/Mazegaki;
-			sourceTree = SOURCE_ROOT;
-		};
 		9DEAFE1B2C5F9D1B00E8B5E3 /* Bushu */ = {
 			isa = PBXGroup;
 			children = (
@@ -321,7 +313,6 @@
 			isa = PBXGroup;
 			children = (
 				9DEA6D452C0E45950005BB18 /* Client.swift */,
-				9DA358D02E2DEE6A00323184 /* Mazegaki */,
 				9DEAFE2A2C5FB18700E8B5E3 /* ContextClient.swift */,
 				9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */,
 				9DEAFE342C6DB3E000E8B5E3 /* ClientWrapper.swift */,
