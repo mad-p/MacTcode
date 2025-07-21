@@ -69,7 +69,7 @@ enum ConfigValidationError: LocalizedError {
     case invalidMaxYomi(value: Int)
     case invalidBackspaceDelay(value: Double)
     case invalidRecentTextMaxLength(value: Int)
-    
+
     var errorDescription: String? {
         switch self {
         case .invalidBasicTableSize(let expected, let actual):
@@ -90,15 +90,15 @@ enum ConfigValidationError: LocalizedError {
 
 class UserConfigs {
     static let shared = UserConfigs()
-    
+
     // MARK: - Configuration Categories
-    
+
     struct MazegakiConfig: Codable {
         let maxInflection: Int
         let maxYomi: Int
         let nonYomiCharacters: [String]
         let dictionaryFile: String
-        
+
         static let `default` = MazegakiConfig(
             maxInflection: 4,
             maxYomi: 10,
@@ -106,15 +106,15 @@ class UserConfigs {
             dictionaryFile: "mazegaki.dic"
         )
     }
-    
+
     struct BushuConfig: Codable {
         let dictionaryFile: String
-        
+
         static let `default` = BushuConfig(
             dictionaryFile: "bushu.dic"
         )
     }
-    
+
     struct KeyBindingsConfig: Codable {
         let bushuConversion: String
         let mazegakiConversion: String
@@ -123,7 +123,7 @@ class UserConfigs {
         let symbolSet1: String
         let symbolSet2: String
         let basicTable: [String]
-        
+
         static let `default` = KeyBindingsConfig(
             bushuConversion: "hu",
             mazegakiConversion: "uh",
@@ -175,7 +175,7 @@ class UserConfigs {
             ]
         )
     }
-    
+
     struct UIConfig: Codable {
         let candidateSelectionKeys: [String]
         let backspaceDelay: Double
@@ -183,7 +183,7 @@ class UserConfigs {
         let yomiIgnoreTexts: [String]
         let symbolSet1Chars: String
         let symbolSet2Chars: String
-        
+
         static let `default` = UIConfig(
             candidateSelectionKeys: ["j", "k", "l", ";", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
             backspaceDelay: 0.05,
@@ -193,14 +193,14 @@ class UserConfigs {
             symbolSet2Chars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
         )
     }
-    
+
     struct SystemConfig: Codable {
         let recentTextMaxLength: Int
         let excludedApplications: [String]
         let logEnabled: Bool
         let keyboardLayout: String
         let keyboardLayoutMapping: [String]
-        
+
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
             excludedApplications: ["com.apple.loginwindow", "com.apple.SecurityAgent"],
@@ -214,14 +214,14 @@ class UserConfigs {
             ]
         )
     }
-    
+
     struct ConfigData: Codable {
         let mazegaki: MazegakiConfig
         let bushu: BushuConfig
         let keyBindings: KeyBindingsConfig
         let ui: UIConfig
         let system: SystemConfig
-        
+
         static let `default` = ConfigData(
             mazegaki: .default,
             bushu: .default,
@@ -230,58 +230,58 @@ class UserConfigs {
             system: .default
         )
     }
-    
+
     // MARK: - Properties
-    
+
     private var configData: ConfigData = .default
     private let configURL: URL
     weak var delegate: UserConfigsDelegate?
-    
+
     // MARK: - Constants
-    
+
     private static let expectedBasicTableRows = 40
     private static let expectedBasicTableColumns = 40
-    
+
     // MARK: - Initialization
-    
+
     private init() {
         let fileManager = FileManager.default
         let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
-        
+
         // ディレクトリが存在しない場合は作成
         if !fileManager.fileExists(atPath: macTcodeURL.path) {
             try? fileManager.createDirectory(at: macTcodeURL, withIntermediateDirectories: true)
         }
-        
+
         configURL = macTcodeURL.appendingPathComponent("config.json")
         loadConfig()
     }
-    
+
     // MARK: - Public Access Properties
-    
+
     var mazegaki: MazegakiConfig { configData.mazegaki }
     var bushu: BushuConfig { configData.bushu }
     var keyBindings: KeyBindingsConfig { configData.keyBindings }
     var ui: UIConfig { configData.ui }
     var system: SystemConfig { configData.system }
-    
+
     // MARK: - Configuration Management
-    
+
     private func loadConfig() {
         guard FileManager.default.fileExists(atPath: configURL.path) else {
             log("Config file not found. Using default configuration.")
             return
         }
-        
+
         do {
             let data = try Data(contentsOf: configURL)
             let decoder = JSONDecoder()
             let loadedConfig = try decoder.decode(ConfigData.self, from: data)
-            
+
             // 設定の妥当性を検証
             try validateConfiguration(loadedConfig)
-            
+
             configData = loadedConfig
             log("Configuration loaded and validated successfully.")
             delegate?.userConfigsDidChange(self)
@@ -290,30 +290,30 @@ class UserConfigs {
             configData = .default
         }
     }
-    
+
     func loadConfigFromFile(_ fileURL: URL) throws {
         let data = try Data(contentsOf: fileURL)
         let decoder = JSONDecoder()
         let loadedConfig = try decoder.decode(ConfigData.self, from: data)
-        
+
         // 設定の妥当性を検証
         try validateConfiguration(loadedConfig)
-        
+
         configData = loadedConfig
         log("Configuration loaded from external file: \(fileURL.path)")
         delegate?.userConfigsDidChange(self)
     }
-    
+
     private func validateConfiguration(_ config: ConfigData) throws {
         // MazegakiConfig validation
         guard config.mazegaki.maxInflection >= 1 && config.mazegaki.maxInflection <= 10 else {
             throw ConfigValidationError.invalidMaxInflection(value: config.mazegaki.maxInflection)
         }
-        
+
         guard config.mazegaki.maxYomi >= 1 && config.mazegaki.maxYomi <= 50 else {
             throw ConfigValidationError.invalidMaxYomi(value: config.mazegaki.maxYomi)
         }
-        
+
         // KeyBindingsConfig validation - basicTable
         let basicTable = config.keyBindings.basicTable
         guard basicTable.count == Self.expectedBasicTableRows else {
@@ -322,7 +322,7 @@ class UserConfigs {
                 actual: basicTable.count
             )
         }
-        
+
         for (index, row) in basicTable.enumerated() {
             guard row.count == Self.expectedBasicTableColumns else {
                 throw ConfigValidationError.invalidBasicTableRowLength(
@@ -332,23 +332,23 @@ class UserConfigs {
                 )
             }
         }
-        
+
         // UIConfig validation
         guard config.ui.backspaceDelay >= 0.01 && config.ui.backspaceDelay <= 1.0 else {
             throw ConfigValidationError.invalidBackspaceDelay(value: config.ui.backspaceDelay)
         }
-        
+
         // SystemConfig validation
         guard config.system.recentTextMaxLength >= 1 && config.system.recentTextMaxLength <= 100 else {
             throw ConfigValidationError.invalidRecentTextMaxLength(value: config.system.recentTextMaxLength)
         }
     }
-    
+
     func saveConfig() {
         do {
             // 保存前に妥当性を検証
             try validateConfiguration(configData)
-            
+
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(configData)
@@ -358,52 +358,52 @@ class UserConfigs {
             log("Failed to save configuration: \(error)")
         }
     }
-    
+
     func saveConfigToFile(_ fileURL: URL) throws {
         try validateConfiguration(configData)
-        
+
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(configData)
         try data.write(to: fileURL)
         log("Configuration exported to: \(fileURL.path)")
     }
-    
+
     func resetToDefaults() {
         configData = .default
         saveConfig()
         delegate?.userConfigsDidChange(self)
         log("Configuration reset to defaults.")
     }
-    
+
     func reloadConfig() {
         loadConfig()
         log("Configuration reloaded.")
     }
-    
+
     // MARK: - Configuration Status
-    
+
     var isUsingDefaultConfig: Bool {
         return !FileManager.default.fileExists(atPath: configURL.path)
     }
-    
+
     var configFileExists: Bool {
         return FileManager.default.fileExists(atPath: configURL.path)
     }
-    
+
     var configFilePath: String {
         return configURL.path
     }
-    
+
     func createSampleConfigFile() {
         if !configFileExists {
             saveConfig()
             log("Sample configuration file created at: \(configURL.path)")
         }
     }
-    
+
     // MARK: - Configuration Updates
-    
+
     func updateMazegaki(_ newConfig: MazegakiConfig) {
         let newConfigData = ConfigData(
             mazegaki: newConfig,
@@ -412,7 +412,7 @@ class UserConfigs {
             ui: configData.ui,
             system: configData.system
         )
-        
+
         do {
             try validateConfiguration(newConfigData)
             configData = newConfigData
@@ -422,7 +422,7 @@ class UserConfigs {
             log("Failed to update mazegaki configuration: \(error)")
         }
     }
-    
+
     func updateBushu(_ newConfig: BushuConfig) {
         let newConfigData = ConfigData(
             mazegaki: configData.mazegaki,
@@ -431,7 +431,7 @@ class UserConfigs {
             ui: configData.ui,
             system: configData.system
         )
-        
+
         do {
             try validateConfiguration(newConfigData)
             configData = newConfigData
@@ -441,7 +441,7 @@ class UserConfigs {
             log("Failed to update bushu configuration: \(error)")
         }
     }
-    
+
     func updateKeyBindings(_ newConfig: KeyBindingsConfig) {
         let newConfigData = ConfigData(
             mazegaki: configData.mazegaki,
@@ -450,7 +450,7 @@ class UserConfigs {
             ui: configData.ui,
             system: configData.system
         )
-        
+
         do {
             try validateConfiguration(newConfigData)
             configData = newConfigData
@@ -460,7 +460,7 @@ class UserConfigs {
             log("Failed to update key bindings configuration: \(error)")
         }
     }
-    
+
     func updateUI(_ newConfig: UIConfig) {
         let newConfigData = ConfigData(
             mazegaki: configData.mazegaki,
@@ -469,7 +469,7 @@ class UserConfigs {
             ui: newConfig,
             system: configData.system
         )
-        
+
         do {
             try validateConfiguration(newConfigData)
             configData = newConfigData
@@ -479,7 +479,7 @@ class UserConfigs {
             log("Failed to update UI configuration: \(error)")
         }
     }
-    
+
     func updateSystem(_ newConfig: SystemConfig) {
         let newConfigData = ConfigData(
             mazegaki: configData.mazegaki,
@@ -488,7 +488,7 @@ class UserConfigs {
             ui: configData.ui,
             system: newConfig
         )
-        
+
         do {
             try validateConfiguration(newConfigData)
             configData = newConfigData

@@ -6,7 +6,7 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 ## 設定ファイルの場所
 設定ファイルは以下の順序で検索されます：
 
-1. `~/Library/Application Support/MacTcode/config.json` (ユーザー設定)
+1. `~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/config.json` (ユーザー設定)
 2. アプリケーション内の`config.json` (デフォルト設定)
 
 ## 設定ファイルの構造
@@ -126,10 +126,10 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 
 ```bash
 # ディレクトリを作成
-mkdir -p ~/Library/Application\ Support/MacTcode
+# MacTcodeを一度起動するとディレクトリが作られます
 
 # サンプル設定ファイルをコピー
-cp sample-config.json ~/Library/Application\ Support/MacTcode/config.json
+cp sample-config.json ~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/config.json
 ```
 
 ### 2. 設定を編集
@@ -228,10 +228,17 @@ a b c d e f g h i j k l m n o p q r s t u v w x y z
 
 設定ファイルを変更した場合は、MacTcodeを再起動してください。将来のバージョンでは設定の動的リロード機能が追加予定です。
 
+```bash
+pkill MacTcode
+# MacTcodeを起動
+```
+
 ## トラブルシューティング
 
 - 設定ファイルの書式が正しくない場合、デフォルト設定で動作します
 - ログを有効にして問題を特定できます（`"logEnabled": true`）
     - ログを読むには以下のコマンドが便利です
-    - `log stream --predicate 'process == "MacTcode"'`
+    - ```bash
+      log stream --predicate 'process == "MacTcode"'
+      ```
 - 設定に問題がある場合は、サンプル設定ファイルから再度コピーしてください

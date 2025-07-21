@@ -50,8 +50,10 @@ MacTcodeは設定ファイルを使用してカスタマイズできます。
 
 設定ファイルは以下の場所に配置してください：
 ```
-~/Library/Application Support/MacTcode/config.json
+~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/config.json
 ```
+
+MacTcodeを一度起動するとディレクトリが作られます。
 
 ### 設定ファイルの構造
 
@@ -68,8 +70,10 @@ MacTcodeは設定ファイルを使用してカスタマイズできます。
 プロジェクトルートの`sample-config.json`ファイルに完全なサンプル設定があります。このファイルをコピーして使用してください：
 
 ```bash
-cp sample-config.json ~/Library/Application\ Support/MacTcode/config.json
+cp sample-config.json ~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/config.json
 ```
+
+MacTcodeを一度起動するとコピー先ディレクトリが作られます。
 
 ### 主な設定項目
 
