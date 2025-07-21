@@ -80,7 +80,7 @@
       "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
       ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
     ],
-    "logEnabled" : true,
+    "logEnabled" : false,
     "recentTextMaxLength" : 20
   },
   "ui" : {

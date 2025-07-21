@@ -74,6 +74,8 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`zenkakuMode`**: 全角入力モードを開始するキーシーケンス
 - **`symbolSet1`**, **`symbolSet2`**: 記号入力セットのキーシーケンス
 - **`basicTable`**: T-Code基本文字配列（40行×40文字）
+- キーシーケンスの設定置には、入力される文字を指定してください。上記の `hu`、`uh` はDvorak配列の場合の例となります
+- バックスラッシュやダブルクォートはエスケープしてください
 
 ### 4. ユーザーインターフェース設定 (`ui`)
 
@@ -82,8 +84,8 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "candidateSelectionKeys": ["j", "k", "l", ";", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
   "backspaceDelay": 0.05,
   "backspaceLimit": 10,
-  "yomiIgnoreTexts": ["\u{200b}", "_", "\n\n", "xt left)\n\n", "──────╯\n\n\n"],
-  "symbolSet1Chars": "√∂『』　\"《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
+  "yomiIgnoreTexts": ["\u200b", "_", "\n\n", "xt left)\n\n", "──────╯\n\n\n"],
+  "symbolSet1Chars": "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
   "symbolSet2Chars": "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
 }
 ```
@@ -108,7 +110,7 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
     "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
     ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
   ],
-  "logEnabled": true
+  "logEnabled": false
 }
 ```
 
@@ -186,6 +188,7 @@ a b c d e f g h i j k l m n o p q r s t u v w x y z
 **注意事項**
 - 大文字のアルファベット（A-Z）は使用できません
 - バックスラッシュ（\）やその他の記号は現在サポートされていません
+- 文字は、キーの物理的な位置を表わすため、keyboardLayoutの設定に関わりなく、QWERTY配列で書いてください
 - 同じキーを重複して指定しないでください
 - キーの順序が候補の番号に対応します（最初のキーが1番目の候補）
 
@@ -229,4 +232,6 @@ a b c d e f g h i j k l m n o p q r s t u v w x y z
 
 - 設定ファイルの書式が正しくない場合、デフォルト設定で動作します
 - ログを有効にして問題を特定できます（`"logEnabled": true`）
+    - ログを読むには以下のコマンドが便利です
+    - `log stream --predicate 'process == "MacTcode"'`
 - 設定に問題がある場合は、サンプル設定ファイルから再度コピーしてください
