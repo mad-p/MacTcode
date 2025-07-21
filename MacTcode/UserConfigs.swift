@@ -2,10 +2,57 @@
 //  UserConfigs.swift
 //  MacTcode
 //
-//  Created by Claude on 2025/07/21.
+//  Created by maeda on 2025/07/21.
 //
 
 import Foundation
+
+/**
+ * # UserConfigs - MacTcode設定管理システム
+ *
+ * ## 概要
+ * MacTcodeの全設定情報を管理するシングルトンクラス。JSON形式の設定ファイルから
+ * 設定を読み込み、アプリケーション全体で一元管理します。
+ *
+ * ## 設計パターン
+ * ### シングルトンパターン
+ * - `shared`静的プロパティで唯一のインスタンスにアクセス
+ * - アプリケーション全体で一貫した設定状態を保持
+ * - 設定変更時の通知機能を提供
+ *
+ * ### 委譲パターン（Delegate Pattern）
+ * - `UserConfigsDelegate`プロトコルによる設定変更通知
+ * - 設定が変更された際に依存するコンポーネントに通知
+ * - 弱参照（weak reference）によるメモリリーク回避
+ *
+ * ## スレッドセーフ性
+ * - 読み取り専用プロパティによる設定アクセス
+ * - 設定変更は`loadConfiguration()`メソッドでのみ実行
+ * - 内部状態変更時は適切な排他制御を実装
+ *
+ * ## 設定カテゴリ
+ * 1. **MazegakiConfig**: 交ぜ書き変換設定（最大活用長、読み長、辞書ファイル等）
+ * 2. **BushuConfig**: 部首変換設定（辞書ファイル）
+ * 3. **KeyBindingsConfig**: キーバインド設定（各機能のキーシーケンス、基本文字配列）
+ * 4. **UIConfig**: UI設定（候補選択キー、バックスペース動作、記号セット等）
+ * 5. **SystemConfig**: システム設定（最近テキスト長、除外アプリ、ログ設定）
+ *
+ * ## 設定検証
+ * - `ConfigValidationError`による厳密な設定値検証
+ * - 基本文字配列のサイズ・形式チェック
+ * - 数値範囲の妥当性検証
+ * - 不正な設定値の場合はデフォルト値で動作
+ *
+ * ## 使用例
+ * ```swift
+ * // 設定値の取得
+ * let maxYomi = UserConfigs.shared.mazegaki.maxYomi
+ * let candidateKeys = UserConfigs.shared.ui.candidateSelectionKeys
+ *
+ * // 設定変更の監視
+ * UserConfigs.shared.delegate = self
+ * ```
+ */
 
 // MARK: - Configuration Change Notification
 
@@ -134,12 +181,16 @@ class UserConfigs {
         let backspaceDelay: Double
         let backspaceLimit: Int
         let yomiIgnoreTexts: [String]
+        let symbolSet1Chars: String
+        let symbolSet2Chars: String
         
         static let `default` = UIConfig(
             candidateSelectionKeys: ["j", "k", "l", ";", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
             backspaceDelay: 0.05,
             backspaceLimit: 10,
-            yomiIgnoreTexts: ["\u{200b}", "_", "\n\n", "xt left)\n\n", "──────╯\n\n\n"]
+            yomiIgnoreTexts: ["\u{200b}", "_", "\n\n", "xt left)\n\n", "──────╯\n\n\n"],
+            symbolSet1Chars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
+            symbolSet2Chars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
         )
     }
     
@@ -210,8 +261,7 @@ class UserConfigs {
     
     private func loadConfig() {
         guard FileManager.default.fileExists(atPath: configURL.path) else {
-            // This log message can be output before logEnabled is set
-            NSLog("Config file not found. Using default configuration.")
+            log("Config file not found. Using default configuration.")
             return
         }
         
@@ -224,10 +274,10 @@ class UserConfigs {
             try validateConfiguration(loadedConfig)
             
             configData = loadedConfig
-            NSLog("Configuration loaded and validated successfully.")
+            log("Configuration loaded and validated successfully.")
             delegate?.userConfigsDidChange(self)
         } catch {
-            NSLog("Failed to load configuration: \(error). Using default configuration.")
+            log("Failed to load configuration: \(error). Using default configuration.")
             configData = .default
         }
     }
@@ -241,7 +291,7 @@ class UserConfigs {
         try validateConfiguration(loadedConfig)
         
         configData = loadedConfig
-        Log.i("Configuration loaded from external file: \(fileURL.path)")
+        log("Configuration loaded from external file: \(fileURL.path)")
         delegate?.userConfigsDidChange(self)
     }
     
@@ -294,9 +344,9 @@ class UserConfigs {
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(configData)
             try data.write(to: configURL)
-            Log.i("Configuration saved successfully.")
+            log("Configuration saved successfully.")
         } catch {
-            Log.i("Failed to save configuration: \(error)")
+            log("Failed to save configuration: \(error)")
         }
     }
     
@@ -307,19 +357,19 @@ class UserConfigs {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(configData)
         try data.write(to: fileURL)
-        Log.i("Configuration exported to: \(fileURL.path)")
+        log("Configuration exported to: \(fileURL.path)")
     }
     
     func resetToDefaults() {
         configData = .default
         saveConfig()
         delegate?.userConfigsDidChange(self)
-        Log.i("Configuration reset to defaults.")
+        log("Configuration reset to defaults.")
     }
     
     func reloadConfig() {
         loadConfig()
-        Log.i("Configuration reloaded.")
+        log("Configuration reloaded.")
     }
     
     // MARK: - Configuration Status
@@ -339,7 +389,7 @@ class UserConfigs {
     func createSampleConfigFile() {
         if !configFileExists {
             saveConfig()
-            Log.i("Sample configuration file created at: \(configURL.path)")
+            log("Sample configuration file created at: \(configURL.path)")
         }
     }
     
@@ -358,9 +408,9 @@ class UserConfigs {
             try validateConfiguration(newConfigData)
             configData = newConfigData
             delegate?.userConfigsDidChange(self)
-            Log.i("Mazegaki configuration updated.")
+            log("Mazegaki configuration updated.")
         } catch {
-            Log.i("Failed to update mazegaki configuration: \(error)")
+            log("Failed to update mazegaki configuration: \(error)")
         }
     }
     
@@ -377,9 +427,9 @@ class UserConfigs {
             try validateConfiguration(newConfigData)
             configData = newConfigData
             delegate?.userConfigsDidChange(self)
-            Log.i("Bushu configuration updated.")
+            log("Bushu configuration updated.")
         } catch {
-            Log.i("Failed to update bushu configuration: \(error)")
+            log("Failed to update bushu configuration: \(error)")
         }
     }
     
@@ -396,9 +446,9 @@ class UserConfigs {
             try validateConfiguration(newConfigData)
             configData = newConfigData
             delegate?.userConfigsDidChange(self)
-            Log.i("Key bindings configuration updated.")
+            log("Key bindings configuration updated.")
         } catch {
-            Log.i("Failed to update key bindings configuration: \(error)")
+            log("Failed to update key bindings configuration: \(error)")
         }
     }
     
@@ -415,9 +465,9 @@ class UserConfigs {
             try validateConfiguration(newConfigData)
             configData = newConfigData
             delegate?.userConfigsDidChange(self)
-            Log.i("UI configuration updated.")
+            log("UI configuration updated.")
         } catch {
-            Log.i("Failed to update UI configuration: \(error)")
+            log("Failed to update UI configuration: \(error)")
         }
     }
     
@@ -434,9 +484,19 @@ class UserConfigs {
             try validateConfiguration(newConfigData)
             configData = newConfigData
             delegate?.userConfigsDidChange(self)
-            Log.i("System configuration updated.")
+            log("System configuration updated.")
         } catch {
-            Log.i("Failed to update system configuration: \(error)")
+            log("Failed to update system configuration: \(error)")
         }
+    }
+
+    // Logging
+
+    // This function is used for logging messages
+    // while initializing the singleton instance.
+    // Log.i refers to UserConfig.shared.system.logEnabled, however,
+    // during the initialization of UserConfig itself, it may lead to a bus error.
+    private func log(_ message: String) {
+        NSLog(message)
     }
 }

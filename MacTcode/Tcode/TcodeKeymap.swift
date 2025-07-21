@@ -27,9 +27,9 @@ class TcodeKeymap {
         
         KeymapResolver.define(sequence: keyBindings.zenkakuMode, keymap: map, action: ZenkakuModeAction())
         KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: map, entry: Command.keymap(
-            Keymap("outset1", fromChars: "√∂『』　\"《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡")))
+            Keymap("outset1", fromChars: UserConfigs.shared.ui.symbolSet1Chars)))
         KeymapResolver.define(sequence: keyBindings.symbolSet2, keymap: map, entry: Command.keymap(
-            Keymap("outset2", fromChars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩")))
+            Keymap("outset2", fromChars: UserConfigs.shared.ui.symbolSet2Chars)))
         
         return map
     }()
