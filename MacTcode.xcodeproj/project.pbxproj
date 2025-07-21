@@ -17,7 +17,6 @@
 		9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */; };
 		9D8BFECA2C146DF800B99BA2 /* MazegakiSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC92C146DF800B99BA2 /* MazegakiSelectionTests.swift */; };
 		9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFECB2C15D64F00B99BA2 /* Log.swift */; };
-		9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */; };
 		9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */; };
 		9D8C8DCA2C01ACF1003D8A43 /* KeymapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */; };
 		9D8C8DD42C01ACF1003D8A43 /* MacTcodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */; };
@@ -25,6 +24,15 @@
 		9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */; };
 		9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */; };
 		9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */; };
+		9DA358E12E2DEF1500323184 /* MazegakiDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358DC2E2DEF1500323184 /* MazegakiDict.swift */; };
+		9DA358E22E2DEF1500323184 /* MazegakiSelectionMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358DF2E2DEF1500323184 /* MazegakiSelectionMap.swift */; };
+		9DA358E32E2DEF1500323184 /* MazegakiHit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358DD2E2DEF1500323184 /* MazegakiHit.swift */; };
+		9DA358E42E2DEF1500323184 /* MazegakiSelectionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358E02E2DEF1500323184 /* MazegakiSelectionMode.swift */; };
+		9DA358E52E2DEF1500323184 /* MazegakiSelectionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358DE2E2DEF1500323184 /* MazegakiSelectionActions.swift */; };
+		9DA358E72E2DEF4100323184 /* PostfixBushuAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358E62E2DEF4100323184 /* PostfixBushuAction.swift */; };
+		9DA358EA2E2DEF5B00323184 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358E82E2DEF5B00323184 /* AppDelegate.swift */; };
+		9DA358EB2E2DEF5B00323184 /* NSManualApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358E92E2DEF5B00323184 /* NSManualApplication.swift */; };
+		9DA358ED2E2DEF8900323184 /* TopLevelMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358EC2E2DEF8900323184 /* TopLevelMap.swift */; };
 		9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */; };
 		9DC8D4982C061F3800DCB6A2 /* mazegaki.dic in Resources */ = {isa = PBXBuildFile; fileRef = 9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */; };
 		9DC8D49A2C0632C900DCB6A2 /* MazegakiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC8D4992C0632C900DCB6A2 /* MazegakiTests.swift */; };
@@ -86,7 +94,6 @@
 		9D8BFEC92C146DF800B99BA2 /* MazegakiSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiSelectionTests.swift; sourceTree = "<group>"; };
 		9D8BFECB2C15D64F00B99BA2 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacTcode.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeApp.swift; sourceTree = "<group>"; };
 		9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacTcode.entitlements; sourceTree = "<group>"; };
 		9D8C8DC52C01ACF1003D8A43 /* MacTcodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacTcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +105,15 @@
 		9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeInputController.swift; sourceTree = "<group>"; };
 		9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeKeymap.swift; sourceTree = "<group>"; };
 		9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9DA358DC2E2DEF1500323184 /* MazegakiDict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiDict.swift; sourceTree = "<group>"; };
+		9DA358DD2E2DEF1500323184 /* MazegakiHit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiHit.swift; sourceTree = "<group>"; };
+		9DA358DE2E2DEF1500323184 /* MazegakiSelectionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiSelectionActions.swift; sourceTree = "<group>"; };
+		9DA358DF2E2DEF1500323184 /* MazegakiSelectionMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiSelectionMap.swift; sourceTree = "<group>"; };
+		9DA358E02E2DEF1500323184 /* MazegakiSelectionMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiSelectionMode.swift; sourceTree = "<group>"; };
+		9DA358E62E2DEF4100323184 /* PostfixBushuAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostfixBushuAction.swift; sourceTree = "<group>"; };
+		9DA358E82E2DEF5B00323184 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		9DA358E92E2DEF5B00323184 /* NSManualApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSManualApplication.swift; sourceTree = "<group>"; };
+		9DA358EC2E2DEF8900323184 /* TopLevelMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopLevelMap.swift; sourceTree = "<group>"; };
 		9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mazegaki.swift; sourceTree = "<group>"; };
 		9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mazegaki.dic; sourceTree = "<group>"; };
 		9DC8D4992C0632C900DCB6A2 /* MazegakiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiTests.swift; sourceTree = "<group>"; };
@@ -186,13 +202,14 @@
 		9D8C8DB62C01ACEE003D8A43 /* MacTcode */ = {
 			isa = PBXGroup;
 			children = (
+				9DA358E82E2DEF5B00323184 /* AppDelegate.swift */,
+				9DA358E92E2DEF5B00323184 /* NSManualApplication.swift */,
 				9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */,
 				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
 				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
 				9DEAFE1E2C5F9E5F00E8B5E3 /* Command.swift */,
 				9D0F3CE02C04D570005A0CAC /* Config.swift */,
 				9D8BFECB2C15D64F00B99BA2 /* Log.swift */,
-				9D8C8DB72C01ACEE003D8A43 /* MacTcodeApp.swift */,
 				9DEAFE312C5FB30400E8B5E3 /* Zenkaku */,
 				9D4818D82C0368DB00906504 /* main.tiff */,
 				9D868A002C05F98700128D48 /* main@2x.tiff */,
@@ -242,9 +259,18 @@
 			path = MacTcodeUITests;
 			sourceTree = "<group>";
 		};
+		9DA358D02E2DEE6A00323184 /* Mazegaki */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Mazegaki;
+			path = MacTcode/Mazegaki;
+			sourceTree = SOURCE_ROOT;
+		};
 		9DEAFE1B2C5F9D1B00E8B5E3 /* Bushu */ = {
 			isa = PBXGroup;
 			children = (
+				9DA358E62E2DEF4100323184 /* PostfixBushuAction.swift */,
 				9D0F3CE62C04E139005A0CAC /* bushu.dic */,
 				9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */,
 			);
@@ -254,6 +280,11 @@
 		9DEAFE1C2C5F9D4C00E8B5E3 /* Mazegaki */ = {
 			isa = PBXGroup;
 			children = (
+				9DA358DC2E2DEF1500323184 /* MazegakiDict.swift */,
+				9DA358DD2E2DEF1500323184 /* MazegakiHit.swift */,
+				9DA358DE2E2DEF1500323184 /* MazegakiSelectionActions.swift */,
+				9DA358DF2E2DEF1500323184 /* MazegakiSelectionMap.swift */,
+				9DA358E02E2DEF1500323184 /* MazegakiSelectionMode.swift */,
 				9DC8D4972C061F3800DCB6A2 /* mazegaki.dic */,
 				9DC8D4952C061E5F00DCB6A2 /* Mazegaki.swift */,
 			);
@@ -273,6 +304,7 @@
 		9DEAFE2E2C5FB2B300E8B5E3 /* Keymap */ = {
 			isa = PBXGroup;
 			children = (
+				9DA358EC2E2DEF8900323184 /* TopLevelMap.swift */,
 				9DEAFE152C5F9B3000E8B5E3 /* EmitPendingAction.swift */,
 				9DEA6D432C0C0FD10005BB18 /* InputEvent.swift */,
 				9DEA6D372C0AC0DA0005BB18 /* Keymap.swift */,
@@ -289,6 +321,7 @@
 			isa = PBXGroup;
 			children = (
 				9DEA6D452C0E45950005BB18 /* Client.swift */,
+				9DA358D02E2DEE6A00323184 /* Mazegaki */,
 				9DEAFE2A2C5FB18700E8B5E3 /* ContextClient.swift */,
 				9DEA6D412C0B94360005BB18 /* RecentTextClient.swift */,
 				9DEAFE342C6DB3E000E8B5E3 /* ClientWrapper.swift */,
@@ -453,6 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9DEAFE372C6DB8CF00E8B5E3 /* YomiContext.swift in Sources */,
+				9DA358ED2E2DEF8900323184 /* TopLevelMap.swift in Sources */,
 				9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */,
 				9DEAFE292C5FA2CF00E8B5E3 /* ModeWithCandidates.swift in Sources */,
 				9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */,
@@ -465,8 +499,8 @@
 				9DEAFE2B2C5FB18700E8B5E3 /* ContextClient.swift in Sources */,
 				9DEA6D442C0C0FD10005BB18 /* InputEvent.swift in Sources */,
 				9DEAFE2D2C5FB24500E8B5E3 /* ZenkakuModeAction.swift in Sources */,
-				9D8C8DB82C01ACEE003D8A43 /* MacTcodeApp.swift in Sources */,
 				9DEA6D462C0E45950005BB18 /* Client.swift in Sources */,
+				9DA358E72E2DEF4100323184 /* PostfixBushuAction.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
 				9DEAFE352C6DB3E000E8B5E3 /* ClientWrapper.swift in Sources */,
 				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
@@ -478,8 +512,15 @@
 				9DEAFE252C5FA25D00E8B5E3 /* MultiStroke.swift in Sources */,
 				9DEAFE182C5F9B5400E8B5E3 /* RemoveLastPendingAction.swift in Sources */,
 				9DEAFE232C5F9EE300E8B5E3 /* Translator.swift in Sources */,
+				9DA358E12E2DEF1500323184 /* MazegakiDict.swift in Sources */,
+				9DA358E22E2DEF1500323184 /* MazegakiSelectionMap.swift in Sources */,
+				9DA358E32E2DEF1500323184 /* MazegakiHit.swift in Sources */,
+				9DA358E42E2DEF1500323184 /* MazegakiSelectionMode.swift in Sources */,
+				9DA358E52E2DEF1500323184 /* MazegakiSelectionActions.swift in Sources */,
 				9DEA6D4A2C0F987B0005BB18 /* ZenkakuMode.swift in Sources */,
 				9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */,
+				9DA358EA2E2DEF5B00323184 /* AppDelegate.swift in Sources */,
+				9DA358EB2E2DEF5B00323184 /* NSManualApplication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
