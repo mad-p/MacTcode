@@ -120,7 +120,7 @@ class ContextClient: Client {
         return tryGetStringFromClient(location: location, length: getLength, fromSelection: false, fromMirror: false)
     }
     
-    // クライアントから文字列を取得し、新しいロジックで処理
+    // クライアントから文字列を取得、yomi文字だけのsuffixを見る
     private func tryGetStringFromClient(location: Int, length: Int, fromSelection: Bool, fromMirror: Bool) -> YomiContext? {
         let range = NSRange(location: location, length: length)
         var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
@@ -129,7 +129,7 @@ class ContextClient: Client {
             return nil
         }
         
-        // 新しいロジック: textの最も右側のyomiCharactersの連続した部分文字列を取得
+        // textの最も右側のyomiCharactersの連続した部分文字列を取得
         let yomiText = extractValidYomiSuffix(from: text, minLength: fromSelection ? length : 1)
         if !yomiText.isEmpty {
             // 実際の範囲を調整
@@ -181,7 +181,7 @@ class ContextClient: Client {
         let yomiCharacters = UserConfigs.shared.ui.yomiCharacters
         
         // 正規表現パターンを構築
-        let pattern = "[\(yomiCharacters)]$"
+        let pattern = "[\(yomiCharacters)]+$"
         
         do {
             let regex = try NSRegularExpression(pattern: pattern, options: [])

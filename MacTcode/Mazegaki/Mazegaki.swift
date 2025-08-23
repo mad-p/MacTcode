@@ -29,8 +29,6 @@ class Mazegaki {
         let text = context.string
         self.fixed = context.fromSelection
         yomi = text.map { String($0) }
-        // ContextClientで既にyomiCharactersの連続部分文字列を取得済みなので
-        // ここでは全体を対象とする
         self.max = yomi.count
         self.inflection = inflection
     }

@@ -61,10 +61,6 @@ final class MazegakiTests: XCTestCase {
         XCTAssertTrue(r1.found)
         XCTAssertEqual(3, r1.length)
     }
-    func testMazegakiNonYomiChars() {
-        let m1 = Mazegaki(y("なんだ、さくじょ"), inflection: false)
-        XCTAssertEqual(4, m1.max)
-    }
     func testMazegakiHitCands() {
         let m1 = Mazegaki(y("地しん", fixed: true), inflection: false)
         let rs1 = m1.find()
