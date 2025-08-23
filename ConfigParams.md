@@ -31,24 +31,26 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 "mazegaki": {
   "maxInflection": 4,
   "maxYomi": 10,
-  "nonYomiCharacters": ["、", "。", "，", "．", "・", "「", "」", "（", "）"],
+  "mazegakiYomiCharacters": "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
   "dictionaryFile": "mazegaki.dic"
 }
 ```
 
 - **`maxInflection`**: 活用部分の最大文字数（1-10）
 - **`maxYomi`**: 読みの最大文字数（1-50）
-- **`nonYomiCharacters`**: 読み部分に含めない文字のリスト
+- **`mazegakiYomiCharacters`**: 交ぜ書き変換で読み部分に含める文字の正規表現文字クラス記法
 - **`dictionaryFile`**: 交ぜ書き変換辞書のファイル名
 
 ### 2. 部首変換設定 (`bushu`)
 
 ```json
 "bushu": {
+  "bushuYomiCharacters": "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
   "dictionaryFile": "bushu.dic"
 }
 ```
 
+- **`bushuYomiCharacters`**: 部首変換で部品取得に含める文字の正規表現文字クラス記法
 - **`dictionaryFile`**: 部首変換辞書のファイル名
 
 ### 3. キーバインド設定 (`keyBindings`)
@@ -84,7 +86,6 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "candidateSelectionKeys": ["j", "k", "l", ";", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
   "backspaceDelay": 0.05,
   "backspaceLimit": 10,
-  "yomiIgnoreTexts": ["\u200b", "_", "\n\n", "xt left)\n\n", "──────╯\n\n\n"],
   "symbolSet1Chars": "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
   "symbolSet2Chars": "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
 }
@@ -93,7 +94,6 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`candidateSelectionKeys`**: 変換候補を選択するキーのリスト（使用可能な文字は下記参照）
 - **`backspaceDelay`**: バックスペース送信の遅延時間（秒、0.01-1.0）
 - **`backspaceLimit`**: バックスペースで削除可能な最大文字数（1-100）
-- **`yomiIgnoreTexts`**: 読み取得時に無視するテキストパターン
 - **`symbolSet1Chars`**: 記号入力セット1の文字列
 - **`symbolSet2Chars`**: 記号入力セット2の文字列
 

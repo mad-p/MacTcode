@@ -1,5 +1,6 @@
 {
   "bushu" : {
+    "bushuYomiCharacters" : "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
     "dictionaryFile" : "bushu.dic"
   },
   "keyBindings" : {
@@ -56,17 +57,7 @@
     "dictionaryFile" : "mazegaki.dic",
     "maxInflection" : 4,
     "maxYomi" : 10,
-    "nonYomiCharacters" : [
-      "、",
-      "。",
-      "，",
-      "．",
-      "・",
-      "「",
-      "」",
-      "（",
-      "）"
-    ]
+    "mazegakiYomiCharacters" : "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}"
   },
   "system" : {
     "excludedApplications" : [
@@ -101,13 +92,6 @@
       "8",
       "9",
       "0"
-    ],
-    "yomiIgnoreTexts" : [
-      "\u200b",
-      "_",
-      "\n\n",
-      "xt left)\n\n",
-      "──────╯\n\n\n"
     ],
     "symbolSet1Chars" : "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
     "symbolSet2Chars" : "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"

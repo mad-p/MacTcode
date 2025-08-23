@@ -58,7 +58,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 3, length: 2))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 2)
+        let yomi = context.getYomi(2, 2, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("日月", yomi.string)
         XCTAssertEqual(3, yomi.range.location)
         XCTAssertEqual(2, yomi.range.length)
@@ -72,21 +72,21 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 3, length: 1))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 2)
+        let yomi = context.getYomi(2, 2, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("", yomi.string)
     }
     func testYomiFromSelectionTooShort() {
         let client = ClientStub(selectedRangeValue: NSRange(location: 3, length: 1))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 5)
+        let yomi = context.getYomi(2, 5, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("", yomi.string)
     }
     func testYomiFromSelectionTooLong() {
         let client = ClientStub(selectedRangeValue: NSRange(location: 3, length: 8))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 5)
+        let yomi = context.getYomi(2, 5, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("", yomi.string)
     }
     func testYomiFromSelectionGoodLength() {
@@ -95,7 +95,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 3, length: 3))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 5)
+        let yomi = context.getYomi(2, 5, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("日月火", yomi.string)
         XCTAssertEqual(3, yomi.range.location)
         XCTAssertEqual(3, yomi.range.length)
@@ -109,7 +109,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 31, length: 2))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 2)
+        let yomi = context.getYomi(2, 2, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("日月", yomi.string)
         XCTAssertEqual(31, yomi.range.location)
         XCTAssertEqual(2, yomi.range.length)
@@ -124,7 +124,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 0, length: 3))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(1, 5)
+        let yomi = context.getYomi(1, 5, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("日月火", yomi.string)
         XCTAssertEqual(0, yomi.range.location)
         XCTAssertEqual(3, yomi.range.length)
@@ -139,7 +139,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 3, length: 1))
         let recent = RecentTextClient("水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 2)
+        let yomi = context.getYomi(2, 2, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("", yomi.string)
     }
     func testYomiFromClientNotEnoughText() {
@@ -148,14 +148,14 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 3, length: 1))
         let recent = RecentTextClient("")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(1, 10)
+        let yomi = context.getYomi(1, 10, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("", yomi.string)
     }
     func testYomiFromMirrorWhenClientHasNoCursor() {
         let client = ClientStub(selectedRangeValue: NSRange(location: NSNotFound, length: NSNotFound))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 2)
+        let yomi = context.getYomi(2, 2, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("火水", yomi.string)
         XCTAssertEqual(5, yomi.range.location)
         XCTAssertEqual(2, yomi.range.length)
@@ -166,7 +166,7 @@ final class ContextClientTests: XCTestCase {
         let client = ClientStub(selectedRangeValue: NSRange(location: 1, length: 0))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(2, 2)
+        let yomi = context.getYomi(2, 2, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("火水", yomi.string)
         XCTAssertEqual(5, yomi.range.location)
         XCTAssertEqual(2, yomi.range.length)
@@ -179,7 +179,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 0, length: 1))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(1, 5)
+        let yomi = context.getYomi(1, 5, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("うえお火水", yomi.string)
         XCTAssertEqual(2, yomi.range.location)
         XCTAssertEqual(5, yomi.range.length)
@@ -193,7 +193,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnValue: "")
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(1, 3)
+        let yomi = context.getYomi(1, 3, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("お火水", yomi.string)
         XCTAssertEqual(4, yomi.range.location)
         XCTAssertEqual(3, yomi.range.length)
@@ -205,7 +205,7 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnValue: "_")
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        let yomi = context.getYomi(1, 3)
+        let yomi = context.getYomi(1, 3, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
         XCTAssertEqual("お火水", yomi.string)
         XCTAssertEqual(4, yomi.range.location)
         XCTAssertEqual(3, yomi.range.length)
@@ -248,5 +248,86 @@ final class ContextClientTests: XCTestCase {
         XCTAssertEqual("木金", client.insertedString)
         XCTAssertEqual(NSRange(location: NSNotFound, length: NSNotFound), client.insertedRange)
         XCTAssertEqual("あいうえ木金", recent.text)
+    }
+    
+    func testExtractValidYomiSuffixBasic() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "あいうえお", minLength: 1, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("あいうえお", result)
+    }
+    
+    func testExtractValidYomiSuffixWithNonYomiPrefix() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火水", minLength: 1, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("火水", result)
+    }
+    
+    func testExtractValidYomiSuffixMinLength() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火水", minLength: 3, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("", result)
+    }
+    
+    func testExtractValidYomiSuffixMinLengthMet() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火水金", minLength: 3, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("火水金", result)
+    }
+    
+    func testExtractValidYomiSuffixEmptyString() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "", minLength: 1, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("", result)
+    }
+    
+    func testExtractValidYomiSuffixNoYomiCharacters() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "123abc", minLength: 1, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("", result)
+    }
+    
+    func testExtractValidYomiSuffixMixedWithYomiAtEnd() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "123abcあいうえお", minLength: 1, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("あいうえお", result)
+    }
+    
+    func testExtractValidYomiSuffixOnlyYomiCharacters() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "かきくけこ", minLength: 2, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("かきくけこ", result)
+    }
+    
+    func testExtractValidYomiSuffixZeroMinLength() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火", minLength: 0, yomiCharacters: UserConfigs.shared.ui.yomiCharacters)
+        XCTAssertEqual("火", result)
     }
 }
