@@ -132,14 +132,10 @@ class ContextClient: Client {
         // textの最も右側のyomiCharactersの連続した部分文字列を取得
         let yomiText = extractValidYomiSuffix(from: text, minLength: fromSelection ? length : 1)
         if !yomiText.isEmpty {
-            // 実際の範囲を調整
-            let yomiLength = yomiText.count
-            let adjustedRange = NSRange(
-                location: replaceRange.location + (replaceRange.length - yomiLength),
-                length: yomiLength
-            )
-            Log.i("Yomi taken from client: text=\(yomiText) at adjustedRange=\(adjustedRange)")
-            return YomiContext(string: yomiText, range: adjustedRange, fromSelection: fromSelection, fromMirror: fromMirror)
+            // 2分法でyomiTextと一致するactualRangeを取得
+            let actualRange = findActualRangeForYomiText(yomiText, in: replaceRange, using: client)
+            Log.i("Yomi taken from client: text=\(yomiText) at actualRange=\(actualRange)")
+            return YomiContext(string: yomiText, range: actualRange, fromSelection: fromSelection, fromMirror: fromMirror)
         }
         
         return nil
@@ -163,14 +159,10 @@ class ContextClient: Client {
         // ミラーからの場合も新しいロジックを適用
         let yomiText = extractValidYomiSuffix(from: text, minLength: minLength)
         if !yomiText.isEmpty {
-            // 実際の範囲を調整
-            let yomiLength = yomiText.count
-            let adjustedRange = NSRange(
-                location: replaceRange.location + (replaceRange.length - yomiLength),
-                length: yomiLength
-            )
-            Log.i("Yomi taken from mirror: text=\(yomiText) at adjustedRange=\(adjustedRange)")
-            return YomiContext(string: yomiText, range: adjustedRange, fromSelection: false, fromMirror: true)
+            // 2分法でyomiTextと一致するactualRangeを取得（recentクライアントを使用）
+            let actualRange = findActualRangeForYomiText(yomiText, in: replaceRange, using: recent)
+            Log.i("Yomi taken from mirror: text=\(yomiText) at actualRange=\(actualRange)")
+            return YomiContext(string: yomiText, range: actualRange, fromSelection: false, fromMirror: true)
         }
         
         return nil
@@ -201,6 +193,77 @@ class ContextClient: Client {
         
         return ""
     }
+    
+    // 2分法でyomiTextと一致する部分のactualRangeを取得
+    private func findActualRangeForYomiText(_ yomiText: String, in originalRange: NSRange, using client: Client) -> NSRange {
+        guard !yomiText.isEmpty else { return originalRange }
+        
+        let yomiLength = yomiText.count
+        let originalLength = originalRange.length
+        
+        // yomiTextの長さが元の範囲より大きい場合はoriginalRangeを返す
+        guard yomiLength <= originalLength else { return originalRange }
+        
+        // 2分法で正確な位置を特定
+        var left = 0
+        var right = originalLength - yomiLength
+        
+        while left <= right {
+            let mid = (left + right) / 2
+            let testRange = NSRange(location: originalRange.location + mid, length: yomiLength)
+            var actualRange = NSRange(location: NSNotFound, length: NSNotFound)
+            
+            if let testString = client.string(from: testRange, actualRange: &actualRange),
+               testString == yomiText {
+                return actualRange
+            }
+            
+            // より効率的な検索のため、文字列比較で位置を調整
+            if let testString = client.string(from: testRange, actualRange: &actualRange) {
+                if testString < yomiText {
+                    left = mid + 1
+                } else {
+                    right = mid - 1
+                }
+            } else {
+                // 文字列取得に失敗した場合は範囲を狭める
+                right = mid - 1
+            }
+        }
+        
+        // 2分法で見つからない場合は線形検索にフォールバック
+        if let result = findActualRangeLinear(yomiText, in: originalRange, using: client) {
+            return result
+        }
+        
+        // 線形検索でも見つからない場合はoriginalRangeをフォールバックとして返す
+        Log.i("ActualRange not found for yomiText: \(yomiText), using originalRange as fallback")
+        return originalRange
+    }
+    
+    // 線形検索でyomiTextと一致する部分のactualRangeを取得（フォールバック用）
+    private func findActualRangeLinear(_ yomiText: String, in originalRange: NSRange, using client: Client) -> NSRange? {
+        guard !yomiText.isEmpty else { return nil }
+        
+        let yomiLength = yomiText.count
+        let originalLength = originalRange.length
+        
+        guard yomiLength <= originalLength else { return nil }
+        
+        // 右端から左に向かって検索（suffix検索のため）
+        for offset in 0...(originalLength - yomiLength) {
+            let testRange = NSRange(location: originalRange.location + originalLength - yomiLength - offset, length: yomiLength)
+            var actualRange = NSRange(location: NSNotFound, length: NSNotFound)
+            
+            if let testString = client.string(from: testRange, actualRange: &actualRange),
+               testString == yomiText {
+                return actualRange
+            }
+        }
+        
+        return nil
+    }
+    
     // Yomiの後ろ側からlength文字をstringで置きかえる
     func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) {
         // yomiContext.range: 読みの位置
