@@ -187,7 +187,7 @@ class UserConfigs {
             backspaceDelay: 0.05,
             backspaceLimit: 10,
             yomiCharacters: "0-9()\\p{Hiragana}\\p{Katakana}\\p{Han}※、。々「」・ー",
-            symbolSet1Chars: "√∂『』　《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
+            symbolSet1Chars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
             symbolSet2Chars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
         )
     }
