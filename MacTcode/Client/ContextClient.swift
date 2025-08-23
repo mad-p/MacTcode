@@ -180,28 +180,20 @@ class ContextClient: Client {
     private func extractValidYomiSuffix(from text: String, minLength: Int) -> String {
         let yomiCharacters = UserConfigs.shared.ui.yomiCharacters
         
-        // 正規表現パターンを構築
-        let pattern = "[\(yomiCharacters)]+$"
+        // 正規表現パターンを構築（グループキャプチャを使用）
+        let pattern = "([\(yomiCharacters)]+)$"
         
         do {
             let regex = try NSRegularExpression(pattern: pattern, options: [])
             let nsText = text as NSString
-            var endIndex = nsText.length
+            let range = NSRange(location: 0, length: nsText.length)
             
-            // 右端から連続するyomiCharactersを探す
-            while endIndex > 0 {
-                let range = NSRange(location: endIndex - 1, length: 1)
-                let matches = regex.matches(in: text, options: [], range: range)
-                if matches.isEmpty {
-                    break
+            if let match = regex.firstMatch(in: text, options: [], range: range),
+               match.numberOfRanges > 1 {
+                let yomiRange = match.range(at: 1) // グループキャプチャの結果
+                if yomiRange.length >= minLength {
+                    return nsText.substring(with: yomiRange)
                 }
-                endIndex -= 1
-            }
-            
-            let yomiLength = nsText.length - endIndex
-            if yomiLength >= minLength {
-                let yomiRange = NSRange(location: endIndex, length: yomiLength)
-                return nsText.substring(with: yomiRange)
             }
         } catch {
             Log.i("Regex error in extractValidYomiSuffix: \(error)")
