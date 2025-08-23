@@ -1,5 +1,6 @@
 {
   "bushu" : {
+    "bushuYomiCharacters" : "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
     "dictionaryFile" : "bushu.dic"
   },
   "keyBindings" : {
@@ -55,7 +56,8 @@
   "mazegaki" : {
     "dictionaryFile" : "mazegaki.dic",
     "maxInflection" : 4,
-    "maxYomi" : 10
+    "maxYomi" : 10,
+    "mazegakiYomiCharacters" : "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}"
   },
   "system" : {
     "excludedApplications" : [

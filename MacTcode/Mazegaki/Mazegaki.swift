@@ -121,7 +121,7 @@ class PostfixMazegakiAction: Action {
             Log.i("★★Can't happen: PostfixBushuAction: client is not ContextClient")
             return .processed
         }
-        let context = client.getYomi(1, 10)
+        let context = client.getYomi(1, 10, yomiCharacters: UserConfigs.shared.mazegaki.mazegakiYomiCharacters)
         if context.string.count < 1 {
             Log.i("Mazegaki henkan: no input")
             return .processed

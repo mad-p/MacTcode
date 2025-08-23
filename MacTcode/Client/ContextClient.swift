@@ -46,24 +46,24 @@ class ContextClient: Client {
     }
     // カーソル直前にある読みを取得する
     // クライアントが対応していなければrecentから取る
-    func getYomi(_ minLength: Int, _ maxLength: Int) -> YomiContext {
+    func getYomi(_ minLength: Int, _ maxLength: Int, yomiCharacters: String) -> YomiContext {
         let cursor = client.selectedRange()
         lastCursor = cursor
         Log.i("getYomi: cursor=\(cursor) minLength=\(minLength) maxLength=\(maxLength)")
         let emptyYomiContext = YomiContext(string: "", range: cursor, fromSelection: true, fromMirror: false)
         
         // 選択範囲がある場合
-        if let result = tryGetYomiFromSelection(cursor: cursor, minLength: minLength, maxLength: maxLength) {
+        if let result = tryGetYomiFromSelection(cursor: cursor, minLength: minLength, maxLength: maxLength, yomiCharacters: yomiCharacters) {
             return result
         }
         
         // カーソル位置からクライアントの文字列を取得
-        if let result = tryGetYomiFromClient(cursor: cursor, minLength: minLength, maxLength: maxLength) {
+        if let result = tryGetYomiFromClient(cursor: cursor, minLength: minLength, maxLength: maxLength, yomiCharacters: yomiCharacters) {
             return result
         }
         
         // ミラーから取得
-        if let result = tryGetYomiFromMirror(minLength: minLength, maxLength: maxLength) {
+        if let result = tryGetYomiFromMirror(minLength: minLength, maxLength: maxLength, yomiCharacters: yomiCharacters) {
             return result
         }
         
@@ -72,7 +72,7 @@ class ContextClient: Client {
     }
     
     // 選択範囲から読みを取得
-    private func tryGetYomiFromSelection(cursor: NSRange, minLength: Int, maxLength: Int) -> YomiContext? {
+    private func tryGetYomiFromSelection(cursor: NSRange, minLength: Int, maxLength: Int, yomiCharacters: String) -> YomiContext? {
         guard cursor.location != NSNotFound && cursor.length != 0 && cursor.length != NSNotFound else {
             return nil
         }
@@ -81,7 +81,7 @@ class ContextClient: Client {
             // min = maxの場合は選択の長さがぴったりの場合のみ返す
             if cursor.length == minLength {
                 Log.i("Selection exact desired length: location=\(cursor.location) length=\(cursor.length)")
-                return tryGetStringFromClient(location: cursor.location, length: cursor.length, fromSelection: true, fromMirror: false)
+                return tryGetStringFromClient(location: cursor.location, length: cursor.length, fromSelection: true, fromMirror: false, yomiCharacters: yomiCharacters)
             } else {
                 Log.i("Selection length doesn't match for requirement: no result")
                 return YomiContext(string: "", range: cursor, fromSelection: true, fromMirror: false)
@@ -96,13 +96,13 @@ class ContextClient: Client {
                 return YomiContext(string: "", range: cursor, fromSelection: true, fromMirror: false)
             } else {
                 Log.i("Selection length matches minLength..maxLength: get all of selection")
-                return tryGetStringFromClient(location: cursor.location, length: cursor.length, fromSelection: true, fromMirror: false)
+                return tryGetStringFromClient(location: cursor.location, length: cursor.length, fromSelection: true, fromMirror: false, yomiCharacters: yomiCharacters)
             }
         }
     }
     
     // カーソル位置のクライアント文字列から読みを取得
-    private func tryGetYomiFromClient(cursor: NSRange, minLength: Int, maxLength: Int) -> YomiContext? {
+    private func tryGetYomiFromClient(cursor: NSRange, minLength: Int, maxLength: Int, yomiCharacters: String) -> YomiContext? {
         guard cursor.location != NSNotFound && (cursor.length == 0 || cursor.length == NSNotFound) else {
             return nil
         }
@@ -117,11 +117,11 @@ class ContextClient: Client {
         let location = cursor.location - getLength
         Log.i("No selection, trying to get from client: location=\(location) length=\(getLength)")
         
-        return tryGetStringFromClient(location: location, length: getLength, fromSelection: false, fromMirror: false)
+        return tryGetStringFromClient(location: location, length: getLength, fromSelection: false, fromMirror: false, yomiCharacters: yomiCharacters)
     }
     
     // クライアントから文字列を取得、yomi文字だけのsuffixを見る
-    private func tryGetStringFromClient(location: Int, length: Int, fromSelection: Bool, fromMirror: Bool) -> YomiContext? {
+    private func tryGetStringFromClient(location: Int, length: Int, fromSelection: Bool, fromMirror: Bool, yomiCharacters: String) -> YomiContext? {
         let range = NSRange(location: location, length: length)
         var replaceRange = NSRange(location: NSNotFound, length: NSNotFound)
         
@@ -130,7 +130,7 @@ class ContextClient: Client {
         }
         
         // textの最も右側のyomiCharactersの連続した部分文字列を取得
-        let yomiText = extractValidYomiSuffix(from: text, minLength: fromSelection ? length : 1)
+        let yomiText = extractValidYomiSuffix(from: text, minLength: fromSelection ? length : 1, yomiCharacters: yomiCharacters)
         if !yomiText.isEmpty {
             // 2分法でyomiTextと一致するactualRangeを取得
             let actualRange = findActualRangeForYomiText(yomiText, in: replaceRange, using: client)
@@ -142,7 +142,7 @@ class ContextClient: Client {
     }
     
     // ミラーから読みを取得
-    private func tryGetYomiFromMirror(minLength: Int, maxLength: Int) -> YomiContext? {
+    private func tryGetYomiFromMirror(minLength: Int, maxLength: Int, yomiCharacters: String) -> YomiContext? {
         guard recent.text.count >= minLength else {
             Log.i("No yomi found from mirror: recent.text.count < minLength")
             return nil
@@ -157,7 +157,7 @@ class ContextClient: Client {
         }
         
         // ミラーからの場合も新しいロジックを適用
-        let yomiText = extractValidYomiSuffix(from: text, minLength: minLength)
+        let yomiText = extractValidYomiSuffix(from: text, minLength: minLength, yomiCharacters: yomiCharacters)
         if !yomiText.isEmpty {
             // 2分法でyomiTextと一致するactualRangeを取得（recentクライアントを使用）
             let actualRange = findActualRangeForYomiText(yomiText, in: replaceRange, using: recent)
@@ -169,8 +169,7 @@ class ContextClient: Client {
     }
     
     // 文字列の最も右側のyomiCharactersの連続した部分文字列を抽出
-    internal func extractValidYomiSuffix(from text: String, minLength: Int) -> String {
-        let yomiCharacters = UserConfigs.shared.ui.yomiCharacters
+    internal func extractValidYomiSuffix(from text: String, minLength: Int, yomiCharacters: String) -> String {
         
         // 正規表現パターンを構築（グループキャプチャを使用）
         let pattern = "([\(yomiCharacters)]+)$"

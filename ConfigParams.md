@@ -31,23 +31,26 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 "mazegaki": {
   "maxInflection": 4,
   "maxYomi": 10,
+  "mazegakiYomiCharacters": "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
   "dictionaryFile": "mazegaki.dic"
 }
 ```
 
 - **`maxInflection`**: 活用部分の最大文字数（1-10）
 - **`maxYomi`**: 読みの最大文字数（1-50）
-- **`yomiCharacters`**: 読み部分に含める文字の正規表現文字クラス記法(注: この値は部首変換の部品取得にも使われます)
+- **`mazegakiYomiCharacters`**: 交ぜ書き変換で読み部分に含める文字の正規表現文字クラス記法
 - **`dictionaryFile`**: 交ぜ書き変換辞書のファイル名
 
 ### 2. 部首変換設定 (`bushu`)
 
 ```json
 "bushu": {
+  "bushuYomiCharacters": "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
   "dictionaryFile": "bushu.dic"
 }
 ```
 
+- **`bushuYomiCharacters`**: 部首変換で部品取得に含める文字の正規表現文字クラス記法
 - **`dictionaryFile`**: 部首変換辞書のファイル名
 
 ### 3. キーバインド設定 (`keyBindings`)

@@ -96,19 +96,23 @@ class UserConfigs {
     struct MazegakiConfig: Codable {
         let maxInflection: Int
         let maxYomi: Int
+        let mazegakiYomiCharacters: String
         let dictionaryFile: String
 
         static let `default` = MazegakiConfig(
             maxInflection: 4,
             maxYomi: 10,
+            mazegakiYomiCharacters: "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
             dictionaryFile: "mazegaki.dic"
         )
     }
 
     struct BushuConfig: Codable {
+        let bushuYomiCharacters: String
         let dictionaryFile: String
 
         static let `default` = BushuConfig(
+            bushuYomiCharacters: "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
             dictionaryFile: "bushu.dic"
         )
     }
