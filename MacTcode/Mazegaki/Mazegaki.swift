@@ -17,7 +17,6 @@ class Mazegaki {
     static var inflectionCharsMin = 0x3041 // 活用部分に許される文字コードポイントの下限
     static var inflectionCharsMax = 0x30fe // 活用部分に許される文字上限
     static var inflectionRange = inflectionCharsMin...inflectionCharsMax
-    static var nonYomiCharacters: [String] { UserConfigs.shared.mazegaki.nonYomiCharacters }
 
     let yomi: [String] // 読み部分の文字列、各要素は1文字
     let inflection: Bool // 活用語をさがすかどうか
@@ -30,15 +29,9 @@ class Mazegaki {
         let text = context.string
         self.fixed = context.fromSelection
         yomi = text.map { String($0) }
-        let l = yomi.count
-        var m = l
-        for i in 0..<yomi.count {
-            if Mazegaki.nonYomiCharacters.contains(yomi[l - i - 1]) {
-                m = i
-                break
-            }
-        }
-        self.max = m
+        // ContextClientで既にyomiCharactersの連続部分文字列を取得済みなので
+        // ここでは全体を対象とする
+        self.max = yomi.count
         self.inflection = inflection
     }
 

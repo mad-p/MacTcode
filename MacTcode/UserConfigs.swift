@@ -96,13 +96,11 @@ class UserConfigs {
     struct MazegakiConfig: Codable {
         let maxInflection: Int
         let maxYomi: Int
-        let nonYomiCharacters: [String]
         let dictionaryFile: String
 
         static let `default` = MazegakiConfig(
             maxInflection: 4,
             maxYomi: 10,
-            nonYomiCharacters: ["、", "。", "，", "．", "・", "「", "」", "（", "）"],
             dictionaryFile: "mazegaki.dic"
         )
     }
@@ -180,7 +178,7 @@ class UserConfigs {
         let candidateSelectionKeys: [String]
         let backspaceDelay: Double
         let backspaceLimit: Int
-        let yomiIgnoreTexts: [String]
+        let yomiCharacters: String
         let symbolSet1Chars: String
         let symbolSet2Chars: String
 
@@ -188,8 +186,8 @@ class UserConfigs {
             candidateSelectionKeys: ["j", "k", "l", ";", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
             backspaceDelay: 0.05,
             backspaceLimit: 10,
-            yomiIgnoreTexts: ["\u{200b}", "_", "\n\n", "xt left)\n\n", "──────╯\n\n\n"],
-            symbolSet1Chars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
+            yomiCharacters: "0-9()\\p{Hiragana}\\p{Katakana}\\p{Han}※、。々「」・ー",
+            symbolSet1Chars: "√∂『』　《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
             symbolSet2Chars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
         )
     }
