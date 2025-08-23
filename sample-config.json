@@ -93,7 +93,6 @@
       "9",
       "0"
     ],
-    "yomiCharacters" : "0-9()\\p{Hiragana}\\p{Katakana}\\p{Han}※、。々「」・ー",
     "symbolSet1Chars" : "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
     "symbolSet2Chars" : "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
   }
