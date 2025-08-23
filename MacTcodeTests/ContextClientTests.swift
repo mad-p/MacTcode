@@ -249,4 +249,85 @@ final class ContextClientTests: XCTestCase {
         XCTAssertEqual(NSRange(location: NSNotFound, length: NSNotFound), client.insertedRange)
         XCTAssertEqual("あいうえ木金", recent.text)
     }
+    
+    func testExtractValidYomiSuffixBasic() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "あいうえお", minLength: 1)
+        XCTAssertEqual("あいうえお", result)
+    }
+    
+    func testExtractValidYomiSuffixWithNonYomiPrefix() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火水", minLength: 1)
+        XCTAssertEqual("火水", result)
+    }
+    
+    func testExtractValidYomiSuffixMinLength() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火水", minLength: 3)
+        XCTAssertEqual("", result)
+    }
+    
+    func testExtractValidYomiSuffixMinLengthMet() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火水金", minLength: 3)
+        XCTAssertEqual("火水金", result)
+    }
+    
+    func testExtractValidYomiSuffixEmptyString() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "", minLength: 1)
+        XCTAssertEqual("", result)
+    }
+    
+    func testExtractValidYomiSuffixNoYomiCharacters() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "123abc", minLength: 1)
+        XCTAssertEqual("", result)
+    }
+    
+    func testExtractValidYomiSuffixMixedWithYomiAtEnd() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "123abcあいうえお", minLength: 1)
+        XCTAssertEqual("あいうえお", result)
+    }
+    
+    func testExtractValidYomiSuffixOnlyYomiCharacters() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "かきくけこ", minLength: 2)
+        XCTAssertEqual("かきくけこ", result)
+    }
+    
+    func testExtractValidYomiSuffixZeroMinLength() {
+        let client = ClientStub(selectedRangeValue: NSRange(location: 0, length: 0))
+        let recent = RecentTextClient("")
+        let context = ContextClient(client: client, recent: recent)
+        
+        let result = context.extractValidYomiSuffix(from: "abc火", minLength: 0)
+        XCTAssertEqual("火", result)
+    }
 }

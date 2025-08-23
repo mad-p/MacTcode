@@ -169,7 +169,7 @@ class ContextClient: Client {
     }
     
     // 文字列の最も右側のyomiCharactersの連続した部分文字列を抽出
-    private func extractValidYomiSuffix(from text: String, minLength: Int) -> String {
+    internal func extractValidYomiSuffix(from text: String, minLength: Int) -> String {
         let yomiCharacters = UserConfigs.shared.ui.yomiCharacters
         
         // 正規表現パターンを構築（グループキャプチャを使用）
