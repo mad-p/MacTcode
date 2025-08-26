@@ -1,6 +1,6 @@
 {
   "bushu" : {
-    "bushuYomiCharacters" : "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
+    "bushuYomiCharacters" : "0-9、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
     "dictionaryFile" : "bushu.dic"
   },
   "keyBindings" : {
