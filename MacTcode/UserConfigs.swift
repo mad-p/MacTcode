@@ -112,7 +112,7 @@ class UserConfigs {
         let dictionaryFile: String
 
         static let `default` = BushuConfig(
-            bushuYomiCharacters: "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
+            bushuYomiCharacters: "0-9、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
             dictionaryFile: "bushu.dic"
         )
     }
@@ -182,7 +182,6 @@ class UserConfigs {
         let candidateSelectionKeys: [String]
         let backspaceDelay: Double
         let backspaceLimit: Int
-        let yomiCharacters: String
         let symbolSet1Chars: String
         let symbolSet2Chars: String
 
@@ -190,7 +189,6 @@ class UserConfigs {
             candidateSelectionKeys: ["j", "k", "l", ";", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
             backspaceDelay: 0.05,
             backspaceLimit: 10,
-            yomiCharacters: "0-9()\\p{Hiragana}\\p{Katakana}\\p{Han}※、。々「」・ー",
             symbolSet1Chars: "√∂『』　“《》【】┏┳┓┃◎◆■●▲▼┣╋┫━　◇□○△▽┗┻┛／＼※§¶†‡",
             symbolSet2Chars: "♠♡♢♣㌧㊤㊥㊦㊧㊨㉖㉗㉘㉙㉚⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳①②③④⑤㉑㉒㉓㉔㉕⑥⑦⑧⑨⑩"
         )
