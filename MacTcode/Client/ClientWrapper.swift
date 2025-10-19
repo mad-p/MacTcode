@@ -11,8 +11,13 @@ import InputMethodKit
 /// IMKTextInputをMyInputTextに見せかけるラッパー
 class ClientWrapper: Client {
     let client: IMKTextInput
-    init(_ client: IMKTextInput!) {
+    let _bundleId: String!
+    init(_ client: IMKTextInput!, _ bundleId: String!) {
         self.client = client
+        self._bundleId = bundleId!
+    }
+    func bundleId() -> String! {
+        return _bundleId
     }
     func selectedRange() -> NSRange {
         return client.selectedRange()

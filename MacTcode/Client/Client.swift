@@ -19,4 +19,5 @@ protocol Client {
         replacementRange: NSRange
     )
     func sendBackspace()
+    func bundleId() -> String!
 }
