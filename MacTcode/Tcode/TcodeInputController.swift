@@ -63,11 +63,12 @@ class TcodeInputController: IMKInputController, Controller {
         let bid = client.bundleIdentifier()
         Log.i("  client.bundleIdentifier=\(bid ?? "nil")")
         let excludedApps = UserConfigs.shared.system.excludedApplications
-        if let bundleId = bid, excludedApps.contains(bundleId) {
+        let bundleId = bid
+        if bundleId != nil && excludedApps.contains(bundleId!) {
             return false
         }
         let inputEvent = Translator.translate(event: event)
-        baseInputText = ContextClient(client: ClientWrapper(client), recent: recentText)
+        baseInputText = ContextClient(client: ClientWrapper(client, bundleId), recent: recentText)
         return mode.handle(inputEvent, client: baseInputText, controller: self)
     }
     
@@ -86,10 +87,11 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             if let client = self.client() {
+                let bid: String? = client.bundleIdentifier()
                 if baseInputText != nil {
-                    baseInputText!.client = ClientWrapper(client)
+                    baseInputText!.client = ClientWrapper(client, bid)
                 } else {
-                    baseInputText = ContextClient(client: ClientWrapper(client), recent: recentText)
+                    baseInputText = ContextClient(client: ClientWrapper(client, bid), recent: recentText)
                 }
                 modeWithCandidates.candidateSelected(candidateString, client: baseInputText)
             } else {

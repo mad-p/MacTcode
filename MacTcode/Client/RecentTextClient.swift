@@ -15,6 +15,9 @@ class RecentTextClient: Client {
         self.text = string
         self.maxLength = maxLength
     }
+    func bundleId() -> String! {
+        return "jp.mad-p.inputmethod.MacTcode.recentTextClient"
+    }
     func selectedRange() -> NSRange {
         return NSRange(location: text.count, length: 0)
     }

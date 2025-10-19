@@ -17,6 +17,9 @@ class ContextClient: Client {
         self.client = client
         self.recent = recent
     }
+    func bundleId() -> String! {
+        return client.bundleId()
+    }
     func selectedRange() -> NSRange {
         Log.i("★★Can't happen.  ContextClient.selectedRange()")
         return client.selectedRange()
@@ -102,7 +105,8 @@ class ContextClient: Client {
     }
     
     // カーソル位置のクライアント文字列から読みを取得
-    private func tryGetYomiFromClient(cursor: NSRange, minLength: Int, maxLength: Int, yomiCharacters: String) -> YomiContext? {
+    private func tryGetYomiFromClient(cursor: NSRange, minLength _minLength: Int, maxLength: Int, yomiCharacters: String) -> YomiContext? {
+        var minLength = _minLength
         guard cursor.location != NSNotFound && (cursor.length == 0 || cursor.length == NSNotFound) else {
             return nil
         }
@@ -112,12 +116,34 @@ class ContextClient: Client {
             return nil
         }
         
+        let systemConfig = UserConfigs.shared.system
+        if systemConfig.disableOneYomiApplications.contains(client.bundleId()) {
+            if minLength < 2 {
+                minLength = 2
+            }
+        }
+        
         // 最大maxLengthまで取る
         let getLength = min(cursor.location, maxLength)
         let location = cursor.location - getLength
         Log.i("No selection, trying to get from client: location=\(location) length=\(getLength)")
         
-        return tryGetStringFromClient(location: location, length: getLength, fromSelection: false, fromMirror: false, yomiCharacters: yomiCharacters)
+        let result = tryGetStringFromClient(location: location, length: getLength, fromSelection: false, fromMirror: false, yomiCharacters: yomiCharacters)
+        if (result == nil) {
+            return nil
+        }
+        // Google Docs/Slidesで読みが取れない場合に対応
+        if (result!.string.count < minLength && recent.text.count >= minLength) {
+            Log.i("Not enough yomi from client, but recent has enough")
+            return nil
+        }
+        
+        // 取ろうとした長さより取れたものが短い場合は怪しい
+        if (result!.string.count < getLength) {
+            Log.i("Tried to get \(getLength), but got only \(result!.string.count)")
+            return nil
+        }
+        return result
     }
     
     // クライアントから文字列を取得、yomi文字だけのsuffixを見る

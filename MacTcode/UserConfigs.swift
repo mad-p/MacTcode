@@ -197,6 +197,7 @@ class UserConfigs {
     struct SystemConfig: Codable {
         let recentTextMaxLength: Int
         let excludedApplications: [String]
+        let disableOneYomiApplications: [String]
         let logEnabled: Bool
         let keyboardLayout: String
         let keyboardLayoutMapping: [String]
@@ -204,6 +205,7 @@ class UserConfigs {
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
             excludedApplications: ["com.apple.loginwindow", "com.apple.SecurityAgent"],
+            disableOneYomiApplications: ["com.google.Chrome"],
             logEnabled: false,
             keyboardLayout: "dvorak",
             keyboardLayoutMapping: [
