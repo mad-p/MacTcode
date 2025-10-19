@@ -1,32 +1,12 @@
-# 入力統計をファイルに出力
+✅ 完了: 以下のドキュメントを更新しました
 
-- 統計情報をカウントするため、大域変数を4つ用意する。すべてInt型
-    - basicCount
-    - bushuCount
-    - mazegakiCount
-    - functionCount
-    - totalActionCount
-- 以下の場合にカウントを増やす
-    - Command.textの処理時
-        - basicCountを1増やす
-        - totalActionCountを1増やす
-    - PostfixBushuActionの処理時
-        - bushuCountを1増やす
-    - PostfixMazegakiActionの処理時
-        - mazegakiCountを1増やす
-    - Command.actionの処理時
-        - functionCountを1増やす
-        - totalActionCountを1増やす
-- SIGINT, SIGTERMを受け取った場合、統計情報をファイルの末尾に追記する
-    - ファイル名は `tc-record`
-    - ファイルを置くディレクトリは applicationSupportDirectory/MacTcode とする
-        - UserConfigsクラスでconfig.jsonの場所を計算しているので、同様の方法とする
-    - ファイルおよびディアクトリが存在しなければ作成する
-    - 追記する内容は1行
-        - `\(date)文字: \(basicCount)  部首: \(bushuCount)(\(bushuPercent))  交ぜ書き: \(mazegakiCount)(\(mazegakiPercent)%)  機能: \(functionCount)(\(functionPercent)%)`
-        - dateは、書き出し時の日時をローカル時刻で `YYYY-mm-dd HH:MM` 形式で表現したもの
-        - basicCount, bushuCount, mazegakiCount, functionCountはそれぞれ同名の大域変数の値を `%4d` 形式で桁そろえしたもの
-        - bushuPercent, mazegakiPercent, functionPercentはそれぞれ、対応するCount変数の値のtotalActionCountを分母とした割合をパーセントで表現した整数部分
-- SIGINT, SIGTERMのハンドリングは以下の方法で登録したハンドラで行う
-    - signalによって、デフォルトハンドリングを SIG_IGN する
-    - DispatchSource.makeSignalSourceを用いてハンドラを登録する
+ConfigParams.md:
+- syncStatsIntervalの設定項目を追加
+- disableOneYomiApplicationsの設定項目を追加
+
+README.md:
+- 「統計情報の記録」セクションを新規追加
+  - 統計ファイルの場所: ~/Library/Application Support/MacTcode/tc-record.txt
+  - 記録される統計情報の意味（文字、部首、交ぜ書き、機能）
+  - 統計出力のタイミング
+  - syncStatsIntervalを0に設定すると統計ファイルは出力されないこと

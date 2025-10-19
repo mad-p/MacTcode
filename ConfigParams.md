@@ -103,6 +103,8 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 "system": {
   "recentTextMaxLength": 20,
   "excludedApplications": ["com.apple.loginwindow", "com.apple.SecurityAgent"],
+  "disableOneYomiApplications": ["com.google.Chrome"],
+  "syncStatsInterval": 1200,
   "keyboardLayout": "dvorak",
   "keyboardLayoutMapping": [
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
@@ -116,6 +118,14 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 
 - **`recentTextMaxLength`**: 最近入力したテキストの保存最大文字数（1-100）
 - **`excludedApplications`**: T-Code処理を無効化するアプリケーションのBundle IDリスト
+- **`disableOneYomiApplications`**: 1文字の読みを無効化するアプリケーションのBundle IDリスト
+  - Google Chromeなど、一部のアプリケーションでは1文字の読みでの変換が正しく動作しない場合があります
+  - このリストに含まれるアプリケーションでは、最低2文字の読みが必要になります
+- **`syncStatsInterval`**: 統計情報をファイルに出力する間隔（秒単位）
+  - デフォルト値: 1200（20分）
+  - 0に設定すると統計ファイルの出力が無効になります
+  - 統計情報は入力メソッド切り替え時やアプリケーション終了時に自動的に保存されます
+  - 詳細はREADME.mdの「統計情報の記録」セクションを参照してください
 - **`keyboardLayout`**: キーボードレイアウトの名前（"dvorak", "qwerty"等）
 - **`keyboardLayoutMapping`**: 40個のキー配列マッピング（文字列配列）
 - **`logEnabled`**: デバッグログの出力有効/無効

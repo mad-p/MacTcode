@@ -75,7 +75,8 @@
       ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
     ],
     "logEnabled" : false,
-    "recentTextMaxLength" : 20
+    "recentTextMaxLength" : 20,
+    "syncStatsInterval" : 1200
   },
   "ui" : {
     "backspaceDelay" : 0.05,
