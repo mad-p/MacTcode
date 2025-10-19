@@ -28,6 +28,12 @@ class TcodeInputController: IMKInputController, Controller {
         super.inputControllerWillClose()
     }
     
+    override func deactivateServer(_ sender: Any!) {
+        Log.i("★deactivate")
+        InputStats.shared.writeStatsToFileMaybe()
+        super.deactivateServer(sender)
+    }
+    
     func setupCandidateWindow() {
         // UserConfigsから候補選択キーを取得してVirtual Key Codeに変換
         let configKeys = UserConfigs.shared.ui.candidateSelectionKeys

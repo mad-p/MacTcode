@@ -48,6 +48,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // パイプ（[読端, 書端]）
         guard pipe(&termPipe) == 0 else { fatalError("pipe failed") }
         
+        NSLog("★Setting up signal handlers...")
+        
         // C呼出規約、キャプチャなし
         let sigtermHandler: @convention(c) (Int32) -> Void = { _ in
             var one: UInt8 = 1
@@ -66,7 +68,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // SIGINT用のDispatchSourceを作成
         let sigintSource = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
         sigintSource.setEventHandler {
-            Log.i("★Received SIGINT, writing statistics...")
+            NSLog("★Received SIGINT, writing statistics...")
             InputStats.shared.writeStatsToFile()
             exit(0)
         }

@@ -3,6 +3,8 @@ import Foundation
 /// 入力統計情報を管理するシングルトンクラス
 class InputStats {
     static let shared = InputStats()
+    
+    private var lastSyncDate = Date()
 
     private var basicCount = 0
     private var bushuCount = 0
@@ -46,12 +48,26 @@ class InputStats {
         }
     }
 
+    public func writeStatsToFileMaybe() {
+        let systemConfig = UserConfigs.shared.system
+        let interval = systemConfig.syncStatsInterval
+        Log.i("interval = \(interval), since last sync = \(Date().timeIntervalSince(lastSyncDate))")
+        if interval > 0 {
+            if Date().timeIntervalSince(lastSyncDate) > Double(interval) {
+                writeStatsToFile()
+            }
+        }
+    }
     /// 統計情報をファイルに書き出す
     public func writeStatsToFile() {
         queue.sync {
             guard totalActionCount > 0 else {
                 return
             }
+            guard UserConfigs.shared.system.syncStatsInterval > 0 else {
+                return
+            }
+            
             let fileManager = FileManager.default
             let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             let macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
@@ -65,7 +81,7 @@ class InputStats {
 
             // 現在の日時を取得
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             dateFormatter.locale = Locale.current
             dateFormatter.timeZone = TimeZone.current
             let dateString = dateFormatter.string(from: Date())
@@ -97,6 +113,7 @@ class InputStats {
             }
 
             Log.i("★Statistics written: \(statsLine.trimmingCharacters(in: .whitespacesAndNewlines))")
+            lastSyncDate = Date()
             basicCount = 0
             bushuCount = 0
             mazegakiCount = 0
