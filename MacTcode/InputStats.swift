@@ -10,7 +10,7 @@ class InputStats {
     private var functionCount = 0
     private var totalActionCount = 0
 
-    private let queue = DispatchQueue(label: "com.mactcode.inputstats", attributes: .concurrent)
+    private let queue = DispatchQueue(label: "jp.mad-p.inputmethods.MacTcode.inputstats", attributes: .concurrent)
 
     private init() {
         setupSignalHandlers()
@@ -58,12 +58,13 @@ class InputStats {
                 try? fileManager.createDirectory(at: macTcodeURL, withIntermediateDirectories: true)
             }
 
-            let fileURL = macTcodeURL.appendingPathComponent("tc-record")
+            let fileURL = macTcodeURL.appendingPathComponent("tc-record.txt")
 
             // 現在の日時を取得
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-            dateFormatter.locale = Locale(identifier: "ja_JP")
+            dateFormatter.locale = Locale.current
+            dateFormatter.timeZone = TimeZone.current
             let dateString = dateFormatter.string(from: Date())
 
             // パーセント計算
@@ -72,7 +73,7 @@ class InputStats {
             let functionPercent = totalActionCount > 0 ? (functionCount * 100) / totalActionCount : 0
 
             // 統計行を作成
-            let statsLine = String(format: "%@ 文字: %4d  部首: %4d(%d%%)  交ぜ書き: %4d(%d%%)  機能: %4d(%d%%)\n",
+            let statsLine = String(format: "%@ 文字: %4d  部首: %3d(%d%%)  交ぜ書き: %3d(%d%%)  機能: %3d(%d%%)\n",
                                  dateString,
                                  basicCount,
                                  bushuCount, bushuPercent,
