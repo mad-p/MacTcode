@@ -1,11 +1,32 @@
-- [x] Translator.swiftで定義しているlayoutはDvorak配列になっている。これを例えばQWERTYにも変更できるように、設定項目に追加する
-    - [x] SystemConfigにkeyboardLayoutとkeyboardLayoutMappingを追加
-    - [x] Translator.swiftをUserConfigs参照に変更
-    - [x] sample-config.jsonにキーボードレイアウト設定を追加
-    - [x] ConfigParams.mdにQWERTY配列の例とレイアウト説明を追加
+# 入力統計をファイルに出力
 
-## キーボードレイアウト対応完了
-- Dvorak配列（デフォルト）とQWERTY配列の切り替え対応
-- 設定ファイルでキーマッピングを完全にカスタマイズ可能
-- ユーザーガイドでの詳細な設定方法説明
-- 全47テストが正常実行される状態を維持
+- 統計情報をカウントするため、大域変数を4つ用意する。すべてInt型
+    - basicCount
+    - bushuCount
+    - mazegakiCount
+    - functionCount
+    - totalActionCount
+- 以下の場合にカウントを増やす
+    - Command.textの処理時
+        - basicCountを1増やす
+        - totalActionCountを1増やす
+    - PostfixBushuActionの処理時
+        - bushuCountを1増やす
+    - PostfixMazegakiActionの処理時
+        - mazegakiCountを1増やす
+    - Command.actionの処理時
+        - functionCountを1増やす
+        - totalActionCountを1増やす
+- SIGINT, SIGTERMを受け取った場合、統計情報をファイルの末尾に追記する
+    - ファイル名は `tc-record`
+    - ファイルを置くディレクトリは applicationSupportDirectory/MacTcode とする
+        - UserConfigsクラスでconfig.jsonの場所を計算しているので、同様の方法とする
+    - ファイルおよびディアクトリが存在しなければ作成する
+    - 追記する内容は1行
+        - `\(date)文字: \(basicCount)  部首: \(bushuCount)(\(bushuPercent))  交ぜ書き: \(mazegakiCount)(\(mazegakiPercent)%)  機能: \(functionCount)(\(functionPercent)%)`
+        - dateは、書き出し時の日時をローカル時刻で `YYYY-mm-dd HH:MM` 形式で表現したもの
+        - basicCount, bushuCount, mazegakiCount, functionCountはそれぞれ同名の大域変数の値を `%4d` 形式で桁そろえしたもの
+        - bushuPercent, mazegakiPercent, functionPercentはそれぞれ、対応するCount変数の値のtotalActionCountを分母とした割合をパーセントで表現した整数部分
+- SIGINT, SIGTERMのハンドリングは以下の方法で登録したハンドラで行う
+    - signalによって、デフォルトハンドリングを SIG_IGN する
+    - DispatchSource.makeSignalSourceを用いてハンドラを登録する

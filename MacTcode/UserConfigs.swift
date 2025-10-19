@@ -201,6 +201,7 @@ class UserConfigs {
         let logEnabled: Bool
         let keyboardLayout: String
         let keyboardLayoutMapping: [String]
+        let syncStatsInterval: Int
 
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
@@ -213,7 +214,8 @@ class UserConfigs {
                 "'", ",", ".", "p", "y", "f", "g", "c", "r", "l",
                 "a", "o", "e", "u", "i", "d", "h", "t", "n", "s",
                 ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
-            ]
+            ],
+            syncStatsInterval: 1200,
         )
     }
 

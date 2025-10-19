@@ -104,6 +104,7 @@ class Mazegaki {
         }
         let length = hit.length
         Log.i("Kakutei \(string)  client=\(type(of:client))")
+        InputStats.shared.incrementMazegakiCount()
         client.replaceYomi(string, length: length, from: context)
         return true
     }

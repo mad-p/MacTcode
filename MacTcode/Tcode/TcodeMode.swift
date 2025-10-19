@@ -52,8 +52,10 @@ class TcodeMode: Mode, MultiStroke {
             case .text(let string):
                 resetPending()
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                InputStats.shared.incrementBasicCount()
                 return true
             case .action(let action):
+                InputStats.shared.incrementFunctionCount()
                 command = action.execute(client: client, mode: self, controller: controller)
                 resetPending()
             case .keymap(_):

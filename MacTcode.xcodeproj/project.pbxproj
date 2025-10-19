@@ -24,6 +24,7 @@
 		9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */; };
 		9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */; };
 		9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */; };
+		9D9E63BC2EA4C74C0035FC32 /* InputStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D9E63BB2EA4C74C0035FC32 /* InputStats.swift */; };
 		9DA358E12E2DEF1500323184 /* MazegakiDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358DC2E2DEF1500323184 /* MazegakiDict.swift */; };
 		9DA358E22E2DEF1500323184 /* MazegakiSelectionMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358DF2E2DEF1500323184 /* MazegakiSelectionMap.swift */; };
 		9DA358E32E2DEF1500323184 /* MazegakiHit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA358DD2E2DEF1500323184 /* MazegakiHit.swift */; };
@@ -106,6 +107,7 @@
 		9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeInputController.swift; sourceTree = "<group>"; };
 		9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeKeymap.swift; sourceTree = "<group>"; };
 		9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9D9E63BB2EA4C74C0035FC32 /* InputStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputStats.swift; sourceTree = "<group>"; };
 		9DA358DC2E2DEF1500323184 /* MazegakiDict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiDict.swift; sourceTree = "<group>"; };
 		9DA358DD2E2DEF1500323184 /* MazegakiHit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiHit.swift; sourceTree = "<group>"; };
 		9DA358DE2E2DEF1500323184 /* MazegakiSelectionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiSelectionActions.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 		9D8C8DB62C01ACEE003D8A43 /* MacTcode */ = {
 			isa = PBXGroup;
 			children = (
+				9D9E63BB2EA4C74C0035FC32 /* InputStats.swift */,
 				9DB0E49E2E2E083300E07616 /* UserConfigs.swift */,
 				9DA358E82E2DEF5B00323184 /* AppDelegate.swift */,
 				9DA358E92E2DEF5B00323184 /* NSManualApplication.swift */,
@@ -407,7 +410,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					9D8C8DB32C01ACEE003D8A43 = {
 						CreatedOnToolsVersion = 15.4;
@@ -483,6 +486,7 @@
 				9DB0E49F2E2E083300E07616 /* UserConfigs.swift in Sources */,
 				9DA358ED2E2DEF8900323184 /* TopLevelMap.swift in Sources */,
 				9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */,
+				9D9E63BC2EA4C74C0035FC32 /* InputStats.swift in Sources */,
 				9DEAFE292C5FA2CF00E8B5E3 /* ModeWithCandidates.swift in Sources */,
 				9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */,
 				9DEAFE162C5F9B3000E8B5E3 /* EmitPendingAction.swift in Sources */,
@@ -595,6 +599,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 8H7RHH924X;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -659,6 +664,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 8H7RHH924X;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -692,7 +698,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"MacTcode/Preview Content\"";
-				DEVELOPMENT_TEAM = 8H7RHH924X;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -730,7 +735,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"MacTcode/Preview Content\"";
-				DEVELOPMENT_TEAM = 8H7RHH924X;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -760,7 +764,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 8H7RHH924X;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
@@ -779,7 +782,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 8H7RHH924X;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
@@ -797,7 +799,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 8H7RHH924X;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.MacTcodeUITests";
@@ -814,7 +815,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 8H7RHH924X;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.MacTcodeUITests";

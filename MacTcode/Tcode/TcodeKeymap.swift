@@ -22,6 +22,7 @@ class TcodeKeymap {
         
         // ignore Ctrl-'
         map.replace(input: InputEvent(type: .control_punct, text: ","), entry: .processed)
+        map.replace(input: InputEvent(type: .control_punct, text: "'"), entry: .processed)
         // passthrough Ctrl-SPC (set-mark)
         map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
         
