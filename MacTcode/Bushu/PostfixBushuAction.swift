@@ -27,6 +27,7 @@ class PostfixBushuAction: Action {
         if let ch = Bushu.i.compose(char1: ch1, char2: ch2) {
             Log.i("Bushu \(ch1)\(ch2) -> \(ch)")
             client.replaceYomi(ch, length: 2, from: yomi)
+            InputStats.shared.incrementBushuCount()
         } else {
             Log.i("Bushu henkan no candidates for \(ch1)\(ch2)")
         }
