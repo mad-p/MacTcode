@@ -1,7 +1,5 @@
 import Foundation
 
-var termPipe: [Int32] = [-1, -1]
-
 /// 入力統計情報を管理するシングルトンクラス
 class InputStats {
     static let shared = InputStats()
@@ -15,7 +13,6 @@ class InputStats {
     private let queue = DispatchQueue(label: "jp.mad-p.inputmethods.MacTcode.inputstats", attributes: .concurrent)
 
     private init() {
-        InputStats.setupSignalHandlers()
     }
 
     /// 基本文字入力のカウントを増やす
@@ -106,45 +103,5 @@ class InputStats {
             functionCount = 0
             totalActionCount = 0
         }
-    }
-
-    
-    /// シグナルハンドラを設定
-    static func setupSignalHandlers() {
-        // パイプ（[読端, 書端]）
-        guard pipe(&termPipe) == 0 else { fatalError("pipe failed") }
-        
-        // C呼出規約、キャプチャなし
-        let sigtermHandler: @convention(c) (Int32) -> Void = { _ in
-            var one: UInt8 = 1
-            // write は async-signal-safe
-            _ = withUnsafePointer(to: &one) {
-                $0.withMemoryRebound(to: UInt8.self, capacity: 1) {
-                    write(termPipe[1], $0, 1)
-                }
-            }
-        }
-        
-        // シグナル登録
-        signal(SIGINT, sigtermHandler)
-        signal(SIGTERM, sigtermHandler)
-        
-        // SIGINT用のDispatchSourceを作成
-        let sigintSource = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
-        sigintSource.setEventHandler {
-            Log.i("★Received SIGINT, writing statistics...")
-            shared.writeStatsToFile()
-            exit(0)
-        }
-        sigintSource.resume()
-        
-        // SIGTERM用のDispatchSourceを作成
-        let sigtermSource = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
-        sigtermSource.setEventHandler {
-            Log.i("★Received SIGTERM, writing statistics...")
-            shared.writeStatsToFile()
-            exit(0)
-        }
-        sigtermSource.resume()
     }
 }
