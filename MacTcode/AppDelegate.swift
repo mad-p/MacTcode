@@ -34,6 +34,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        Log.i("★AppDelegate terminated self=\(ObjectIdentifier(self))")
+        Log.i("★AppDelegate terminating self=\(ObjectIdentifier(self))")
+        InputStats.shared.writeStatsToFile()
     }
 }

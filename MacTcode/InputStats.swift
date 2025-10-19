@@ -47,8 +47,11 @@ class InputStats {
     }
 
     /// 統計情報をファイルに書き出す
-    private func writeStatsToFile() {
+    public func writeStatsToFile() {
         queue.sync {
+            guard totalActionCount > 0 else {
+                return
+            }
             let fileManager = FileManager.default
             let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             let macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
@@ -94,6 +97,11 @@ class InputStats {
             }
 
             Log.i("★Statistics written: \(statsLine.trimmingCharacters(in: .whitespacesAndNewlines))")
+            basicCount = 0
+            bushuCount = 0
+            mazegakiCount = 0
+            functionCount = 0
+            totalActionCount = 0
         }
     }
 
