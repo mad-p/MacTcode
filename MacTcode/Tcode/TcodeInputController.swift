@@ -95,7 +95,7 @@ class TcodeInputController: IMKInputController, Controller {
             } else {
                 // キャンセル期間内
                 // キャンセルキーの場合はキャンセル処理を実行して入力イベントを消費
-                if inputEvent.type == .delete || inputEvent.type == .control_g || inputEvent.type == .escape {
+                if inputEvent.type == .control_g || inputEvent.type == .escape {
                     Log.i("handle: cancel key detected, canceling pendingKakutei")
                     _ = cancelPendingKakutei(client: baseInputText!)
                     return true  // イベントを消費
