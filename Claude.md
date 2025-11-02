@@ -57,9 +57,11 @@ log stream --predicate 'process == "MacTcode"'
 ### 変換エンジン
 
 **部首変換 (Bushu)**:
-- `Bushu.swift`: tc-bushu.elアルゴリズムの再実装
+- `Bushu.swift`: tc-bushu.elアルゴリズムの再実装、自動学習データ管理
 - 2文字の組み合わせから1文字を合成
 - 部品単位の合成、引き算（部品の削除）をサポート
+- `autoDict`: 自動部首変換学習データ（受容された変換結果を記録）
+- `tryAutoBushu()`: 文字入力後に自動変換を試行
 
 **交ぜ書き変換 (Mazegaki)**:
 - `MazegakiDict.swift`: 辞書ファイル読み込み、LRU学習データ管理
@@ -82,14 +84,20 @@ log stream --predicate 'process == "MacTcode"'
 - `mazegaki_user.dic`に自動保存（統計データと同じタイミング）
 - 設定: `mazegaki.lruEnabled`, `mazegaki.lruFile`
 
-**自動部首変換**（未実装、将来用）:
+**自動部首変換**:
+- 手動部首変換で受容された結果を学習し、次回から自動的に変換
+- `Bushu.autoDict`で学習データを管理（キー: 合成元2文字、値: 合成結果1文字）
+- `TcodeMode.handle()`で文字入力後に`tryAutoBushu()`を実行
+- 順序厳密: "木林"で学習したものは"林木"では自動変換されない
+- 自動変換もキャンセル可能（受容時は学習データ更新なし）
+- `bushu_auto.dic`に自動保存（統計データと同じタイミング）
 - 設定: `bushu.autoEnabled`, `bushu.autoFile`
 
 ### 設定管理
 
 `UserConfigs.shared`（シングルトン）が5つの設定カテゴリを管理:
 1. **MazegakiConfig**: 交ぜ書き変換設定、LRU学習設定
-2. **BushuConfig**: 部首変換設定、自動学習設定（将来用）
+2. **BushuConfig**: 部首変換設定、自動部首変換学習設定
 3. **KeyBindingsConfig**: キーバインド、基本文字配列（40x40）
 4. **UIConfig**: 候補選択キー、記号セット
 5. **SystemConfig**: 除外アプリ、ログ、統計同期間隔、キャンセル期間
@@ -138,6 +146,6 @@ make test    # すべてのテストを実行
 完了した機能:
 - ✅ キャンセル期間機能（PendingKakutei）
 - ✅ 交ぜ書き候補LRU学習
+- ✅ 自動部首変換機能
 
-未実装の機能（`TODO.md`参照）:
-- ⏳ 自動部首変換機能
+学習機能の実装はすべて完了。詳細は`TODO.md`を参照。
