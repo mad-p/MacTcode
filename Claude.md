@@ -62,18 +62,37 @@ log stream --predicate 'process == "MacTcode"'
 - 部品単位の合成、引き算（部品の削除）をサポート
 
 **交ぜ書き変換 (Mazegaki)**:
-- `MazegakiDict.swift`: 辞書ファイル読み込み
+- `MazegakiDict.swift`: 辞書ファイル読み込み、LRU学習データ管理
 - `Mazegaki.swift`: 読み取得と変換候補の検索
 - `MazegakiSelectionMode.swift`: 候補選択UI
+- `MazegakiHit.swift`: 変換候補、LRU学習優先の候補取得
+
+### 学習機能とキャンセル期間
+
+**PendingKakutei** (変換キャンセル機構):
+- 変換確定後、`cancelPeriod`秒間（デフォルト1.5秒）キャンセル可能
+- Delete、Control-g、Escapeキーでキャンセルして読みに戻せる
+- キャンセルされなかった変換は「受容」され、学習データに反映
+- `Controller`プロトコルの`pendingKakutei`プロパティで管理
+
+**交ぜ書き候補LRU学習**:
+- 選択された候補を先頭に移動（LRU: Least Recently Used）
+- `MazegakiDict.lruDict`で学習データを管理（元辞書は不変）
+- `MazegakiHit.candidates()`はLRU辞書を優先的に参照
+- `mazegaki_user.dic`に自動保存（統計データと同じタイミング）
+- 設定: `mazegaki.lruEnabled`, `mazegaki.lruFile`
+
+**自動部首変換**（未実装、将来用）:
+- 設定: `bushu.autoEnabled`, `bushu.autoFile`
 
 ### 設定管理
 
 `UserConfigs.shared`（シングルトン）が5つの設定カテゴリを管理:
-1. **MazegakiConfig**: 交ぜ書き変換設定
-2. **BushuConfig**: 部首変換設定
+1. **MazegakiConfig**: 交ぜ書き変換設定、LRU学習設定
+2. **BushuConfig**: 部首変換設定、自動学習設定（将来用）
 3. **KeyBindingsConfig**: キーバインド、基本文字配列（40x40）
 4. **UIConfig**: 候補選択キー、記号セット
-5. **SystemConfig**: 除外アプリ、ログ、統計同期間隔
+5. **SystemConfig**: 除外アプリ、ログ、統計同期間隔、キャンセル期間
 
 設定変更は`UserConfigsDelegate`プロトコルで通知。
 
@@ -102,7 +121,8 @@ log stream --predicate 'process == "MacTcode"'
 | `ContextClient.swift` | テキスト読み取りの複雑なロジック |
 | `UserConfigs.swift` | 設定管理システム |
 | `Bushu.swift` | 部首変換アルゴリズム |
-| `MazegakiDict.swift` | 交ぜ書き辞書 |
+| `MazegakiDict.swift` | 交ぜ書き辞書、LRU学習データ |
+| `PendingKakutei.swift` | 変換キャンセル機構 |
 | `InputStats.swift` | 統計管理 |
 
 ## テスト
@@ -113,6 +133,11 @@ log stream --predicate 'process == "MacTcode"'
 make test    # すべてのテストを実行
 ```
 
-## 現在の開発タスク
+## 開発状況
 
-`TODO.md`を参照。現在は学習機能（部首変換・交ぜ書き変換の自動化）を実装中。
+完了した機能:
+- ✅ キャンセル期間機能（PendingKakutei）
+- ✅ 交ぜ書き候補LRU学習
+
+未実装の機能（`TODO.md`参照）:
+- ⏳ 自動部首変換機能

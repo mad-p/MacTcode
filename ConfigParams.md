@@ -32,7 +32,9 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "maxInflection": 4,
   "maxYomi": 10,
   "mazegakiYomiCharacters": "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
-  "dictionaryFile": "mazegaki.dic"
+  "dictionaryFile": "mazegaki.dic",
+  "lruEnabled": false,
+  "lruFile": "mazegaki_user.dic"
 }
 ```
 
@@ -40,18 +42,27 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`maxYomi`**: 読みの最大文字数（1-50）
 - **`mazegakiYomiCharacters`**: 交ぜ書き変換で読み部分に含める文字の正規表現文字クラス記法
 - **`dictionaryFile`**: 交ぜ書き変換辞書のファイル名
+- **`lruEnabled`**: LRU（Least Recently Used）学習機能の有効/無効
+  - `true`の場合、選択した候補が次回から優先的に表示されます
+  - 学習データは`lruFile`で指定したファイルに保存されます
+- **`lruFile`**: LRU学習データのファイル名
+  - Application Support/MacTcode ディレクトリに自動保存されます
 
 ### 2. 部首変換設定 (`bushu`)
 
 ```json
 "bushu": {
   "bushuYomiCharacters": "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
-  "dictionaryFile": "bushu.dic"
+  "dictionaryFile": "bushu.dic",
+  "autoEnabled": false,
+  "autoFile": "bushu_auto.dic"
 }
 ```
 
 - **`bushuYomiCharacters`**: 部首変換で部品取得に含める文字の正規表現文字クラス記法
 - **`dictionaryFile`**: 部首変換辞書のファイル名
+- **`autoEnabled`**: 自動学習機能の有効/無効（将来の機能として予約済み）
+- **`autoFile`**: 自動学習データのファイル名（将来の機能として予約済み）
 
 ### 3. キーバインド設定 (`keyBindings`)
 
@@ -105,6 +116,7 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "excludedApplications": ["com.apple.loginwindow", "com.apple.SecurityAgent"],
   "disableOneYomiApplications": ["com.google.Chrome"],
   "syncStatsInterval": 1200,
+  "cancelPeriod": 1.5,
   "keyboardLayout": "dvorak",
   "keyboardLayoutMapping": [
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
@@ -126,6 +138,10 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   - 0に設定すると統計ファイルの出力が無効になります
   - 統計情報は入力メソッド切り替え時やアプリケーション終了時に自動的に保存されます
   - 詳細はREADME.mdの「統計情報の記録」セクションを参照してください
+- **`cancelPeriod`**: 変換確定後のキャンセル可能期間（秒、0.1-10.0）
+  - 変換確定後、この期間内であればDeleteキーやControl-g、Escapeキーで変換をキャンセルして読みに戻すことができます
+  - デフォルト値: 1.5秒
+  - LRU学習機能が有効な場合、この期間経過後に学習データが更新されます
 - **`keyboardLayout`**: キーボードレイアウトの名前（"dvorak", "qwerty"等）
 - **`keyboardLayoutMapping`**: 40個のキー配列マッピング（文字列配列）
 - **`logEnabled`**: デバッグログの出力有効/無効
