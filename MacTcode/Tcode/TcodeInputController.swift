@@ -176,13 +176,9 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("cancelPendingKakutei: yomi=\(pending.yomiString), kakutei=\(pending.kakuteiString)")
 
         // kakuteiStringを削除してyomiStringに置き換える
-        // sendBackspace()を使って kakuteiString を削除
-        let kakuteiLength = pending.kakuteiString.count
-        for _ in 0..<kakuteiLength {
-            client.sendBackspace()
-        }
-        // yomiStringを挿入
-        client.insertText(pending.yomiString, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+        // YomiContextを作ってClientContext.replaceYomiにまかせる
+        let yomiContext = YomiContext(string: pending.kakuteiString, range: NSRange(location: client.recent.text.count, length: NSNotFound), fromSelection: false, fromMirror: true)
+        client.replaceYomi(pending.yomiString, length: pending.kakuteiString.count, from: yomiContext)
 
         // pendingKakuteiをクリア
         pendingKakutei = nil

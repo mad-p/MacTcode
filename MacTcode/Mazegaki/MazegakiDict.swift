@@ -68,7 +68,7 @@ final class MazegakiDict {
         let lruFile = UserConfigs.shared.mazegaki.lruFile
         var lines: [String] = []
         for (key, value) in lruDict.sorted(by: { $0.key < $1.key }) {
-            lines.append("\(key) \(value)")
+            lines.append("\(key) /\(value)/")
         }
         let content = lines.joined(separator: "\n")
 
@@ -109,6 +109,9 @@ final class MazegakiDict {
         }
 
         var candidates = entry.components(separatedBy: "/").filter({ $0 != "" })
+        if (candidates.count == 1) {
+            return
+        }
 
         // selectedCandidateを先頭に移動
         if let index = candidates.firstIndex(of: selectedCandidate) {

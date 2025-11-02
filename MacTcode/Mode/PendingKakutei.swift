@@ -20,7 +20,10 @@ class PendingKakutei {
     let kakuteiString: String
 
     /// 受容されたときに学習データのメンテナンスのために呼び出される処理
-    let onAccepted: () -> Void
+    let onAccepted: (_ parameter: Any?) -> Void
+
+    /// onAcceptedに渡すパラメータ
+    let parameter: Any?
 
     /// イニシャライザ
     /// - Parameters:
@@ -28,11 +31,13 @@ class PendingKakutei {
     ///   - yomi: 変換元文字列
     ///   - kakutei: 変換後文字列
     ///   - onAccepted: 受容時のハンドラ
-    init(timeout: Date, yomi: String, kakutei: String, onAccepted: @escaping () -> Void) {
+    init(timeout: Date, yomi: String, kakutei: String,
+         onAccepted: @escaping (_ parameter: Any?) -> Void, parameter: Any? = nil) {
         self.acceptedTimeout = timeout
         self.yomiString = yomi
         self.kakuteiString = kakutei
         self.onAccepted = onAccepted
+        self.parameter = parameter
     }
 
     /// 現在時刻でタイムアウトしているかチェック
@@ -43,6 +48,11 @@ class PendingKakutei {
 
     /// 受容処理を実行
     func accept() {
-        onAccepted()
+        if let param = parameter {
+            Log.i("★accepted \(yomiString) -> \(kakuteiString); parameter = \(parameter!)")
+        } else {
+            Log.i("★accepted \(yomiString) -> \(kakuteiString); parameter = nil")
+        }
+        onAccepted(parameter)
     }
 }
