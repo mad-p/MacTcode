@@ -69,6 +69,7 @@ enum ConfigValidationError: LocalizedError {
     case invalidMaxYomi(value: Int)
     case invalidBackspaceDelay(value: Double)
     case invalidRecentTextMaxLength(value: Int)
+    case invalidCancelPeriod(value: Double)
 
     var errorDescription: String? {
         switch self {
@@ -84,6 +85,8 @@ enum ConfigValidationError: LocalizedError {
             return "Backspace delay must be between 0.01 and 1.0, but is \(value)"
         case .invalidRecentTextMaxLength(let value):
             return "Recent text max length must be between 1 and 100, but is \(value)"
+        case .invalidCancelPeriod(let value):
+            return "Cancel period must be between 0.1 and 10.0, but is \(value)"
         }
     }
 }
@@ -202,6 +205,7 @@ class UserConfigs {
         let keyboardLayout: String
         let keyboardLayoutMapping: [String]
         let syncStatsInterval: Int
+        let cancelPeriod: Double
 
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
@@ -216,6 +220,7 @@ class UserConfigs {
                 ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
             ],
             syncStatsInterval: 1200,
+            cancelPeriod: 1.5
         )
     }
 
@@ -345,6 +350,10 @@ class UserConfigs {
         // SystemConfig validation
         guard config.system.recentTextMaxLength >= 1 && config.system.recentTextMaxLength <= 100 else {
             throw ConfigValidationError.invalidRecentTextMaxLength(value: config.system.recentTextMaxLength)
+        }
+
+        guard config.system.cancelPeriod >= 0.1 && config.system.cancelPeriod <= 10.0 else {
+            throw ConfigValidationError.invalidCancelPeriod(value: config.system.cancelPeriod)
         }
     }
 

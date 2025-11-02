@@ -60,6 +60,7 @@
     "mazegakiYomiCharacters" : "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}"
   },
   "system" : {
+    "cancelPeriod" : 1.5,
     "excludedApplications" : [
       "com.apple.loginwindow",
       "com.apple.SecurityAgent"

@@ -12,6 +12,7 @@
 		9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */; };
 		9D0F3CE72C04E139005A0CAC /* bushu.dic in Resources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE62C04E139005A0CAC /* bushu.dic */; };
 		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
+		9D7B903C2EB729FD00DD7920 /* PendingKakutei.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7B903B2EB729FD00DD7920 /* PendingKakutei.swift */; };
 		9D868A012C05F98700128D48 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D868A002C05F98700128D48 /* main@2x.tiff */; };
 		9D868FF32C706AB200293645 /* ContextClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D868FF22C706AB200293645 /* ContextClientTests.swift */; };
 		9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */; };
@@ -90,6 +91,7 @@
 		9D4818D82C0368DB00906504 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = main.tiff; sourceTree = "<group>"; };
 		9D6BA6A82C462793007524AC /* InputMethodKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InputMethodKit.framework; path = System/Library/Frameworks/InputMethodKit.framework; sourceTree = SDKROOT; };
 		9D6BA6AA2C46279A007524AC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		9D7B903B2EB729FD00DD7920 /* PendingKakutei.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingKakutei.swift; sourceTree = "<group>"; };
 		9D868A002C05F98700128D48 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		9D868FF22C706AB200293645 /* ContextClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextClientTests.swift; sourceTree = "<group>"; };
 		9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeTest.swift; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 		9DEAFE302C5FB2EC00E8B5E3 /* Mode */ = {
 			isa = PBXGroup;
 			children = (
+				9D7B903B2EB729FD00DD7920 /* PendingKakutei.swift */,
 				9DEAFE262C5FA2A800E8B5E3 /* Controller.swift */,
 				9DEA6D472C0EB0430005BB18 /* Mode.swift */,
 				9DEAFE282C5FA2CF00E8B5E3 /* ModeWithCandidates.swift */,
@@ -500,6 +503,7 @@
 				9DEAFE2D2C5FB24500E8B5E3 /* ZenkakuModeAction.swift in Sources */,
 				9DEA6D462C0E45950005BB18 /* Client.swift in Sources */,
 				9DA358E72E2DEF4100323184 /* PostfixBushuAction.swift in Sources */,
+				9D7B903C2EB729FD00DD7920 /* PendingKakutei.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
 				9DEAFE352C6DB3E000E8B5E3 /* ClientWrapper.swift in Sources */,
 				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,

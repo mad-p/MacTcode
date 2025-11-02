@@ -14,4 +14,5 @@ protocol Controller {
     func pushMode(_ mode: Mode)
     func popMode()
     var candidateWindow: IMKCandidates { get }
+    var pendingKakutei: PendingKakutei? { get set }
 }
