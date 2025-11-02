@@ -15,7 +15,11 @@ class TcodeInputController: IMKInputController, Controller {
     let recentText = RecentTextClient("")
     var baseInputText: ContextClient?
     var pendingKakutei: PendingKakutei?
-    
+
+    func setPendingKakutei(_ pending: PendingKakutei?) {
+        self.pendingKakutei = pending
+    }
+
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         modeStack = [TcodeMode()]
         candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)

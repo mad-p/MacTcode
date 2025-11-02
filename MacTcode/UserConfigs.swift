@@ -101,22 +101,30 @@ class UserConfigs {
         let maxYomi: Int
         let mazegakiYomiCharacters: String
         let dictionaryFile: String
+        let lruEnabled: Bool
+        let lruFile: String
 
         static let `default` = MazegakiConfig(
             maxInflection: 4,
             maxYomi: 10,
             mazegakiYomiCharacters: "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
-            dictionaryFile: "mazegaki.dic"
+            dictionaryFile: "mazegaki.dic",
+            lruEnabled: false,
+            lruFile: "mazegaki_user.dic"
         )
     }
 
     struct BushuConfig: Codable {
         let bushuYomiCharacters: String
         let dictionaryFile: String
+        let autoEnabled: Bool
+        let autoFile: String
 
         static let `default` = BushuConfig(
             bushuYomiCharacters: "0-9、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
-            dictionaryFile: "bushu.dic"
+            dictionaryFile: "bushu.dic",
+            autoEnabled: false,
+            autoFile: "bushu_auto.dic"
         )
     }
 

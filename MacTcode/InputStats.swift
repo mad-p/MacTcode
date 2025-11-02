@@ -119,6 +119,9 @@ class InputStats {
             mazegakiCount = 0
             functionCount = 0
             totalActionCount = 0
+
+            // 学習データも同じタイミングで保存
+            MazegakiDict.i.saveLruData()
         }
     }
 }

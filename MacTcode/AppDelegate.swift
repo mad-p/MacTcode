@@ -41,6 +41,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         Log.i("★AppDelegate terminating self=\(ObjectIdentifier(self))")
         InputStats.shared.writeStatsToFile()
+        MazegakiDict.i.saveLruData()
     }
     
     /// シグナルハンドラを設定
@@ -70,15 +71,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         sigintSource.setEventHandler {
             NSLog("★Received SIGINT, writing statistics...")
             InputStats.shared.writeStatsToFile()
+            MazegakiDict.i.saveLruData()
             exit(0)
         }
         sigintSource.resume()
-        
+
         // SIGTERM用のDispatchSourceを作成
         let sigtermSource = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
         sigtermSource.setEventHandler {
             Log.i("★Received SIGTERM, writing statistics...")
             InputStats.shared.writeStatsToFile()
+            MazegakiDict.i.saveLruData()
             exit(0)
         }
         sigtermSource.resume()

@@ -1,5 +1,7 @@
 {
   "bushu" : {
+    "autoEnabled" : false,
+    "autoFile" : "bushu_auto.dic",
     "bushuYomiCharacters" : "0-9、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
     "dictionaryFile" : "bushu.dic"
   },
@@ -55,6 +57,8 @@
   },
   "mazegaki" : {
     "dictionaryFile" : "mazegaki.dic",
+    "lruEnabled" : false,
+    "lruFile" : "mazegaki_user.dic",
     "maxInflection" : 4,
     "maxYomi" : 10,
     "mazegakiYomiCharacters" : "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}"

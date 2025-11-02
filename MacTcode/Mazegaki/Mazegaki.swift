@@ -87,14 +87,14 @@ class Mazegaki {
     }
 
     /// 確定するコンビニメソッド
-    func submit(hit: MazegakiHit, index: Int, client: Client) -> Bool {
+    func submit(hit: MazegakiHit, index: Int, client: Client, controller: Controller) -> Bool {
         if !hit.found || index >= hit.candidates().count {
             return false
         }
-        return self.submit(hit: hit, string: hit.candidates()[index], client: client)
+        return self.submit(hit: hit, string: hit.candidates()[index], client: client, controller: controller)
     }
 
-    func submit(hit: MazegakiHit, string: String, client: Client) -> Bool {
+    func submit(hit: MazegakiHit, string: String, client: Client, controller: Controller) -> Bool {
         guard let client = client as? ContextClient else {
             Log.i("★★Can't happen: Mazegaki.submit: client is not ContextClient")
             return false
@@ -106,6 +106,34 @@ class Mazegaki {
         Log.i("Kakutei \(string)  client=\(type(of:client))")
         InputStats.shared.incrementMazegakiCount()
         client.replaceYomi(string, length: length, from: context)
+
+        // LRU学習が有効な場合、PendingKakuteiを生成
+        if UserConfigs.shared.mazegaki.lruEnabled {
+            // 活用部分を除いた候補文字列を取得
+            let inflection = hit.yomi.suffix(hit.offset).joined()
+            let candidateWithoutInflection: String
+            if string.hasSuffix(inflection) {
+                candidateWithoutInflection = String(string.dropLast(inflection.count))
+            } else {
+                candidateWithoutInflection = string
+            }
+
+            let yomiString = hit.yomi.joined()
+            let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
+
+            let pending = PendingKakutei(
+                timeout: timeout,
+                yomi: yomiString,
+                kakutei: string,
+                onAccepted: { [weak hit] in
+                    // 受容時の処理: LRU学習データを更新
+                    guard let hit = hit else { return }
+                    MazegakiDict.i.updateLruEntry(key: hit.key, selectedCandidate: candidateWithoutInflection)
+                }
+            )
+            controller.setPendingKakutei(pending)
+        }
+
         return true
     }
 }
@@ -140,7 +168,7 @@ class PostfixMazegakiAction: Action {
             return .processed
         }
         if !inflection && hits.count == 1 && hits[0].candidates().count == 1 {
-            if mazegaki.submit(hit: hits[0], index: 0, client: client) {
+            if mazegaki.submit(hit: hits[0], index: 0, client: client, controller: controller) {
                 return .processed
             }
         }
