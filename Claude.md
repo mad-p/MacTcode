@@ -73,7 +73,7 @@ log stream --predicate 'process == "MacTcode"'
 
 **PendingKakutei** (変換キャンセル機構):
 - 変換確定後、`cancelPeriod`秒間（デフォルト1.5秒）キャンセル可能
-- Delete、Control-g、Escapeキーでキャンセルして読みに戻せる
+- Control-g、Escapeキーでキャンセルして読みに戻せる
 - キャンセルされなかった変換は「受容」され、学習データに反映
 - `Controller`プロトコルの`pendingKakutei`プロパティで管理
 
