@@ -122,6 +122,7 @@ class InputStats {
 
             // 学習データも同じタイミングで保存
             MazegakiDict.i.saveLruData()
+            Bushu.i.saveAutoData()
         }
     }
 }

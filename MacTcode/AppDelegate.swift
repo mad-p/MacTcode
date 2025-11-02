@@ -39,5 +39,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Log.i("★AppDelegate terminating self=\(ObjectIdentifier(self))")
         InputStats.shared.writeStatsToFile()
         MazegakiDict.i.saveLruData()
+        Bushu.i.saveAutoData()
     }
 }
