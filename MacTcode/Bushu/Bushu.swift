@@ -241,4 +241,60 @@ final class Bushu {
 
         return true
     }
+
+    /// 自動部首変換を試みる
+    /// - Parameters:
+    ///   - client: クライアント
+    ///   - controller: コントローラ
+    /// - Returns: 自動変換が実行されたかどうか
+    func tryAutoBushu(client: ContextClient!, controller: Controller) -> Bool {
+        // 自動学習が無効な場合は何もしない
+        guard UserConfigs.shared.bushu.autoEnabled else {
+            return false
+        }
+
+        // 最後の2文字を取得できない場合は何もしない
+        guard client.recent.text.count >= 2 else {
+            return false
+        }
+
+        // 最後の2文字を取得
+        let text = client.recent.text
+        let startIndex = text.index(text.endIndex, offsetBy: -2)
+        let src = String(text[startIndex...])
+
+        // 学習データに該当エントリがあるかチェック
+        guard let result = autoDict[src] else {
+            return false
+        }
+
+        Log.i("Auto bushu: \(src) -> \(result)")
+
+        // YomiContextを作成
+        let yomiContext = YomiContext(
+            string: src,
+            range: NSRange(location: client.recent.text.count - 2, length: 2),
+            fromSelection: false,
+            fromMirror: true
+        )
+
+        // 変換実行
+        client.replaceYomi(result, length: 2, from: yomiContext)
+
+        // PendingKakuteiを作成（キャンセルのみ処理、受容時は何もしない）
+        let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
+        let pending = PendingKakutei(
+            timeout: timeout,
+            yomi: src,
+            kakutei: result,
+            onAccepted: { _ in
+                Log.i("★accepted auto bushu kakutei (no learning)")
+                // 自動変換の受容時は学習データを更新しない
+            },
+            parameter: nil
+        )
+        controller.setPendingKakutei(pending)
+
+        return true
+    }
 }

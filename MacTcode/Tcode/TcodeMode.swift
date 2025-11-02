@@ -52,7 +52,13 @@ class TcodeMode: Mode, MultiStroke {
             case .text(let string):
                 resetPending()
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                InputStats.shared.incrementBasicCount()
+
+                // 自動部首変換を試みる
+                if Bushu.i.tryAutoBushu(client: client, controller: controller) {
+                    InputStats.shared.incrementBushuCount()
+                } else {
+                    InputStats.shared.incrementBasicCount()
+                }
                 return true
             case .action(let action):
                 InputStats.shared.incrementFunctionCount()
