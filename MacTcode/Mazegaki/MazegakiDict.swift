@@ -18,7 +18,7 @@ final class MazegakiDict {
         Log.i("Read mazegaki dictionary...")
         dict = [:]
         let dictionaryFile = UserConfigs.shared.mazegaki.dictionaryFile
-        if let mazedic = Config.loadConfig(file: dictionaryFile) {
+        if let mazedic = UserConfigs.shared.loadConfig(file: dictionaryFile) {
             for line in mazedic.components(separatedBy: .newlines) {
                 let kv = line.components(separatedBy: " ")
                 if kv.count == 2 {
@@ -43,7 +43,7 @@ final class MazegakiDict {
         Log.i("Load mazegaki LRU data...")
         lruDict = [:]
         let lruFile = UserConfigs.shared.mazegaki.lruFile
-        if let lruData = Config.loadConfig(file: lruFile) {
+        if let lruData = UserConfigs.shared.loadConfig(file: lruFile) {
             for line in lruData.components(separatedBy: .newlines) {
                 let kv = line.components(separatedBy: " ")
                 if kv.count == 2 {
@@ -73,19 +73,7 @@ final class MazegakiDict {
         let content = lines.joined(separator: "\n")
 
         do {
-            // Application SupportディレクトリのURLを取得
-            guard let appSupportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-                Log.i("Failed to get Application Support directory")
-                return
-            }
-            let macTcodeDir = appSupportDir.appendingPathComponent("MacTcode")
-
-            // ディレクトリが存在しない場合は作成
-            if !FileManager.default.fileExists(atPath: macTcodeDir.path) {
-                try FileManager.default.createDirectory(at: macTcodeDir, withIntermediateDirectories: true)
-            }
-
-            let url = macTcodeDir.appendingPathComponent(lruFile)
+            let url = UserConfigs.shared.configFileURL(lruFile)
             try content.write(to: url, atomically: true, encoding: .utf8)
             Log.i("Mazegaki LRU data saved: \(lruDict.count) entries to \(url.path)")
         } catch {
@@ -120,7 +108,7 @@ final class MazegakiDict {
                 candidates.insert(selectedCandidate, at: 0)
 
                 // lruDictを更新
-                lruDict[key] = candidates.joined(separator: "/")
+                lruDict[key] = "/" + candidates.joined(separator: "/") + "/"
                 Log.i("updateLruEntry: '\(key)' updated, '\(selectedCandidate)' moved to front")
             } else {
                 Log.i("updateLruEntry: '\(selectedCandidate)' already at front")

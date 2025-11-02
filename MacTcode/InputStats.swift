@@ -69,15 +69,7 @@ class InputStats {
             }
             
             let fileManager = FileManager.default
-            let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
-
-            // ディレクトリが存在しない場合は作成
-            if !fileManager.fileExists(atPath: macTcodeURL.path) {
-                try? fileManager.createDirectory(at: macTcodeURL, withIntermediateDirectories: true)
-            }
-
-            let fileURL = macTcodeURL.appendingPathComponent("tc-record.txt")
+            let fileURL = UserConfigs.shared.configFileURL("tc-record.txt")
 
             // 現在の日時を取得
             let dateFormatter = DateFormatter()

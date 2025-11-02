@@ -264,7 +264,7 @@ class UserConfigs {
     private init() {
         let fileManager = FileManager.default
         let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
+        macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
 
         // ディレクトリが存在しない場合は作成
         if !fileManager.fileExists(atPath: macTcodeURL.path) {
@@ -282,6 +282,7 @@ class UserConfigs {
     var keyBindings: KeyBindingsConfig { configData.keyBindings }
     var ui: UIConfig { configData.ui }
     var system: SystemConfig { configData.system }
+    let macTcodeURL: URL
 
     // MARK: - Configuration Management
 
@@ -319,6 +320,39 @@ class UserConfigs {
         configData = loadedConfig
         log("Configuration loaded from external file: \(fileURL.path)")
         delegate?.userConfigsDidChange(self)
+    }
+    
+    func loadConfig(file: String) -> String? {
+        // ユーザーのApplication Supportディレクトリを優先して検索
+        let configURL = configFileURL(file)
+            
+        if FileManager.default.fileExists(atPath: configURL.path) {
+            do {
+                let configContent = try String(contentsOf: configURL, encoding: .utf8)
+                Log.i("Config file \(file) loaded from: \(configURL.path)")
+                return configContent
+            } catch {
+                Log.i("Failed to read file \(configURL.path): \(error)")
+            }
+        }
+
+        // バンドルリソースから検索（フォールバック）
+        if let configFilePath = Bundle.main.path(forResource: file, ofType: nil) {
+            do {
+                let configContent = try String(contentsOfFile: configFilePath, encoding: .utf8)
+                Log.i("Config file \(file) loaded from bundle: \(configFilePath)")
+                return configContent
+            } catch {
+                Log.i("Failed to read bundle file: \(error)")
+            }
+        }
+        
+        Log.i("Config file \(file) not found in any search path")
+        return nil
+    }
+
+    func configFileURL(_ filename: String) -> URL {
+        return macTcodeURL.appendingPathComponent(filename)
     }
 
     private func validateConfiguration(_ config: ConfigData) throws {

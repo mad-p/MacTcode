@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */; };
-		9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE02C04D570005A0CAC /* Config.swift */; };
 		9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */; };
 		9D0F3CE72C04E139005A0CAC /* bushu.dic in Resources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE62C04E139005A0CAC /* bushu.dic */; };
 		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
@@ -85,7 +84,6 @@
 
 /* Begin PBXFileReference section */
 		9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bushu.swift; sourceTree = "<group>"; };
-		9D0F3CE02C04D570005A0CAC /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BushuTests.swift; sourceTree = "<group>"; };
 		9D0F3CE62C04E139005A0CAC /* bushu.dic */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = bushu.dic; sourceTree = "<group>"; };
 		9D4818D82C0368DB00906504 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = main.tiff; sourceTree = "<group>"; };
@@ -216,7 +214,6 @@
 				9D8C8DE22C01ADA9003D8A43 /* Info.plist */,
 				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
 				9DEAFE1E2C5F9E5F00E8B5E3 /* Command.swift */,
-				9D0F3CE02C04D570005A0CAC /* Config.swift */,
 				9D8BFECB2C15D64F00B99BA2 /* Log.swift */,
 				9DEAFE312C5FB30400E8B5E3 /* Zenkaku */,
 				9D4818D82C0368DB00906504 /* main.tiff */,
@@ -506,7 +503,6 @@
 				9D7B903C2EB729FD00DD7920 /* PendingKakutei.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
 				9DEAFE352C6DB3E000E8B5E3 /* ClientWrapper.swift in Sources */,
-				9D0F3CE12C04D570005A0CAC /* Config.swift in Sources */,
 				9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */,
 				9DEAFE272C5FA2A800E8B5E3 /* Controller.swift in Sources */,
 				9DEA6D382C0AC0DA0005BB18 /* Keymap.swift in Sources */,

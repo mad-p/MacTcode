@@ -25,7 +25,7 @@ final class Bushu {
         decomposeTable = [:]
         equivTable = [:]
         let dictionaryFile = UserConfigs.shared.bushu.dictionaryFile
-        if let bushuDic = Config.loadConfig(file: dictionaryFile) {
+        if let bushuDic = UserConfigs.shared.loadConfig(file: dictionaryFile) {
             for line in bushuDic.components(separatedBy: .newlines) {
                 let chars = line.map {String($0)}
                 if chars.count == 3 {
@@ -125,7 +125,7 @@ final class Bushu {
         Log.i("Load bushu auto data...")
         autoDict = [:]
         let autoFile = UserConfigs.shared.bushu.autoFile
-        if let autoData = Config.loadConfig(file: autoFile) {
+        if let autoData = UserConfigs.shared.loadConfig(file: autoFile) {
             for line in autoData.components(separatedBy: .newlines) {
                 let chars = line.map { String($0) }
                 if chars.count == 3 {
@@ -157,19 +157,7 @@ final class Bushu {
         let content = lines.joined(separator: "\n")
 
         do {
-            // Application SupportディレクトリのURLを取得
-            guard let appSupportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-                Log.i("Failed to get Application Support directory")
-                return
-            }
-            let macTcodeDir = appSupportDir.appendingPathComponent("MacTcode")
-
-            // ディレクトリが存在しない場合は作成
-            if !FileManager.default.fileExists(atPath: macTcodeDir.path) {
-                try FileManager.default.createDirectory(at: macTcodeDir, withIntermediateDirectories: true)
-            }
-
-            let url = macTcodeDir.appendingPathComponent(autoFile)
+            let url = UserConfigs.shared.configFileURL(autoFile)
             try content.write(to: url, atomically: true, encoding: .utf8)
             Log.i("Bushu auto data saved: \(autoDict.count) entries to \(url.path)")
         } catch {
