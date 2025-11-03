@@ -30,7 +30,7 @@ class MazegakiSelectionCancelAction: MazegakiAction {
 class MazegakiSelectionKakuteiAction: MazegakiAction {
     override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
         Log.i("KakuteiAction")
-        _ = mode.mazegaki.submit(hit: mode.hits[mode.row], string: mode.candidateString, client: client)
+        _ = mode.mazegaki.submit(hit: mode.hits[mode.row], string: mode.candidateString, client: client, controller: controller)
         mode.cancel()
         return .processed
     }

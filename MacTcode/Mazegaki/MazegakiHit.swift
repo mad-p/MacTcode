@@ -14,25 +14,26 @@ class MazegakiHit: Comparable {
     var key: String = ""    // dictを見るときのキー
     var length: Int = 0     // 読みの長さ
     var offset: Int = 0     // 活用部分の長さ
-    var cache: [String]? = nil
+    var candidateString: [String]? = nil
 
     func candidates() -> [String] {
-        if let ret = cache {
+        if let ret = candidateString {
             return ret
         }
         if found {
-            if let dictEntry = MazegakiDict.i.dict[key] {
+            // LRU学習データを優先、なければ通常辞書を使用
+            if let entry = MazegakiDict.i.lruDict[key] ?? MazegakiDict.i.dict[key] {
                 let inflection = yomi.suffix(offset).joined()
-                var cand = dictEntry.components(separatedBy: "/")
+                var cand = entry.components(separatedBy: "/")
                 if !cand.isEmpty {
                     cand = cand.filter({ $0 != ""})
                     cand = cand.map { $0 + inflection }
-                    cache = cand
+                    candidateString = cand
                     return cand
                 }
             }
         }
-        cache = []
+        candidateString = []
         return []
     }
     func duplicate() -> MazegakiHit {

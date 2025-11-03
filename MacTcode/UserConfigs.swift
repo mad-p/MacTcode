@@ -69,6 +69,7 @@ enum ConfigValidationError: LocalizedError {
     case invalidMaxYomi(value: Int)
     case invalidBackspaceDelay(value: Double)
     case invalidRecentTextMaxLength(value: Int)
+    case invalidCancelPeriod(value: Double)
 
     var errorDescription: String? {
         switch self {
@@ -84,6 +85,8 @@ enum ConfigValidationError: LocalizedError {
             return "Backspace delay must be between 0.01 and 1.0, but is \(value)"
         case .invalidRecentTextMaxLength(let value):
             return "Recent text max length must be between 1 and 100, but is \(value)"
+        case .invalidCancelPeriod(let value):
+            return "Cancel period must be between 0.1 and 10.0, but is \(value)"
         }
     }
 }
@@ -98,22 +101,30 @@ class UserConfigs {
         let maxYomi: Int
         let mazegakiYomiCharacters: String
         let dictionaryFile: String
+        let lruEnabled: Bool
+        let lruFile: String
 
         static let `default` = MazegakiConfig(
             maxInflection: 4,
             maxYomi: 10,
             mazegakiYomiCharacters: "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
-            dictionaryFile: "mazegaki.dic"
+            dictionaryFile: "mazegaki.dic",
+            lruEnabled: false,
+            lruFile: "mazegaki_user.dic"
         )
     }
 
     struct BushuConfig: Codable {
         let bushuYomiCharacters: String
         let dictionaryFile: String
+        let autoEnabled: Bool
+        let autoFile: String
 
         static let `default` = BushuConfig(
             bushuYomiCharacters: "0-9、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
-            dictionaryFile: "bushu.dic"
+            dictionaryFile: "bushu.dic",
+            autoEnabled: false,
+            autoFile: "bushu_auto.dic"
         )
     }
 
@@ -202,6 +213,7 @@ class UserConfigs {
         let keyboardLayout: String
         let keyboardLayoutMapping: [String]
         let syncStatsInterval: Int
+        let cancelPeriod: Double
 
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
@@ -216,6 +228,7 @@ class UserConfigs {
                 ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
             ],
             syncStatsInterval: 1200,
+            cancelPeriod: 1.5
         )
     }
 
@@ -251,7 +264,7 @@ class UserConfigs {
     private init() {
         let fileManager = FileManager.default
         let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
+        macTcodeURL = appSupportURL.appendingPathComponent("MacTcode")
 
         // ディレクトリが存在しない場合は作成
         if !fileManager.fileExists(atPath: macTcodeURL.path) {
@@ -269,6 +282,7 @@ class UserConfigs {
     var keyBindings: KeyBindingsConfig { configData.keyBindings }
     var ui: UIConfig { configData.ui }
     var system: SystemConfig { configData.system }
+    let macTcodeURL: URL
 
     // MARK: - Configuration Management
 
@@ -306,6 +320,39 @@ class UserConfigs {
         configData = loadedConfig
         log("Configuration loaded from external file: \(fileURL.path)")
         delegate?.userConfigsDidChange(self)
+    }
+    
+    func loadConfig(file: String) -> String? {
+        // ユーザーのApplication Supportディレクトリを優先して検索
+        let configURL = configFileURL(file)
+            
+        if FileManager.default.fileExists(atPath: configURL.path) {
+            do {
+                let configContent = try String(contentsOf: configURL, encoding: .utf8)
+                Log.i("Config file \(file) loaded from: \(configURL.path)")
+                return configContent
+            } catch {
+                Log.i("Failed to read file \(configURL.path): \(error)")
+            }
+        }
+
+        // バンドルリソースから検索（フォールバック）
+        if let configFilePath = Bundle.main.path(forResource: file, ofType: nil) {
+            do {
+                let configContent = try String(contentsOfFile: configFilePath, encoding: .utf8)
+                Log.i("Config file \(file) loaded from bundle: \(configFilePath)")
+                return configContent
+            } catch {
+                Log.i("Failed to read bundle file: \(error)")
+            }
+        }
+        
+        Log.i("Config file \(file) not found in any search path")
+        return nil
+    }
+
+    func configFileURL(_ filename: String) -> URL {
+        return macTcodeURL.appendingPathComponent(filename)
     }
 
     private func validateConfiguration(_ config: ConfigData) throws {
@@ -345,6 +392,10 @@ class UserConfigs {
         // SystemConfig validation
         guard config.system.recentTextMaxLength >= 1 && config.system.recentTextMaxLength <= 100 else {
             throw ConfigValidationError.invalidRecentTextMaxLength(value: config.system.recentTextMaxLength)
+        }
+
+        guard config.system.cancelPeriod >= 0.1 && config.system.cancelPeriod <= 10.0 else {
+            throw ConfigValidationError.invalidCancelPeriod(value: config.system.cancelPeriod)
         }
     }
 

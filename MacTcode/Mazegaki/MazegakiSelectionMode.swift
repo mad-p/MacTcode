@@ -39,7 +39,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
                     Log.i("  index = \(index)")
                     let candidates = hits[row].candidates()
                     if index < candidates.count {
-                        if mazegaki.submit(hit: hits[row], index: index, client: client) {
+                        if mazegaki.submit(hit: hits[row], index: index, client: client, controller: controller) {
                             cancel()
                         }
                     }
@@ -94,7 +94,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
 
     func candidateSelected(_ candidateString: NSAttributedString!, client: (any Client)!) {
         Log.i("candidateSelected \(candidateString.string)")
-        _ = mazegaki.submit(hit: hits[row], string: candidateString.string, client: client)
+        _ = mazegaki.submit(hit: hits[row], string: candidateString.string, client: client, controller: controller)
         cancel()
     }
 

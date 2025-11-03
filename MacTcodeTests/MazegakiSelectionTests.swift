@@ -36,6 +36,10 @@ final class MazegakiSelectionTests: XCTestCase {
     }
     
     class ControllerSpy: Controller {
+        func setBackspaceIgnore(_ count: Int) {}
+        var pendingKakutei: MacTcode.PendingKakutei?
+        func setPendingKakutei(_ pending: MacTcode.PendingKakutei?) {}
+        
         var client: ContextClient
         var modeStack: [Mode]
         var mode: Mode { get { modeStack.first! } }
@@ -116,7 +120,11 @@ final class MazegakiSelectionTests: XCTestCase {
     func testCandidates() {
         XCTAssertFalse(controller.window.shown)
         feed("fusxfez,uh")
-        XCTAssertEqual(["創作", "操作"], controller.candidates(controller) as? [String])
+        if let cands = controller.candidates(controller) as? [String] {
+            XCTAssertEqual(["創作", "操作"].sorted(), cands.sorted())
+        } else {
+            XCTFail("candidates returns nil")
+        }
     }
     func testForwarding() {
         XCTAssertFalse(controller.window.shown)

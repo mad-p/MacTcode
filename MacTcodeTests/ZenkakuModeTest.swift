@@ -17,6 +17,10 @@ final class ZenkakuModeTest: XCTestCase {
     var holder: HolderSpy!
     
     class HolderSpy: Controller {
+        func setBackspaceIgnore(_ count: Int) {}
+        var pendingKakutei: MacTcode.PendingKakutei?
+        func setPendingKakutei(_ pending: MacTcode.PendingKakutei?) {}
+
         var modeStack: [Mode]
         var candidateWindow: IMKCandidates = IMKCandidates()
         init(mode: Mode) {

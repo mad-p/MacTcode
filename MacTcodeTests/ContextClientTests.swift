@@ -247,11 +247,12 @@ final class ContextClientTests: XCTestCase {
         let client = ClientStub(selectedRangeValue: NSRange(location: 3, length: 2))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        context.replaceYomi("木金", length: 2, from: YomiContext(string: "火水", range: NSRange(location: 3, length: 2), fromSelection: true, fromMirror: false))
+        let count = context.replaceYomi("木金", length: 2, from: YomiContext(string: "火水", range: NSRange(location: 3, length: 2), fromSelection: true, fromMirror: false))
         XCTAssertTrue(client.insertCalled)
         XCTAssertEqual("木金", client.insertedString)
         XCTAssertEqual(NSRange(location: 3, length: 2), client.insertedRange)
         XCTAssertEqual("あいうえお木金", recent.text)
+        XCTAssertEqual(0, count)
     }
     func testReplaceYomiFromClient() {
         let client = ClientStub(selectedRangeValue: NSRange(location: 3, length: 0),
@@ -259,11 +260,12 @@ final class ContextClientTests: XCTestCase {
                                 stringReturnRange: NSRange(location: 1, length: 2))
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        context.replaceYomi("木金", length: 2, from: YomiContext(string: "火水", range: NSRange(location: 1, length: 2), fromSelection: false, fromMirror: false))
+        let count = context.replaceYomi("木金", length: 2, from: YomiContext(string: "火水", range: NSRange(location: 1, length: 2), fromSelection: false, fromMirror: false))
         XCTAssertTrue(client.insertCalled)
         XCTAssertEqual("木金", client.insertedString)
         XCTAssertEqual(NSRange(location: 1, length: 2), client.insertedRange)
         XCTAssertEqual("あいうえお木金", recent.text)
+        XCTAssertEqual(0, count)
     }
     func testReplaceYomiFromMirror() {
         let expectation = XCTestExpectation(description: "insert called")
@@ -272,9 +274,10 @@ final class ContextClientTests: XCTestCase {
         }
         let recent = RecentTextClient("あいうえお火水")
         let context = ContextClient(client: client, recent: recent)
-        context.replaceYomi("木金", length: 3, from: YomiContext(string: "あいうえお火水", range: NSRange(location: 0, length: 7), fromSelection: false, fromMirror: true))
+        let count = context.replaceYomi("木金", length: 3, from: YomiContext(string: "あいうえお火水", range: NSRange(location: 0, length: 7), fromSelection: false, fromMirror: true))
         wait(for: [expectation], timeout: 2.0)
         XCTAssertEqual(3, client.backSpaceCount)
+        XCTAssertEqual(3, count)
         XCTAssertTrue(client.insertCalled)
         XCTAssertEqual("木金", client.insertedString)
         XCTAssertEqual(NSRange(location: NSNotFound, length: NSNotFound), client.insertedRange)

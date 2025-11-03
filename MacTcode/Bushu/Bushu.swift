@@ -17,6 +17,7 @@ final class Bushu {
     private var composeTable: [[String]: String] = [:]
     private var decomposeTable: [String: [String]] = [:]
     private var equivTable: [String: String] = [:]
+    var autoDict: [String: String] = [:]  // 自動部首変換学習データ（キー: 合成元2文字、値: 合成結果1文字）
 
     func readDictionary() {
         Log.i("Read bushu dictionary...")
@@ -24,7 +25,7 @@ final class Bushu {
         decomposeTable = [:]
         equivTable = [:]
         let dictionaryFile = UserConfigs.shared.bushu.dictionaryFile
-        if let bushuDic = Config.loadConfig(file: dictionaryFile) {
+        if let bushuDic = UserConfigs.shared.loadConfig(file: dictionaryFile) {
             for line in bushuDic.components(separatedBy: .newlines) {
                 let chars = line.map {String($0)}
                 if chars.count == 3 {
@@ -47,6 +48,11 @@ final class Bushu {
 
     private init() {
         readDictionary()
+
+        // 自動学習データを読み込む
+        if UserConfigs.shared.bushu.autoEnabled {
+            loadAutoData()
+        }
     }
 
     func basicCompose(char1: String, char2: String) -> String? {
@@ -112,5 +118,172 @@ final class Bushu {
         }
         // not found
         return nil
+    }
+
+    /// 自動学習データを読み込む
+    func loadAutoData() {
+        Log.i("Load bushu auto data...")
+        autoDict = [:]
+        let autoFile = UserConfigs.shared.bushu.autoFile
+        if let autoData = UserConfigs.shared.loadConfig(file: autoFile) {
+            for line in autoData.components(separatedBy: .newlines) {
+                let chars = line.map { String($0) }
+                if chars.count == 3 {
+                    // 合成元2文字をキーとして、合成結果1文字を値とする
+                    let key = chars[0] + chars[1]
+                    autoDict[key] = chars[2]
+                } else {
+                    if line.count > 0 {
+                        Log.i("Invalid \(autoFile) line: \(line)")
+                    }
+                }
+            }
+        }
+        Log.i("\(autoDict.count) bushu auto entries loaded")
+    }
+
+    /// 自動学習データを保存する
+    func saveAutoData() {
+        guard UserConfigs.shared.bushu.autoEnabled else {
+            return
+        }
+
+        Log.i("Save bushu auto data...")
+        let autoFile = UserConfigs.shared.bushu.autoFile
+        var lines: [String] = []
+        for (key, value) in autoDict.sorted(by: { $0.key < $1.key }) {
+            lines.append("\(key)\(value)")
+        }
+        let content = lines.joined(separator: "\n")
+
+        do {
+            let url = UserConfigs.shared.configFileURL(autoFile)
+            try content.write(to: url, atomically: true, encoding: .utf8)
+            Log.i("Bushu auto data saved: \(autoDict.count) entries to \(url.path)")
+        } catch {
+            Log.i("Failed to save bushu auto data: \(error)")
+        }
+    }
+
+    /// 受容された部首変換結果を学習データに追加する
+    /// - Parameters:
+    ///   - source1: 合成元の1文字目
+    ///   - source2: 合成元の2文字目
+    ///   - result: 合成結果
+    func updateAutoEntry(source1: String, source2: String, result: String) {
+        guard UserConfigs.shared.bushu.autoEnabled else {
+            return
+        }
+
+        // 合成元の2文字をキーとして保存（順序を保持）
+        let key = source1 + source2
+        autoDict[key] = result
+        Log.i("updateAutoEntry: '\(key)' -> '\(result)'")
+    }
+
+    /// 部首変換を実行してPendingKakuteiを生成する
+    /// - Parameters:
+    ///   - source1: 合成元の1文字目
+    ///   - source2: 合成元の2文字目
+    ///   - client: クライアント
+    ///   - controller: コントローラ
+    ///   - yomi: YomiContext
+    /// - Returns: 変換が成功したかどうか
+    func submit(source1: String, source2: String, client: Client, controller: Controller, yomi: YomiContext) -> Bool {
+        guard let client = client as? ContextClient else {
+            Log.i("★★Can't happen: Bushu.submit: client is not ContextClient")
+            return false
+        }
+
+        guard let result = compose(char1: source1, char2: source2) else {
+            return false
+        }
+
+        Log.i("Bushu \(source1)\(source2) -> \(result)")
+        let backspaceCount = client.replaceYomi(result, length: 2, from: yomi)
+        controller.setBackspaceIgnore(backspaceCount)
+        InputStats.shared.incrementBushuCount()
+
+        // 自動学習が有効な場合、PendingKakuteiを生成
+        if UserConfigs.shared.bushu.autoEnabled {
+            let yomiString = source1 + source2
+            let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
+
+            let pending = PendingKakutei(
+                timeout: timeout,
+                yomi: yomiString,
+                kakutei: result,
+                onAccepted: { parameter in
+                    // 受容時の処理: 自動学習データを更新
+                    guard let param = parameter as? [String] else { return }
+                    let src1 = param[0]
+                    let src2 = param[1]
+                    let res = param[2]
+                    Log.i("accepted bushu kakutei: parameter = [\(src1), \(src2), \(res)]")
+                    Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
+                },
+                parameter: [source1, source2, result]
+            )
+            controller.setPendingKakutei(pending)
+        }
+
+        return true
+    }
+
+    /// 自動部首変換を試みる
+    /// - Parameters:
+    ///   - client: クライアント
+    ///   - controller: コントローラ
+    /// - Returns: 自動変換が実行されたかどうか
+    func tryAutoBushu(client: ContextClient!, controller: Controller) -> Bool {
+        // 自動学習が無効な場合は何もしない
+        guard UserConfigs.shared.bushu.autoEnabled else {
+            return false
+        }
+
+        // 最後の2文字を取得できない場合は何もしない
+        guard client.recent.text.count >= 2 else {
+            return false
+        }
+
+        // 最後の2文字を取得
+        let text = client.recent.text
+        let startIndex = text.index(text.endIndex, offsetBy: -2)
+        let src = String(text[startIndex...])
+
+        // 学習データに該当エントリがあるかチェック
+        guard let result = autoDict[src] else {
+            return false
+        }
+
+        Log.i("Auto bushu: \(src) -> \(result)")
+
+        // YomiContextを作成
+        let yomiContext = YomiContext(
+            string: src,
+            range: NSRange(location: client.recent.text.count - 2, length: 2),
+            fromSelection: false,
+            fromMirror: true
+        )
+
+        // 変換実行
+        let backspaceCount = client.replaceYomi(result, length: 2, from: yomiContext)
+        controller.setBackspaceIgnore(backspaceCount)
+
+        // PendingKakuteiを作成（キャンセルのみ処理、受容時は何もしない）
+        let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
+        let pending = PendingKakutei(
+            timeout: timeout,
+            yomi: src,
+            kakutei: result,
+            onAccepted: { _ in
+                Log.i("accepted auto bushu kakutei (no learning)")
+                // 自動変換の受容時は学習データを更新しない
+            },
+            parameter: nil
+        )
+        controller.setPendingKakutei(pending)
+
+        return true
     }
 }
