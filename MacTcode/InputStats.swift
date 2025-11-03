@@ -62,6 +62,7 @@ class InputStats {
     public func writeStatsToFile() {
         queue.sync {
             guard totalActionCount > 0 else {
+                lastSyncDate = Date()
                 return
             }
             guard UserConfigs.shared.system.syncStatsInterval > 0 else {
