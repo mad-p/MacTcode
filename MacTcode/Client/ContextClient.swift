@@ -291,6 +291,10 @@ class ContextClient: Client {
     
     // Yomiの後ろ側からlength文字をstringで置きかえる。送ったBackspaceの数を返す
     func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) -> Int {
+        // yomiContext.range: 読みの位置
+        var rr = yomiContext.range
+        rr.location += rr.length - length
+        rr.length = length
         if yomiContext.fromMirror {
             // Mirrorから読みを取った場合は、BackSpaceを送ってから文字列を送る
             let uiConfig = UserConfigs.shared.ui
@@ -305,18 +309,16 @@ class ContextClient: Client {
                 DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(length)) {
                     self.client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 }
+                recent.insertText(string, replacementRange: rr)
                 return length
             } else {
                 // lengthが長すぎるときは単にinsert
                 Log.i("★★Can't happen: too long length \(length)")
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                recent.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 return 0
             }
         } else {
-            // yomiContext.range: 読みの位置
-            var rr = yomiContext.range
-            rr.location += rr.length - length
-            rr.length = length
             client.insertText(string, replacementRange: rr)
             recent.replaceLast(length: length, with: string)
             return 0
