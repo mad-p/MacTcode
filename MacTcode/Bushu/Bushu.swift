@@ -214,13 +214,12 @@ final class Bushu {
                 yomi: yomiString,
                 kakutei: result,
                 onAccepted: { parameter in
-                    Log.i("★accepted bushu kakutei")
                     // 受容時の処理: 自動学習データを更新
                     guard let param = parameter as? [String] else { return }
                     let src1 = param[0]
                     let src2 = param[1]
                     let res = param[2]
-                    Log.i("★accepted bushu kakutei: parameter = [\(src1), \(src2), \(res)]")
+                    Log.i("accepted bushu kakutei: parameter = [\(src1), \(src2), \(res)]")
                     Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
                 },
                 parameter: [source1, source2, result]
@@ -278,7 +277,7 @@ final class Bushu {
             yomi: src,
             kakutei: result,
             onAccepted: { _ in
-                Log.i("★accepted auto bushu kakutei (no learning)")
+                Log.i("accepted auto bushu kakutei (no learning)")
                 // 自動変換の受容時は学習データを更新しない
             },
             parameter: nil

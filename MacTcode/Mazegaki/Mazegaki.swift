@@ -127,13 +127,12 @@ class Mazegaki {
                 yomi: yomiString,
                 kakutei: string,
                 onAccepted: { parameter in
-                    Log.i("★accepted mazegaki kakutei")
                     // 受容時の処理: LRU学習データを更新
                     guard let param = parameter as? [String] else { return }
                     let key = param[0]
                     let candidateWithoutInflection = param[1]
                     Log.i(
-                        "★accepted mazegaki kakutei: parameter = [\(key), \(candidateWithoutInflection)]"
+                        "accepted mazegaki kakutei: parameter = [\(key), \(candidateWithoutInflection)]"
                     )
                     MazegakiDict.i.updateLruEntry(key: key, selectedCandidate: candidateWithoutInflection)
                 },
