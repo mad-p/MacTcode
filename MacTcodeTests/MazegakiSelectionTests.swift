@@ -36,6 +36,10 @@ final class MazegakiSelectionTests: XCTestCase {
     }
     
     class ControllerSpy: Controller {
+        func setBackspaceIgnore(_ count: Int) {}
+        var pendingKakutei: MacTcode.PendingKakutei?
+        func setPendingKakutei(_ pending: MacTcode.PendingKakutei?) {}
+        
         var client: ContextClient
         var modeStack: [Mode]
         var mode: Mode { get { modeStack.first! } }

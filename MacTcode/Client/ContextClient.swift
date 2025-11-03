@@ -289,35 +289,37 @@ class ContextClient: Client {
         return nil
     }
     
-    // Yomiの後ろ側からlength文字をstringで置きかえる
-    func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) {
-        // yomiContext.range: 読みの位置
-        var rr = yomiContext.range
-        rr.location += rr.length - length
-        rr.length = length
+    // Yomiの後ろ側からlength文字をstringで置きかえる。送ったBackspaceの数を返す
+    func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) -> Int {
         if yomiContext.fromMirror {
             // Mirrorから読みを取った場合は、BackSpaceを送ってから文字列を送る
             let uiConfig = UserConfigs.shared.ui
             if length < uiConfig.backspaceLimit {
                 Log.i("Sending \(length) BackSpaces and then \(string)")
                 let now = DispatchTime.now()
-                for i in 0..<rr.length {
+                for i in 0..<length {
                     DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(i)) {
                         self.client.sendBackspace()
                     }
                 }
-                DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(rr.length)) {
+                DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(length)) {
                     self.client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 }
+                return length
             } else {
                 // lengthが長すぎるときは単にinsert
                 Log.i("★★Can't happen: too long length \(length)")
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                return 0
             }
-            recent.insertText(string, replacementRange: rr)
         } else {
+            // yomiContext.range: 読みの位置
+            var rr = yomiContext.range
+            rr.location += rr.length - length
+            rr.length = length
             client.insertText(string, replacementRange: rr)
-            recent.replaceLast(length: rr.length, with: string)
+            recent.replaceLast(length: length, with: string)
+            return 0
         }
     }
 }

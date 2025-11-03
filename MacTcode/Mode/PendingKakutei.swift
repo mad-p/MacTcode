@@ -49,7 +49,7 @@ class PendingKakutei {
     /// 受容処理を実行
     func accept() {
         if let param = parameter {
-            Log.i("★accepted \(yomiString) -> \(kakuteiString); parameter = \(parameter!)")
+            Log.i("★accepted \(yomiString) -> \(kakuteiString); parameter = \(param)")
         } else {
             Log.i("★accepted \(yomiString) -> \(kakuteiString); parameter = nil")
         }

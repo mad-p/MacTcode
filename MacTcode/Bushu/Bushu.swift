@@ -200,7 +200,8 @@ final class Bushu {
         }
 
         Log.i("Bushu \(source1)\(source2) -> \(result)")
-        client.replaceYomi(result, length: 2, from: yomi)
+        let backspaceCount = client.replaceYomi(result, length: 2, from: yomi)
+        controller.setBackspaceIgnore(backspaceCount)
         InputStats.shared.incrementBushuCount()
 
         // 自動学習が有効な場合、PendingKakuteiを生成
@@ -267,7 +268,8 @@ final class Bushu {
         )
 
         // 変換実行
-        client.replaceYomi(result, length: 2, from: yomiContext)
+        let backspaceCount = client.replaceYomi(result, length: 2, from: yomiContext)
+        controller.setBackspaceIgnore(backspaceCount)
 
         // PendingKakuteiを作成（キャンセルのみ処理、受容時は何もしない）
         let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)

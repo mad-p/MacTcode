@@ -15,9 +15,15 @@ class TcodeInputController: IMKInputController, Controller {
     let recentText = RecentTextClient("")
     var baseInputText: ContextClient?
     var pendingKakutei: PendingKakutei?
+    var backspaceIgnore = 0
 
     func setPendingKakutei(_ pending: PendingKakutei?) {
         self.pendingKakutei = pending
+    }
+    
+    func setBackspaceIgnore(_ count: Int) {
+        self.backspaceIgnore += count
+        Log.i("Expecting \(backspaceIgnore) backspaces to be ignored")
     }
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
@@ -86,6 +92,13 @@ class TcodeInputController: IMKInputController, Controller {
         let inputEvent = Translator.translate(event: event)
         baseInputText = ContextClient(client: ClientWrapper(client, bundleId), recent: recentText)
 
+        // backspaceIgnoreがある間は、キャンセル用と見なさない
+        if (backspaceIgnore > 0) {
+            backspaceIgnore -= 1
+            Log.i("Ignore Backspace. Expecting \(backspaceIgnore) more")
+            return false
+        }
+        
         // PendingKakuteiの処理
         if let pending = pendingKakutei {
             if pending.isTimedOut() {
@@ -95,7 +108,9 @@ class TcodeInputController: IMKInputController, Controller {
             } else {
                 // キャンセル期間内
                 // キャンセルキーの場合はキャンセル処理を実行して入力イベントを消費
-                if inputEvent.type == .control_g || inputEvent.type == .escape {
+                if inputEvent.type == .delete ||
+                    inputEvent.type == .control_g ||
+                    inputEvent.type == .escape {
                     Log.i("handle: cancel key detected, canceling pendingKakutei")
                     _ = cancelPendingKakutei(client: baseInputText!)
                     return true  // イベントを消費
@@ -173,12 +188,15 @@ class TcodeInputController: IMKInputController, Controller {
             return false
         }
 
+        backspaceIgnore = 0
         Log.i("cancelPendingKakutei: yomi=\(pending.yomiString), kakutei=\(pending.kakuteiString)")
 
         // kakuteiStringを削除してyomiStringに置き換える
         // YomiContextを作ってClientContext.replaceYomiにまかせる
-        let yomiContext = YomiContext(string: pending.kakuteiString, range: NSRange(location: client.recent.text.count, length: NSNotFound), fromSelection: false, fromMirror: true)
-        client.replaceYomi(pending.yomiString, length: pending.kakuteiString.count, from: yomiContext)
+        let yomiContext = YomiContext(string: pending.kakuteiString, range: NSRange(), fromSelection: false, fromMirror: true)
+        Log.i("about to replaceYomi: yomi=\(pending.yomiString), kakutei=\(pending.kakuteiString)")
+        let backspaceCount = client.replaceYomi(pending.yomiString, length: pending.kakuteiString.count, from: yomiContext)
+        setBackspaceIgnore(backspaceCount)
 
         // pendingKakuteiをクリア
         pendingKakutei = nil
@@ -191,7 +209,7 @@ class TcodeInputController: IMKInputController, Controller {
         guard let pending = pendingKakutei else {
             return
         }
-
+        
         Log.i("acceptPendingKakutei: yomi=\(pending.yomiString), kakutei=\(pending.kakuteiString)")
 
         // 受容処理を実行
@@ -199,5 +217,6 @@ class TcodeInputController: IMKInputController, Controller {
 
         // pendingKakuteiをクリア
         pendingKakutei = nil
+        backspaceIgnore = 0
     }
 }

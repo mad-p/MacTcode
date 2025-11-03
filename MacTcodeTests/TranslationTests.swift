@@ -16,6 +16,10 @@ final class TranslationTests: XCTestCase {
     var client: ContextClient!
     
     class HolderSpy: Controller {
+        func setBackspaceIgnore(_ count: Int) {}
+        var pendingKakutei: MacTcode.PendingKakutei?
+        func setPendingKakutei(_ pending: MacTcode.PendingKakutei?) {}
+        
         var mode: Mode
         var candidateWindow: IMKCandidates = IMKCandidates() // dummy
         init(mode: Mode) {

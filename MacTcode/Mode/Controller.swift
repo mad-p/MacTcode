@@ -16,4 +16,5 @@ protocol Controller {
     var candidateWindow: IMKCandidates { get }
     var pendingKakutei: PendingKakutei? { get set }
     func setPendingKakutei(_ pending: PendingKakutei?)
+    func setBackspaceIgnore(_ count: Int)
 }
