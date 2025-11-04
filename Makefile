@@ -20,7 +20,6 @@ reload: build
 	pkill "MacTcode" || true
 	sudo rm -rf /Library/Input\ Methods/$(APPNAME)
 	sudo cp -r $(ARCDIR)/Products/Applications/$(APPNAME) /Library/Input\ Methods/
-	mkdir -p $(WORKDIR)
 
 releaseReload: releaseBuild
 	pkill "MacTcode" || true
@@ -38,7 +37,10 @@ dmg $(WORKDIR)/$(DMGNAME): sign
 	hdiutil create -volname "MacTcode" -srcfolder $(WORKDIR)/$(APPNAME) -ov -format UDZO $(WORKDIR)/$(DMGNAME)
 	codesign --sign $(SIGNING_IDENTITY) --timestamp --verbose $(WORKDIR)/$(DMGNAME)
 
-notary: dmg
+notary:
+	rm -rf $(WORKDIR)
+	mkdir -p $(WORKDIR)
+	$(MAKE) dmg
 	xcrun notarytool submit $(WORKDIR)/$(DMGNAME) --keychain-profile "MacTcode" --wait
 	xcrun stapler staple $(WORKDIR)/$(DMGNAME)
 
