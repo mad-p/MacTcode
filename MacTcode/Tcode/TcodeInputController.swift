@@ -93,7 +93,7 @@ class TcodeInputController: IMKInputController, Controller {
         baseInputText = ContextClient(client: ClientWrapper(client, bundleId), recent: recentText)
 
         // backspaceIgnoreがある間は、キャンセル用と見なさない
-        if (backspaceIgnore > 0) {
+        if (inputEvent.type == .delete && backspaceIgnore > 0) {
             backspaceIgnore -= 1
             Log.i("Ignore Backspace. Expecting \(backspaceIgnore) more")
             return false
