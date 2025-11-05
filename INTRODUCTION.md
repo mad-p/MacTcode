@@ -248,4 +248,4 @@ Human68k にも移植されています。Ｔコードの習得には、ぜひ D
 
 ASK68K も ATOK も VJE も SKK も Wnn もいらない！
 
-					`kaoru@is.s.u-tokyo.ac.jp`
+`kaoru@is.s.u-tokyo.ac.jp`
