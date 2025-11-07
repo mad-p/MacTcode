@@ -21,8 +21,8 @@ class MazegakiHit: Comparable {
             return ret
         }
         if found {
-            // LRU学習データを優先、なければ通常辞書を使用
-            if let entry = MazegakiDict.i.lruDict[key] ?? MazegakiDict.i.dict[key] {
+            // MRU学習データを優先、なければ通常辞書を使用
+            if let entry = MazegakiDict.i.mruDict[key] ?? MazegakiDict.i.dict[key] {
                 let inflection = yomi.suffix(offset).joined()
                 var cand = entry.components(separatedBy: "/")
                 if !cand.isEmpty {

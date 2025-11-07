@@ -108,8 +108,8 @@ class Mazegaki {
         let backspaceCount = client.replaceYomi(string, length: length, from: context)
         controller.setBackspaceIgnore(backspaceCount)
 
-        // LRU学習が有効な場合、PendingKakuteiを生成
-        if UserConfigs.shared.mazegaki.lruEnabled {
+        // MRU学習が有効な場合、PendingKakuteiを生成
+        if UserConfigs.shared.mazegaki.mruEnabled {
             // 活用部分を除いた候補文字列を取得
             let inflection = hit.yomi.suffix(hit.offset).joined()
             let candidateWithoutInflection: String
@@ -127,14 +127,14 @@ class Mazegaki {
                 yomi: yomiString,
                 kakutei: string,
                 onAccepted: { parameter in
-                    // 受容時の処理: LRU学習データを更新
+                    // 受容時の処理: MRU学習データを更新
                     guard let param = parameter as? [String] else { return }
                     let key = param[0]
                     let candidateWithoutInflection = param[1]
                     Log.i(
                         "accepted mazegaki kakutei: parameter = [\(key), \(candidateWithoutInflection)]"
                     )
-                    MazegakiDict.i.updateLruEntry(key: key, selectedCandidate: candidateWithoutInflection)
+                    MazegakiDict.i.updateMruEntry(key: key, selectedCandidate: candidateWithoutInflection)
                 },
                 parameter: [hit.key, candidateWithoutInflection]
             )

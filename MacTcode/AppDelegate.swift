@@ -38,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         Log.i("★AppDelegate terminating self=\(ObjectIdentifier(self))")
         InputStats.shared.writeStatsToFile()
-        MazegakiDict.i.saveLruData()
+        MazegakiDict.i.saveMruData()
         Bushu.i.saveAutoData()
     }
 }

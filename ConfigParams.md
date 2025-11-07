@@ -33,8 +33,8 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "maxYomi": 10,
   "mazegakiYomiCharacters": "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
   "dictionaryFile": "mazegaki.dic",
-  "lruEnabled": false,
-  "lruFile": "mazegaki_user.dic"
+  "mruEnabled": false,
+  "mruFile": "mazegaki_user.dic"
 }
 ```
 
@@ -42,10 +42,10 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`maxYomi`**: 読みの最大文字数（1-50）
 - **`mazegakiYomiCharacters`**: 交ぜ書き変換で読み部分に含める文字の正規表現文字クラス記法
 - **`dictionaryFile`**: 交ぜ書き変換辞書のファイル名
-- **`lruEnabled`**: LRU（Least Recently Used）学習機能の有効/無効
+- **`mruEnabled`**: MRU（Most Recently Used）学習機能の有効/無効
   - `true`の場合、選択した候補が次回から優先的に表示されます
-  - 学習データは`lruFile`で指定したファイルに保存されます
-- **`lruFile`**: LRU学習データのファイル名
+  - 学習データは`mruFile`で指定したファイルに保存されます
+- **`mruFile`**: MRU学習データのファイル名
   - Application Support/MacTcode ディレクトリに自動保存されます
 
 ### 2. 部首変換設定 (`bushu`)
@@ -141,7 +141,7 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`cancelPeriod`**: 変換確定後のキャンセル可能期間（秒、0.1-10.0）
   - 変換確定後、この期間内であればDeleteキーやControl-g、Escapeキーで変換をキャンセルして読みに戻すことができます
   - デフォルト値: 1.5秒
-  - 部首変換自動学習機能、LRU学習機能が有効な場合、この期間経過時に学習データが更新されます
+  - 部首変換自動学習機能、MRU学習機能が有効な場合、この期間経過時に学習データが更新されます
 - **`keyboardLayout`**: キーボードレイアウトの名前（"dvorak", "qwerty"等）
 - **`keyboardLayoutMapping`**: 40個のキー配列マッピング（文字列配列）
 - **`logEnabled`**: デバッグログの出力有効/無効
