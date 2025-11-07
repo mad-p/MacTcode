@@ -31,7 +31,7 @@ import Foundation
  * - 内部状態変更時は適切な排他制御を実装
  *
  * ## 設定カテゴリ
- * 1. **MazegakiConfig**: 交ぜ書き変換設定（最大活用長、読み長、辞書ファイル等）
+ * 1. **MazegakiConfig**: 交ぜ書き変換設定（最大活用長、読み長、辞書ファイル、MRU学習等）
  * 2. **BushuConfig**: 部首変換設定（辞書ファイル）
  * 3. **KeyBindingsConfig**: キーバインド設定（各機能のキーシーケンス、基本文字配列）
  * 4. **UIConfig**: UI設定（候補選択キー、バックスペース動作、記号セット等）
@@ -101,16 +101,16 @@ class UserConfigs {
         let maxYomi: Int
         let mazegakiYomiCharacters: String
         let dictionaryFile: String
-        let lruEnabled: Bool
-        let lruFile: String
+        let mruEnabled: Bool
+        let mruFile: String
 
         static let `default` = MazegakiConfig(
             maxInflection: 4,
             maxYomi: 10,
             mazegakiYomiCharacters: "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}",
             dictionaryFile: "mazegaki.dic",
-            lruEnabled: false,
-            lruFile: "mazegaki_user.dic"
+            mruEnabled: false,
+            mruFile: "mazegaki_user.dic"
         )
     }
 

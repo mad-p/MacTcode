@@ -57,8 +57,8 @@
   },
   "mazegaki" : {
     "dictionaryFile" : "mazegaki.dic",
-    "lruEnabled" : false,
-    "lruFile" : "mazegaki_user.dic",
+    "mruEnabled" : false,
+    "mruFile" : "mazegaki_user.dic",
     "maxInflection" : 4,
     "maxYomi" : 10,
     "mazegakiYomiCharacters" : "々ー\\p{Hiragana}\\p{Katakana}\\p{Han}"

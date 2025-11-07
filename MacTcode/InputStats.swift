@@ -114,7 +114,7 @@ class InputStats {
             totalActionCount = 0
 
             // 学習データも同じタイミングで保存
-            MazegakiDict.i.saveLruData()
+            MazegakiDict.i.saveMruData()
             Bushu.i.saveAutoData()
         }
     }
