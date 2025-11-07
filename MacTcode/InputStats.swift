@@ -61,6 +61,10 @@ class InputStats {
     /// 統計情報をファイルに書き出す
     public func writeStatsToFile() {
         queue.sync {
+            // 学習データも同じタイミングで保存
+            MazegakiDict.i.saveMruData()
+            Bushu.i.saveAutoData()
+
             guard totalActionCount > 0 else {
                 lastSyncDate = Date()
                 return
@@ -112,10 +116,6 @@ class InputStats {
             mazegakiCount = 0
             functionCount = 0
             totalActionCount = 0
-
-            // 学習データも同じタイミングで保存
-            MazegakiDict.i.saveMruData()
-            Bushu.i.saveAutoData()
         }
     }
 }
