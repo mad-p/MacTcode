@@ -12,13 +12,29 @@ import InputMethodKit
 var sigpipe: [Int32] = [0, 0]
 var gSigpipeW: Int32 = -1
 
+// シグナルの種類を識別する定数
+let SIGNAL_SIGINT: UInt8 = 1
+let SIGNAL_SIGTERM: UInt8 = 2
+
 // C呼び出し規約のハンドラ（クロージャ不可）
 @_cdecl("sigint_handler")
 func sigint_handler(_ signo: Int32, _ info: UnsafeMutablePointer<__siginfo>?, _ uctx: UnsafeMutableRawPointer?) -> Void {
     // async-signal-safe な write() だけを使う
-    var one: UInt8 = 1
+    var sig: UInt8 = SIGNAL_SIGINT
     // 失敗しても構わない（他にやれることがない）
-    _ = withUnsafePointer(to: &one) { ptr in
+    _ = withUnsafePointer(to: &sig) { ptr in
+        ptr.withMemoryRebound(to: UInt8.self, capacity: 1) { p in
+            write(gSigpipeW, p, 1)
+        }
+    }
+}
+
+@_cdecl("sigterm_handler")
+func sigterm_handler(_ signo: Int32, _ info: UnsafeMutablePointer<__siginfo>?, _ uctx: UnsafeMutableRawPointer?) -> Void {
+    // async-signal-safe な write() だけを使う
+    var sig: UInt8 = SIGNAL_SIGTERM
+    // 失敗しても構わない（他にやれることがない）
+    _ = withUnsafePointer(to: &sig) { ptr in
         ptr.withMemoryRebound(to: UInt8.self, capacity: 1) { p in
             write(gSigpipeW, p, 1)
         }
@@ -69,20 +85,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let sigpipeW = sigpipe[1]
         gSigpipeW = sigpipeW
 
-        Log.i("★Signal pipe created: read=\(sigpipeR), write=\(sigpipeW)")
+        Log.i("Signal pipe created: read=\(sigpipeR), write=\(sigpipeW)")
 
         // SIGINT を sigaction で捕捉
-        var sa = sigaction()
-        sigemptyset(&sa.sa_mask)
-        sa.sa_flags = SA_SIGINFO
-        sa.__sigaction_u.__sa_sigaction = sigint_handler
-        guard sigaction(SIGINT, &sa, nil) == 0 else {
+        var sa_int = sigaction()
+        sigemptyset(&sa_int.sa_mask)
+        sa_int.sa_flags = SA_SIGINFO
+        sa_int.__sigaction_u.__sa_sigaction = sigint_handler
+        guard sigaction(SIGINT, &sa_int, nil) == 0 else {
             perror("sigaction")
             Log.i("★Failed to setup SIGINT handler")
             return
         }
 
-        Log.i("★SIGINT handler registered")
+        Log.i("SIGINT handler registered")
+
+        // SIGTERM を sigaction で捕捉
+        var sa_term = sigaction()
+        sigemptyset(&sa_term.sa_mask)
+        sa_term.sa_flags = SA_SIGINFO
+        sa_term.__sigaction_u.__sa_sigaction = sigterm_handler
+        guard sigaction(SIGTERM, &sa_term, nil) == 0 else {
+            perror("sigaction")
+            Log.i("★Failed to setup SIGTERM handler")
+            return
+        }
+
+        Log.i("SIGTERM handler registered")
 
         // signal watcher スレッド
         Thread.detachNewThread {
@@ -97,11 +126,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         break
                     }
                 }
-                Log.i("★SIGINT received, syncing data...")
-                InputStats.shared.writeStatsToFile()
-                Log.i("★Data sync completed")
+
+                // シグナルの種類によって処理を分岐
+                if buf == SIGNAL_SIGINT {
+                    Log.i("★SIGINT received, syncing data...")
+                    InputStats.shared.writeStatsToFile()
+                    Log.i("Data sync completed")
+                } else if buf == SIGNAL_SIGTERM {
+                    Log.i("★SIGTERM received, syncing data and exiting...")
+                    InputStats.shared.writeStatsToFile()
+                    Log.i("Data sync completed, exiting")
+                    _exit(0)
+                }
             }
-            Log.i("★Signal watcher thread terminated")
+            Log.i("Signal watcher thread terminated")
         }
     }
 }
