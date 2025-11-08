@@ -89,12 +89,24 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
 
     func candidates(_ sender: Any!) -> [Any]! {
         Log.i("MazegakiSelectionMode.candidates")
-        return hits[row].candidates()
+        let cands = hits[row].candidates()
+        let candsWithKey = cands.enumerated().map { (index, element) in
+            let key = UserConfigs.shared.ui.candidateSelectionKeys[index]
+            return ("0" <= key && key <= "9") ? "\(key):\(element)" : element
+        }
+        Log.i("candsWithKey = \(candsWithKey)")
+        return candsWithKey
     }
 
     func candidateSelected(_ candidateString: NSAttributedString!, client: (any Client)!) {
-        Log.i("candidateSelected \(candidateString.string)")
-        _ = mazegaki.submit(hit: hits[row], string: candidateString.string, client: client, controller: controller)
+        let cand = candidateString.string
+        Log.i("candidateSelected \(cand)")
+        let cand2 = cand.replacingOccurrences(
+            of: #"^\d:"#,
+            with: "",
+            options: .regularExpression
+        )
+        _ = mazegaki.submit(hit: hits[row], string: cand2, client: client, controller: controller)
         cancel()
     }
 
