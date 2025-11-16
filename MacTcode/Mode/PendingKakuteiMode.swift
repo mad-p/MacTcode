@@ -87,7 +87,7 @@ class PendingKakuteiMode: Mode {
         // kakuteiStringを削除してyomiStringに置き換える
         // YomiContextを作ってClientContext.replaceYomiにまかせる
         let yomiContext = YomiContext(string: kakuteiString, range: NSRange(), fromSelection: false, fromMirror: true)
-        Log.i("about to replaceYomi: yomi=\(yomiString), kakutei=\(kakuteiString)")
+        // Log.i("about to replaceYomi: yomi=\(yomiString), kakutei=\(kakuteiString)")
         let backspaceCount = client.replaceYomi(yomiString, length: kakuteiString.count, from: yomiContext)
         uninstall()
         controller.setBackspaceIgnore(backspaceCount)

@@ -99,7 +99,7 @@ class TcodeInputController: IMKInputController, Controller {
         }
         let inputEvent = Translator.translate(event: event)
         let wrappedClient = wrapClient()
-        Log.i("wrappedClient: \(type(of:wrappedClient))")
+        // Log.i("wrappedClient: \(type(of:wrappedClient))")
         // backspaceIgnoreがある間は、キャンセル用と見なさない
         if (inputEvent.type == .delete && backspaceIgnore > 0) {
             backspaceIgnore -= 1
@@ -109,9 +109,9 @@ class TcodeInputController: IMKInputController, Controller {
 
         // 最新のモードから順にイベント処理のチャンスを与える
         for m in Array(modeStack) { // 念のためコピーしてから順に利用
-            Log.i("calling mode \(type(of:m)).handle")
+            // Log.i("calling mode \(type(of:m)).handle")
             let handleResult = m.handle(inputEvent, client: wrappedClient)
-            Log.i(" handle returned: \(handleResult)")
+            // Log.i(" handle returned: \(handleResult)")
             switch handleResult {
             case .forward: continue
             case .passthrough: return false

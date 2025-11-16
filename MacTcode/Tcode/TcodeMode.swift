@@ -20,7 +20,7 @@ class TcodeMode: Mode, MultiStroke {
     func wrapClient(_ client: ContextClient!) -> ContextClient! {
         // TcodeModeが通常いちばん深いモード
         if client.recent == nil {
-            Log.i("TcodeMode: unwrap deepmost ContextClient")
+            // Log.i("TcodeMode: unwrap deepmost ContextClient")
             return ContextClient(client: client.client, recent: recentText)
         } else {
             return ContextClient(client: client, recent: recentText)
