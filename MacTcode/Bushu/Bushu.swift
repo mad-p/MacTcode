@@ -18,6 +18,7 @@ final class Bushu {
     private var decomposeTable: [String: [String]] = [:]
     private var equivTable: [String: String] = [:]
     var autoDict: [String: String] = [:]  // 自動部首変換学習データ（キー: 合成元2文字、値: 合成結果1文字）
+    var toSyncAutoDict = false
 
     func readDictionary() {
         Log.i("Read bushu dictionary...")
@@ -139,12 +140,17 @@ final class Bushu {
                 }
             }
         }
+        toSyncAutoDict = false
         Log.i("\(autoDict.count) bushu auto entries loaded")
     }
 
     /// 自動学習データを保存する
     func saveAutoData() {
         guard UserConfigs.shared.bushu.autoEnabled else {
+            return
+        }
+        guard toSyncAutoDict else {
+            Log.i("Bushu.autoDict is clean. Nothing to save")
             return
         }
 
@@ -160,6 +166,7 @@ final class Bushu {
             let url = UserConfigs.shared.configFileURL(autoFile)
             try content.write(to: url, atomically: true, encoding: .utf8)
             Log.i("Bushu auto data saved: \(autoDict.count) entries to \(url.path)")
+            toSyncAutoDict = false
         } catch {
             Log.i("Failed to save bushu auto data: \(error)")
         }
@@ -177,8 +184,11 @@ final class Bushu {
 
         // 合成元の2文字をキーとして保存（順序を保持）
         let key = source1 + source2
-        autoDict[key] = result
-        Log.i("updateAutoEntry: '\(key)' -> '\(result)'")
+        if autoDict[key] != result {
+            autoDict[key] = result
+            Log.i("updateAutoEntry: '\(key)' -> '\(result)'")
+            toSyncAutoDict = true
+        }
     }
 
     /// 部首変換を実行してPendingKakuteiを生成する

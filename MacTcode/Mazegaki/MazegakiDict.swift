@@ -12,6 +12,7 @@ final class MazegakiDict {
 
     var dict: [String: String] = [:]
     var mruDict: [String: String] = [:]  // MRU学習データ
+    var toSyncMruDict = false
     static let inflectionMark = "—"
 
     func readDictionary() {
@@ -56,6 +57,7 @@ final class MazegakiDict {
             }
         }
         Log.i("\(mruDict.count) mazegaki MRU entries loaded")
+        toSyncMruDict = false
     }
 
     /// MRU学習データを保存する
@@ -63,6 +65,11 @@ final class MazegakiDict {
         guard UserConfigs.shared.mazegaki.mruEnabled else {
             return
         }
+        guard toSyncMruDict else {
+            Log.i("Mazegaki.mruDict is clean. No need to save.")
+            return
+        }
+        
 
         Log.i("Save mazegaki MRU data...")
         let mruFile = UserConfigs.shared.mazegaki.mruFile
@@ -76,6 +83,7 @@ final class MazegakiDict {
             let url = UserConfigs.shared.configFileURL(mruFile)
             try content.write(to: url, atomically: true, encoding: .utf8)
             Log.i("Mazegaki MRU data saved: \(mruDict.count) entries to \(url.path)")
+            toSyncMruDict = false
         } catch {
             Log.i("Failed to save mazegaki MRU data: \(error)")
         }
@@ -98,6 +106,7 @@ final class MazegakiDict {
 
         var candidates = entry.components(separatedBy: "/").filter({ $0 != "" })
         if (candidates.count == 1) {
+            // 候補がひとつしかなければ何もする必要がない
             return
         }
 
@@ -110,6 +119,7 @@ final class MazegakiDict {
                 // mruDictを更新
                 mruDict[key] = "/" + candidates.joined(separator: "/") + "/"
                 Log.i("updateMruEntry: '\(key)' updated, '\(selectedCandidate)' moved to front")
+                toSyncMruDict = true
             } else {
                 Log.i("updateMruEntry: '\(selectedCandidate)' already at front")
             }
