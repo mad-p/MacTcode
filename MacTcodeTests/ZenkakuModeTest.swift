@@ -23,14 +23,16 @@ final class ZenkakuModeTest: XCTestCase {
 
         var modeStack: [Mode]
         var candidateWindow: IMKCandidates = IMKCandidates()
-        init(mode: Mode) {
-            self.modeStack = [mode]
+        init() {
+            self.modeStack = []
         }
         func pushMode(_ mode: Mode) {
             modeStack = [mode] + modeStack
         }
-        func popMode() {
-            modeStack.removeFirst()
+        func popMode(_ mode: Mode) {
+            if let index = modeStack.firstIndex(where: { $0 === mode }) {
+                modeStack.remove(at: index)
+            }
         }
         var mode: Mode { get { modeStack.first! } }
     }
@@ -44,8 +46,8 @@ final class ZenkakuModeTest: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = holder.mode.handle(event, client: client, controller: holder)
-            XCTAssertTrue(ret)
+            let ret = holder.mode.handle(event, client: client)
+            XCTAssertEqual(ret, .processed)
         }
     }
     
@@ -53,8 +55,9 @@ final class ZenkakuModeTest: XCTestCase {
         super.setUp()
         spy = RecentTextClient("", 99)
         client = ContextClient(client: spy, recent: RecentTextClient(""))
-        mode = ZenkakuMode()
-        holder = HolderSpy(mode: mode)
+        holder = HolderSpy()
+        mode = TcodeMode(controller: holder)
+        holder.pushMode(mode)
         Log.i("setUp!")
     }
     
@@ -64,12 +67,11 @@ final class ZenkakuModeTest: XCTestCase {
     }
  
     func testHan2Zen() {
-        let str = ZenkakuMode().han2zen(" Zenkaku~!")
+        let str = ZenkakuMode(controller: holder).han2zen(" Zenkaku~!")
         XCTAssertEqual("　Ｚｅｎｋａｋｕ￣！", str)
     }
     
     func testHan2ZenModeChange() {
-        holder.pushMode(TcodeMode())
         feed("teso90123ABC#*zenkaku\u{1b}x y z fudefe")
         XCTAssertEqual("のが１２３ＡＢＣ＃＊ｚｅｎｋａｋｕxyzあいう", spy.text)
     }

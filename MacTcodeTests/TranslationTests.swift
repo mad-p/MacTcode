@@ -13,23 +13,29 @@ import InputMethodKit
 final class TranslationTests: XCTestCase {
     var mode: TcodeMode!
     var spy: RecentTextClient!
+    var controller: HolderSpy!
     var client: ContextClient!
     
+    class DummyMode: Mode {
+        func handle(_ inputEvent: MacTcode.InputEvent, client: MacTcode.ContextClient!) -> MacTcode.HandleResult {
+            return .passthrough
+        }
+        func reset() {}
+        
+        func wrapClient(_ client: MacTcode.ContextClient!) -> MacTcode.ContextClient! {
+            return client
+        }
+    }
     class HolderSpy: Controller {
+        var mode: Mode = DummyMode()
         func setBackspaceIgnore(_ count: Int) {}
         var pendingKakutei: MacTcode.PendingKakuteiMode?
         func setPendingKakutei(_ pending: MacTcode.PendingKakuteiMode?) {}
-        
-        var mode: Mode
         var candidateWindow: IMKCandidates = IMKCandidates() // dummy
-        init(mode: Mode) {
-            self.mode = mode
-        }
         func pushMode(_ mode: Mode) {
             self.mode = mode
         }
-        func popMode() {
-        }
+        func popMode(_ mode: Mode) { }
     }
     
     func stubCharEvent(_ char: String) -> InputEvent {
@@ -41,8 +47,8 @@ final class TranslationTests: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = mode.handle(event, client: client, controller: HolderSpy(mode: mode))
-            XCTAssertTrue(ret)
+            let ret = mode.handle(event, client: client)
+            XCTAssertEqual(ret, .processed)
         }
     }
 
@@ -50,7 +56,9 @@ final class TranslationTests: XCTestCase {
         super.setUp()
         spy = RecentTextClient("")
         client = ContextClient(client: spy, recent: RecentTextClient(""))
-        mode = TcodeMode()
+        controller = HolderSpy()
+        mode = TcodeMode(controller: controller)
+        controller.pushMode(mode)
         Log.i("setUp!")
     }
     
@@ -61,8 +69,8 @@ final class TranslationTests: XCTestCase {
     
     func testPassthrough() {
         let event = stubCharEvent("A")
-        let ret = mode.handle(event, client: client, controller: HolderSpy(mode: mode))
-        XCTAssertFalse(ret)
+        let ret = mode.handle(event, client: client)
+        XCTAssertEqual(ret, .passthrough)
     }
     func testSendFirstBySpace() {
         feed(" a  ")
