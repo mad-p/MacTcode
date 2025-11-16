@@ -41,6 +41,7 @@ class ContextClient: Client {
         }
     }
     func sendBackspace() {
+        Log.i("ContextClient.sendBackspace")
         client.sendBackspace()
     }
     // カーソル直前にある読みを取得する
@@ -225,7 +226,7 @@ class ContextClient: Client {
         return ""
     }
     
-    // 2分法でyomiTextと一致する部分のactualRangeを取得
+    // yomiTextと一致する部分のactualRangeを取得
     private func findActualRangeForYomiText(_ yomiText: String, in originalRange: NSRange, using client: Client) -> NSRange {
         guard !yomiText.isEmpty else { return originalRange }
         
@@ -234,41 +235,15 @@ class ContextClient: Client {
         
         // yomiTextの長さが元の範囲より大きい場合はoriginalRangeを返す
         guard yomiLength <= originalLength else { return originalRange }
+        // Log.i("ContextClient.findActualRangeForYomiText start using \(type(of:client)): yomi=\(yomiText), originalRange=\(originalRange), yomiLength=\(yomiLength), originalLength=\(originalLength)")
         
-        // 2分法で正確な位置を特定
-        var left = 0
-        var right = originalLength - yomiLength
-        
-        while left <= right {
-            let mid = (left + right) / 2
-            let testRange = NSRange(location: originalRange.location + mid, length: yomiLength)
-            var actualRange = NSRange(location: NSNotFound, length: NSNotFound)
-            
-            if let testString = client.string(from: testRange, actualRange: &actualRange),
-               testString == yomiText {
-                return actualRange
-            }
-            
-            // より効率的な検索のため、文字列比較で位置を調整
-            if let testString = client.string(from: testRange, actualRange: &actualRange) {
-                if testString < yomiText {
-                    left = mid + 1
-                } else {
-                    right = mid - 1
-                }
-            } else {
-                // 文字列取得に失敗した場合は範囲を狭める
-                right = mid - 1
-            }
-        }
-        
-        // 2分法で見つからない場合は線形検索にフォールバック
         if let result = findActualRangeLinear(yomiText, in: originalRange, using: client) {
+            // Log.i("ContextClient.findActualRangeForYomiText: return linear search result: \(result)")
             return result
         }
         
         // 線形検索でも見つからない場合はoriginalRangeをフォールバックとして返す
-        Log.i("ActualRange not found for yomiText: \(yomiText), using originalRange as fallback")
+        // Log.i("ActualRange not found for yomiText: \(yomiText), using originalRange as fallback")
         return originalRange
     }
     
@@ -297,10 +272,16 @@ class ContextClient: Client {
     
     // Yomiの後ろ側からlength文字をstringで置きかえる。送ったBackspaceの数を返す
     func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) -> Int {
+        // Log.i("ContextClient.replaceYomi: string=\(string), length=\(length)")
+        // Log.i("   yomiContext=\(yomiContext)")
+
         // yomiContext.range: 読みの位置
         var rr = yomiContext.range
         rr.location += rr.length - length
         rr.length = length
+        if rr.location < 0 {
+            rr.location = 0
+        }
         if yomiContext.fromMirror {
             // Mirrorから読みを取った場合は、BackSpaceを送ってから文字列を送る
             let uiConfig = UserConfigs.shared.ui
@@ -315,6 +296,7 @@ class ContextClient: Client {
                 DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(length)) {
                     self.client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 }
+                // Log.i("ContextClient.replaceYomi: calling recent.insertText \(string), \(rr)")
                 recent?.insertText(string, replacementRange: rr)
                 return length
             } else {

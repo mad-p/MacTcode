@@ -136,7 +136,7 @@ class TcodeInputController: IMKInputController, Controller {
     override func candidateSelected(_ candidateString: NSAttributedString!) {
         Log.i("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
-            if let client = self.client() {
+            if self.client() != nil {
                 modeWithCandidates.candidateSelected(candidateString, client: wrapClient())
             } else {
                 Log.i("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")

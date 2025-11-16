@@ -16,7 +16,7 @@ class RecentTextClient: Client {
         self.maxLength = maxLength
     }
     func bundleId() -> String! {
-        return "jp.mad-p.inputmethod.MacTcode.recentTextClient"
+        return Bundle.main.bundleIdentifier
     }
     func selectedRange() -> NSRange {
         return NSRange(location: text.count, length: 0)
@@ -26,7 +26,6 @@ class RecentTextClient: Client {
         from range: NSRange,
         actualRange: NSRangePointer
     ) -> String! {
-        Log.i("RecentTextClient.string(\(range))")
         var s = range.location
         if s < 0 {
             s = 0
@@ -38,7 +37,6 @@ class RecentTextClient: Client {
         if l < 0 {
             l = 0
         }
-        Log.i("  getting substring(\(s),\(l)) from \(text)")
         let from = text.index(text.startIndex, offsetBy: s)
         let to = text.index(from, offsetBy: l)
         actualRange.pointee.location = s
@@ -52,13 +50,20 @@ class RecentTextClient: Client {
         if rr.location == NSNotFound {
             text.append(newString)
         } else {
-            let from = text.index(text.startIndex, offsetBy: rr.location)
-            let to = if rr.length == NSNotFound {
+            var location = rr.location
+            var length = rr.length
+            if location < 0 {
+                location = 0
+            }
+            if length != NSNotFound && length > text.count - location {
+                length = text.count - location
+            }
+            let from = text.index(text.startIndex, offsetBy: location)
+            let to = if length == NSNotFound {
                 text.endIndex
             } else {
-                text.index(from, offsetBy: rr.length)
+                text.index(from, offsetBy: length)
             }
-            Log.i("RecentTextClient insertText(newString=\(newString), rr=\(rr))")
             text.replaceSubrange(from..<to, with: newString)
         }
         trim()
