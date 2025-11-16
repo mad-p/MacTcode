@@ -9,6 +9,10 @@ import Cocoa
 import InputMethodKit
 
 class MazegakiSelectionMode: Mode, ModeWithCandidates {
+    func wrapClient(_ client: ContextClient!) -> ContextClient! {
+        return client
+    }
+    
     let map = MazegakiSelectionMap.map
     let mazegaki: Mazegaki
     let hits: [MazegakiHit]
@@ -24,11 +28,12 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         self.row = 0
         Log.i("MazegakiSelectionMode.init")
     }
+    
     func showWindow() {
         candidateWindow.update()
         candidateWindow.show()
     }
-    func handle(_ inputEvent: InputEvent, client: ContextClient!, controller: any Controller) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: ContextClient!) -> HandleResult {
         // キーで選択して確定。右手ホームの4キーの後数字の1～0
         Log.i("MazegakiSelectionMode.handle: event=\(inputEvent) client=\(client!) controller=\(controller)")
         if let selectKeys = candidateWindow.selectionKeys() as? [Int] {
@@ -43,7 +48,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
                             cancel()
                         }
                     }
-                    return true
+                    return .processed
                 }
             }
         }
@@ -60,7 +65,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
             default:
                 break
             }
-            return true
+            return .processed
         }
         switch inputEvent.type {
         case .printable, .enter, .left, .right, .up, .down, .space, .tab:
@@ -68,12 +73,12 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
                 Log.i("Forward to candidateWindow: \([event])")
                 candidateWindow.interpretKeyEvents([event])
             }
-            return true
+            return .processed
         case .delete, .escape, .control_g:
             cancel()
-            return true
+            return .processed
         case .control_punct, .unknown:
-            return true
+            return .processed
         }
     }
     func update() {
@@ -82,7 +87,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
     func cancel() {
         Log.i("MazegakiSelectionMode.cancel")
         candidateWindow.hide()
-        controller.popMode()
+        controller.popMode(self)
     }
     func reset() {
     }

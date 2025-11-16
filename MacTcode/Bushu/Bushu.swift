@@ -207,10 +207,8 @@ final class Bushu {
         // 自動学習が有効な場合、PendingKakuteiを生成
         if UserConfigs.shared.bushu.autoEnabled {
             let yomiString = source1 + source2
-            let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
-
-            let pending = PendingKakutei(
-                timeout: timeout,
+            let pending = PendingKakuteiMode(
+                controller: controller,
                 yomi: yomiString,
                 kakutei: result,
                 onAccepted: { parameter in
@@ -224,7 +222,7 @@ final class Bushu {
                 },
                 parameter: [source1, source2, result]
             )
-            controller.setPendingKakutei(pending)
+            pending.install()
         }
 
         return true
@@ -241,13 +239,16 @@ final class Bushu {
             return false
         }
 
+        guard let recent = client.recent else {
+            return false
+        }
         // 最後の2文字を取得できない場合は何もしない
-        guard client.recent.text.count >= 2 else {
+        guard recent.text.count >= 2 else {
             return false
         }
 
         // 最後の2文字を取得
-        let text = client.recent.text
+        let text = recent.text
         let startIndex = text.index(text.endIndex, offsetBy: -2)
         let src = String(text[startIndex...])
 
@@ -261,7 +262,7 @@ final class Bushu {
         // YomiContextを作成
         let yomiContext = YomiContext(
             string: src,
-            range: NSRange(location: client.recent.text.count - 2, length: 2),
+            range: NSRange(location: recent.text.count - 2, length: 2),
             fromSelection: false,
             fromMirror: true
         )
@@ -271,9 +272,8 @@ final class Bushu {
         controller.setBackspaceIgnore(backspaceCount)
 
         // PendingKakuteiを作成（キャンセルのみ処理、受容時は何もしない）
-        let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
-        let pending = PendingKakutei(
-            timeout: timeout,
+        let pending = PendingKakuteiMode(
+            controller: controller,
             yomi: src,
             kakutei: result,
             onAccepted: { _ in
@@ -282,8 +282,8 @@ final class Bushu {
             },
             parameter: nil
         )
-        controller.setPendingKakutei(pending)
-
+        pending.install()
+        
         return true
     }
 }

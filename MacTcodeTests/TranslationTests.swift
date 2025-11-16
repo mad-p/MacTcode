@@ -17,8 +17,8 @@ final class TranslationTests: XCTestCase {
     
     class HolderSpy: Controller {
         func setBackspaceIgnore(_ count: Int) {}
-        var pendingKakutei: MacTcode.PendingKakutei?
-        func setPendingKakutei(_ pending: MacTcode.PendingKakutei?) {}
+        var pendingKakutei: MacTcode.PendingKakuteiMode?
+        func setPendingKakutei(_ pending: MacTcode.PendingKakuteiMode?) {}
         
         var mode: Mode
         var candidateWindow: IMKCandidates = IMKCandidates() // dummy

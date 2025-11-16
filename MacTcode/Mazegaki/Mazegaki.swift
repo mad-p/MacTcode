@@ -120,10 +120,8 @@ class Mazegaki {
             }
 
             let yomiString = hit.yomi.joined()
-            let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
-
-            let pending = PendingKakutei(
-                timeout: timeout,
+            let pending = PendingKakuteiMode(
+                controller: controller,
                 yomi: yomiString,
                 kakutei: string,
                 onAccepted: { parameter in
@@ -138,7 +136,7 @@ class Mazegaki {
                 },
                 parameter: [hit.key, candidateWithoutInflection]
             )
-            controller.setPendingKakutei(pending)
+            pending.install()
         }
 
         return true
@@ -152,9 +150,9 @@ class PostfixMazegakiAction: Action {
         self.inflection = inflection
     }
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
-        // postfix bushu
+        // postfix mazegaki
         guard let client = client as? ContextClient else {
-            Log.i("★★Can't happen: PostfixBushuAction: client is not ContextClient")
+            Log.i("★★Can't happen: PostfixMazegakiAction: client is not ContextClient")
             return .processed
         }
         let context = client.getYomi(1, 10, yomiCharacters: UserConfigs.shared.mazegaki.mazegakiYomiCharacters)

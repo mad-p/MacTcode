@@ -10,24 +10,17 @@ import InputMethodKit
 
 @objc(TcodeInputController)
 class TcodeInputController: IMKInputController, Controller {
-    var modeStack: [Mode]
+    var modeStack: [Mode] = []
     let candidateWindow: IMKCandidates
-    let recentText = RecentTextClient("")
-    var baseInputText: ContextClient?
-    var pendingKakutei: PendingKakutei?
+    var pendingKakutei: PendingKakuteiMode?
     var backspaceIgnore = 0
-
-    func setPendingKakutei(_ pending: PendingKakutei?) {
-        self.pendingKakutei = pending
-    }
-    
+   
     func setBackspaceIgnore(_ count: Int) {
         self.backspaceIgnore += count
         Log.i("Expecting \(backspaceIgnore) backspaces to be ignored")
     }
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
-        modeStack = [TcodeMode()]
         candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
         setupCandidateWindow()
@@ -42,9 +35,9 @@ class TcodeInputController: IMKInputController, Controller {
     override func deactivateServer(_ sender: Any!) {
         Log.i("★deactivate")
         // deactivate時にpendingKakuteiがあれば受容する
-        if pendingKakutei != nil {
+        if let pending = mode as? PendingKakuteiMode {
             Log.i("deactivate: accepting pendingKakutei")
-            acceptPendingKakutei()
+            pending.accept()
         }
         InputStats.shared.writeStatsToFileMaybe()
         super.deactivateServer(sender)
@@ -76,12 +69,27 @@ class TcodeInputController: IMKInputController, Controller {
         candidateWindow.setSelectionKeys(selectionKeys)
     }
     
+    func wrapClient() -> ContextClient {
+        let textInput = self.client()!
+        let bid = textInput.bundleIdentifier()
+        var wrappedClient = ContextClient(client: ClientWrapper(textInput, bid), recent: nil)
+        // モードごとにclientに機能を追加する
+        for m in modeStack.reversed() {
+            wrappedClient = m.wrapClient(wrappedClient)
+        }
+        return wrappedClient
+    }
+    
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
         guard let client = sender as? IMKTextInput else {
             return false
         }
         // 除外アプリケーションでは変換しないでそのまま入力する
+        if modeStack.isEmpty {
+            pushMode(TcodeMode(controller: self))
+        }
         Log.i("handle: client=\(type(of: client))")
+        Log.i("  modeStack=\(modeStack)")
         let bid = client.bundleIdentifier()
         Log.i("  client.bundleIdentifier=\(bid ?? "nil")")
         let excludedApps = UserConfigs.shared.system.excludedApplications
@@ -90,40 +98,28 @@ class TcodeInputController: IMKInputController, Controller {
             return false
         }
         let inputEvent = Translator.translate(event: event)
-        baseInputText = ContextClient(client: ClientWrapper(client, bundleId), recent: recentText)
-
+        let wrappedClient = wrapClient()
+        Log.i("wrappedClient: \(type(of:wrappedClient))")
         // backspaceIgnoreがある間は、キャンセル用と見なさない
         if (inputEvent.type == .delete && backspaceIgnore > 0) {
             backspaceIgnore -= 1
             Log.i("Ignore Backspace. Expecting \(backspaceIgnore) more")
             return false
         }
-        
-        // PendingKakuteiの処理
-        if let pending = pendingKakutei {
-            if pending.isTimedOut() {
-                // タイムアウトしている場合は受容
-                Log.i("handle: pendingKakutei timed out, accepting")
-                acceptPendingKakutei()
-            } else {
-                // キャンセル期間内
-                // キャンセルキーの場合はキャンセル処理を実行して入力イベントを消費
-                if inputEvent.type == .delete ||
-                    inputEvent.type == .control_g ||
-                    inputEvent.type == .escape {
-                    Log.i("handle: cancel key detected, canceling pendingKakutei")
-                    _ = cancelPendingKakutei(client: baseInputText!)
-                    return true  // イベントを消費
-                } else {
-                    // キャンセルキー以外の入力イベントはキャンセル期間を終了し、受容する
-                    Log.i("handle: non-cancel key, accepting pendingKakutei")
-                    acceptPendingKakutei()
-                    // そのまま次の処理に進む（イベントは消費しない）
-                }
+
+        // 最新のモードから順にイベント処理のチャンスを与える
+        for m in Array(modeStack) { // 念のためコピーしてから順に利用
+            Log.i("calling mode \(type(of:m)).handle")
+            let handleResult = m.handle(inputEvent, client: wrappedClient)
+            Log.i(" handle returned: \(handleResult)")
+            switch handleResult {
+            case .forward: continue
+            case .passthrough: return false
+            case .processed: return true
             }
         }
-
-        return mode.handle(inputEvent, client: baseInputText, controller: self)
+        // どのモードでも処理しなかったのでクライアントにゆだねる
+        return false
     }
     
     override func candidates(_ sender: Any!) -> [Any]! {
@@ -141,13 +137,7 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("TcodeInputController.candidateSelected: \(candidateString.string)")
         if let modeWithCandidates = mode as? ModeWithCandidates {
             if let client = self.client() {
-                let bid: String? = client.bundleIdentifier()
-                if baseInputText != nil {
-                    baseInputText!.client = ClientWrapper(client, bid)
-                } else {
-                    baseInputText = ContextClient(client: ClientWrapper(client, bid), recent: recentText)
-                }
-                modeWithCandidates.candidateSelected(candidateString, client: baseInputText)
+                modeWithCandidates.candidateSelected(candidateString, client: wrapClient())
             } else {
                 Log.i("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")
             }
@@ -167,56 +157,19 @@ class TcodeInputController: IMKInputController, Controller {
  
     var mode: Mode {
         get {
-            modeStack.first!
+            if modeStack.isEmpty {
+                pushMode(TcodeMode(controller: self))
+            }
+            return modeStack.first!
         }
     }
     func pushMode(_ mode: Mode) {
         Log.i("TcodeInputController.pushMode: \(mode)")
         modeStack = [mode] + modeStack
     }
-    func popMode() {
-        if modeStack.count > 1 {
-            modeStack.removeFirst()
+    func popMode(_ mode: Mode) {
+        if let index = modeStack.firstIndex(where: { $0 === mode }) {
+            modeStack.remove(at: index)
         }
-    }
-
-    /// PendingKakuteiをキャンセルする
-    /// - Parameter client: クライアント
-    /// - Returns: キャンセル処理を実行した場合true
-    func cancelPendingKakutei(client: ContextClient) -> Bool {
-        guard let pending = pendingKakutei else {
-            return false
-        }
-
-        backspaceIgnore = 0
-        Log.i("cancelPendingKakutei: yomi=\(pending.yomiString), kakutei=\(pending.kakuteiString)")
-
-        // kakuteiStringを削除してyomiStringに置き換える
-        // YomiContextを作ってClientContext.replaceYomiにまかせる
-        let yomiContext = YomiContext(string: pending.kakuteiString, range: NSRange(), fromSelection: false, fromMirror: true)
-        Log.i("about to replaceYomi: yomi=\(pending.yomiString), kakutei=\(pending.kakuteiString)")
-        let backspaceCount = client.replaceYomi(pending.yomiString, length: pending.kakuteiString.count, from: yomiContext)
-        setBackspaceIgnore(backspaceCount)
-
-        // pendingKakuteiをクリア
-        pendingKakutei = nil
-
-        return true
-    }
-
-    /// PendingKakuteiを受容する
-    func acceptPendingKakutei() {
-        guard let pending = pendingKakutei else {
-            return
-        }
-        
-        Log.i("acceptPendingKakutei: yomi=\(pending.yomiString), kakutei=\(pending.kakuteiString)")
-
-        // 受容処理を実行
-        pending.accept()
-
-        // pendingKakuteiをクリア
-        pendingKakutei = nil
-        backspaceIgnore = 0
     }
 }

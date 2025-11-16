@@ -21,10 +21,12 @@ class RecentTextClient: Client {
     func selectedRange() -> NSRange {
         return NSRange(location: text.count, length: 0)
     }
+    // rangeは文字数で数える(text.indexではない)
     func string(
         from range: NSRange,
         actualRange: NSRangePointer
     ) -> String! {
+        Log.i("RecentTextClient.string(\(range))")
         var s = range.location
         if s < 0 {
             s = 0
@@ -33,6 +35,10 @@ class RecentTextClient: Client {
         if s + l > text.count {
             l = text.count - s
         }
+        if l < 0 {
+            l = 0
+        }
+        Log.i("  getting substring(\(s),\(l)) from \(text)")
         let from = text.index(text.startIndex, offsetBy: s)
         let to = text.index(from, offsetBy: l)
         actualRange.pointee.location = s
@@ -52,6 +58,7 @@ class RecentTextClient: Client {
             } else {
                 text.index(from, offsetBy: rr.length)
             }
+            Log.i("RecentTextClient insertText(newString=\(newString), rr=\(rr))")
             text.replaceSubrange(from..<to, with: newString)
         }
         trim()
