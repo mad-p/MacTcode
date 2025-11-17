@@ -9,8 +9,11 @@ import Cocoa
 
 /// 全角入力モード
 class ZenkakuMode: Mode {
-    let controller: Controller
+    weak var controller: Controller?
     init(controller: Controller) {
+        self.controller = controller
+    }
+    func setController(_ controller: Controller) {
         self.controller = controller
     }
     
@@ -47,7 +50,7 @@ class ZenkakuMode: Mode {
             }
             return .forward
         case .escape:
-            controller.popMode(self)
+            controller?.popMode(self)
             return .processed
         default:
             return .forward

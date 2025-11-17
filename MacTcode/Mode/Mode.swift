@@ -16,6 +16,8 @@ enum HandleResult {
 
 /// 入力モード
 protocol Mode: AnyObject {
+    /// controllerをセットする
+    func setController(_ controller: Controller)
     /// 入力イベントを処理する
     func handle(_ inputEvent: InputEvent, client: ContextClient!) -> HandleResult
     /// すべての状態を初期状態にする

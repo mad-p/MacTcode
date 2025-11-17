@@ -9,12 +9,12 @@ import Cocoa
 import InputMethodKit
 
 class TcodeMode: Mode, MultiStroke {
-    let controller: Controller
+    weak var controller: Controller?
     var pending: [InputEvent] = []
     let recentText = RecentTextClient("")
     var map = TcodeKeymap.map
     var quickMap: Keymap = TopLevelMap.map
-    init(controller: Controller) {
+    func setController(_ controller: any Controller) {
         self.controller = controller
     }
     func wrapClient(_ client: ContextClient!) -> ContextClient! {
@@ -68,7 +68,7 @@ class TcodeMode: Mode, MultiStroke {
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
 
                 // 自動部首変換を試みる
-                if Bushu.i.tryAutoBushu(client: client, controller: controller) {
+                if Bushu.i.tryAutoBushu(client: client, controller: controller!) {
                     InputStats.shared.incrementBushuCount()
                 } else {
                     InputStats.shared.incrementBasicCount()
@@ -76,7 +76,7 @@ class TcodeMode: Mode, MultiStroke {
                 return .processed
             case .action(let action):
                 InputStats.shared.incrementFunctionCount()
-                command = action.execute(client: client, mode: self, controller: controller)
+                command = action.execute(client: client, mode: self, controller: controller!)
                 resetPending()
                 continue
             case .keymap(_):

@@ -86,7 +86,7 @@ class TcodeInputController: IMKInputController, Controller {
         }
         // 除外アプリケーションでは変換しないでそのまま入力する
         if modeStack.isEmpty {
-            pushMode(TcodeMode(controller: self))
+            pushMode(TcodeMode())
         }
         Log.i("handle: client=\(type(of: client))")
         Log.i("  modeStack=\(modeStack)")
@@ -158,7 +158,7 @@ class TcodeInputController: IMKInputController, Controller {
     var mode: Mode {
         get {
             if modeStack.isEmpty {
-                pushMode(TcodeMode(controller: self))
+                pushMode(TcodeMode())
             }
             return modeStack.first!
         }
@@ -166,6 +166,7 @@ class TcodeInputController: IMKInputController, Controller {
     func pushMode(_ mode: Mode) {
         Log.i("TcodeInputController.pushMode: \(mode)")
         modeStack = [mode] + modeStack
+        mode.setController(self)
     }
     func popMode(_ mode: Mode) {
         if let index = modeStack.firstIndex(where: { $0 === mode }) {

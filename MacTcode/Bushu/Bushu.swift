@@ -218,7 +218,6 @@ final class Bushu {
         if UserConfigs.shared.bushu.autoEnabled {
             let yomiString = source1 + source2
             let pending = PendingKakuteiMode(
-                controller: controller,
                 yomi: yomiString,
                 kakutei: result,
                 onAccepted: { parameter in
@@ -232,7 +231,7 @@ final class Bushu {
                 },
                 parameter: [source1, source2, result]
             )
-            pending.install()
+            controller.pushMode(pending)
         }
 
         return true
@@ -283,7 +282,6 @@ final class Bushu {
 
         // PendingKakuteiを作成（キャンセルのみ処理、受容時は何もしない）
         let pending = PendingKakuteiMode(
-            controller: controller,
             yomi: src,
             kakutei: result,
             onAccepted: { _ in
@@ -292,7 +290,7 @@ final class Bushu {
             },
             parameter: nil
         )
-        pending.install()
+        controller.pushMode(pending)
         
         return true
     }

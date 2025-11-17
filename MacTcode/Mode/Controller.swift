@@ -9,7 +9,7 @@ import Foundation
 import InputMethodKit
 
 /// モードを持つIMKController
-protocol Controller {
+protocol Controller: AnyObject {
     var mode: Mode { get }
     func pushMode(_ mode: Mode)
     func popMode(_ mode: Mode)

@@ -13,30 +13,8 @@ import InputMethodKit
 final class TranslationTests: XCTestCase {
     var mode: TcodeMode!
     var spy: RecentTextClient!
-    var controller: HolderSpy!
+    var controller: ControllerSpy!
     var client: ContextClient!
-    
-    class DummyMode: Mode {
-        func handle(_ inputEvent: MacTcode.InputEvent, client: MacTcode.ContextClient!) -> MacTcode.HandleResult {
-            return .passthrough
-        }
-        func reset() {}
-        
-        func wrapClient(_ client: MacTcode.ContextClient!) -> MacTcode.ContextClient! {
-            return client
-        }
-    }
-    class HolderSpy: Controller {
-        var mode: Mode = DummyMode()
-        func setBackspaceIgnore(_ count: Int) {}
-        var pendingKakutei: MacTcode.PendingKakuteiMode?
-        func setPendingKakutei(_ pending: MacTcode.PendingKakuteiMode?) {}
-        var candidateWindow: IMKCandidates = IMKCandidates() // dummy
-        func pushMode(_ mode: Mode) {
-            self.mode = mode
-        }
-        func popMode(_ mode: Mode) { }
-    }
     
     func stubCharEvent(_ char: String) -> InputEvent {
         return Translator.translate(event: NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: 0)!)
@@ -56,8 +34,8 @@ final class TranslationTests: XCTestCase {
         super.setUp()
         spy = RecentTextClient("")
         client = ContextClient(client: spy, recent: RecentTextClient(""))
-        controller = HolderSpy()
-        mode = TcodeMode(controller: controller)
+        controller = ControllerSpy()
+        mode = TcodeMode()
         controller.pushMode(mode)
         Log.i("setUp!")
     }

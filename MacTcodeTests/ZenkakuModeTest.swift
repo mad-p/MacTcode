@@ -14,28 +14,7 @@ final class ZenkakuModeTest: XCTestCase {
     var mode: Mode!
     var spy: RecentTextClient!
     var client: ContextClient!
-    var holder: HolderSpy!
-    
-    class HolderSpy: Controller {
-        func setBackspaceIgnore(_ count: Int) {}
-        var pendingKakutei: MacTcode.PendingKakuteiMode?
-        func setPendingKakutei(_ pending: MacTcode.PendingKakuteiMode?) {}
-
-        var modeStack: [Mode]
-        var candidateWindow: IMKCandidates = IMKCandidates()
-        init() {
-            self.modeStack = []
-        }
-        func pushMode(_ mode: Mode) {
-            modeStack = [mode] + modeStack
-        }
-        func popMode(_ mode: Mode) {
-            if let index = modeStack.firstIndex(where: { $0 === mode }) {
-                modeStack.remove(at: index)
-            }
-        }
-        var mode: Mode { get { modeStack.first! } }
-    }
+    var controller: ControllerSpy!
     
     func stubCharEvent(_ char: String) -> InputEvent {
         return Translator.translate(event: NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: 0)!)
@@ -46,7 +25,7 @@ final class ZenkakuModeTest: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = holder.mode.handle(event, client: client)
+            let ret = controller.mode.handle(event, client: client)
             XCTAssertEqual(.processed, ret)
         }
     }
@@ -55,9 +34,9 @@ final class ZenkakuModeTest: XCTestCase {
         super.setUp()
         spy = RecentTextClient("", 99)
         client = ContextClient(client: spy, recent: RecentTextClient(""))
-        holder = HolderSpy()
-        mode = TcodeMode(controller: holder)
-        holder.pushMode(mode)
+        controller = ControllerSpy()
+        mode = TcodeMode()
+        controller.pushMode(mode)
         Log.i("setUp!")
     }
     
@@ -67,7 +46,7 @@ final class ZenkakuModeTest: XCTestCase {
     }
  
     func testHan2Zen() {
-        let str = ZenkakuMode(controller: holder).han2zen(" Zenkaku~!")
+        let str = ZenkakuMode(controller: controller).han2zen(" Zenkaku~!")
         XCTAssertEqual("　Ｚｅｎｋａｋｕ￣！", str)
     }
     

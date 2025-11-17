@@ -121,7 +121,6 @@ class Mazegaki {
 
             let yomiString = hit.yomi.joined()
             let pending = PendingKakuteiMode(
-                controller: controller,
                 yomi: yomiString,
                 kakutei: string,
                 onAccepted: { parameter in
@@ -136,7 +135,7 @@ class Mazegaki {
                 },
                 parameter: [hit.key, candidateWithoutInflection]
             )
-            pending.install()
+            controller.pushMode(pending)
         }
 
         return true
@@ -177,7 +176,7 @@ class PostfixMazegakiAction: Action {
                 return .processed
             }
         }
-        let newMode = MazegakiSelectionMode(controller: controller, mazegaki: mazegaki, hits: hits)
+        let newMode = MazegakiSelectionMode(mazegaki: mazegaki, hits: hits)
         controller.pushMode(newMode)
         newMode.showWindow()
         // Log.i("Mazegaki: more than one candidates")

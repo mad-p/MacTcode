@@ -11,7 +11,7 @@ import Foundation
 /// 保留中の確定
 class PendingKakuteiMode: Mode {
     /// コントローラを覚えておく
-    let controller: Controller
+    weak var controller: Controller?
     
     /// この時刻になったら受容されたと判定する時刻
     let acceptedTimeout: Date
@@ -34,9 +34,8 @@ class PendingKakuteiMode: Mode {
     ///   - yomi: 変換元文字列
     ///   - kakutei: 変換後文字列
     ///   - onAccepted: 受容時のハンドラ
-    init(controller: Controller, yomi: String, kakutei: String,
+    init(yomi: String, kakutei: String,
          onAccepted: @escaping (_ parameter: Any?) -> Void, parameter: Any? = nil) {
-        self.controller = controller
         self.acceptedTimeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
         self.yomiString = yomi
         self.kakuteiString = kakutei
@@ -44,18 +43,17 @@ class PendingKakuteiMode: Mode {
         self.parameter = parameter
     }
     
+    func setController(_ controller: any Controller) {
+        self.controller = controller
+    }
+    
     /// clientは変更しない
     func wrapClient(_ client: ContextClient!) -> ContextClient! {
         return client
     }
     
-    /// controllerに自分を登録
-    func install() {
-        controller.pushMode(self)
-    }
-    
     func uninstall() {
-        controller.popMode(self)
+        controller?.popMode(self)
     }
     
     func reset() {
@@ -90,7 +88,7 @@ class PendingKakuteiMode: Mode {
         // Log.i("about to replaceYomi: yomi=\(yomiString), kakutei=\(kakuteiString)")
         let backspaceCount = client.replaceYomi(yomiString, length: kakuteiString.count, from: yomiContext)
         uninstall()
-        controller.setBackspaceIgnore(backspaceCount)
+        controller?.setBackspaceIgnore(backspaceCount)
     }
     
     func handle(_ inputEvent: InputEvent, client: ContextClient!) -> HandleResult {
