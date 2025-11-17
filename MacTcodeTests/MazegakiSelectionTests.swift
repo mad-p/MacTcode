@@ -174,6 +174,6 @@ final class MazegakiSelectionTests: XCTestCase {
         controller.candidateSelected(selected)
         XCTAssertFalse(controller.window.shown)
         XCTAssertEqual("あ操作", spy.text)
-        XCTAssertEqual(1, controller.modeStack.count)
+        XCTAssertEqual(2, controller.modeStack.count)
     }
 }

@@ -48,7 +48,7 @@ final class TranslationTests: XCTestCase {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
             let ret = mode.handle(event, client: client)
-            XCTAssertEqual(ret, .processed)
+            XCTAssertEqual(.processed, ret)
         }
     }
 

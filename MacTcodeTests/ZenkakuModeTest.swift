@@ -47,7 +47,7 @@ final class ZenkakuModeTest: XCTestCase {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
             let ret = holder.mode.handle(event, client: client)
-            XCTAssertEqual(ret, .processed)
+            XCTAssertEqual(.processed, ret)
         }
     }
     
