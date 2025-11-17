@@ -23,7 +23,7 @@ class ControllerSpy: Controller {
         }
     }
     func pushMode(_ mode: Mode) {
-        modeStack = [mode]
+        modeStack = [mode] + modeStack
         mode.setController(self)
     }
     func popMode(_ mode: Mode) {
