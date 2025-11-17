@@ -45,11 +45,9 @@ func sigterm_handler(_ signo: Int32, _ info: UnsafeMutablePointer<__siginfo>?, _
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var server = IMKServer()
-    var candidatesWindow = IMKCandidates()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         self.server = IMKServer(name: Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String, bundleIdentifier: Bundle.main.bundleIdentifier)
-        self.candidatesWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel, styleType: kIMKMain)
         Log.i("★AppDelegate launched self=\(ObjectIdentifier(self))")
 
         // 統計情報の初期化
