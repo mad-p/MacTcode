@@ -9,6 +9,18 @@ import Cocoa
 
 /// 全角入力モード
 class ZenkakuMode: Mode {
+    weak var controller: Controller?
+    init(controller: Controller) {
+        self.controller = controller
+    }
+    func setController(_ controller: Controller) {
+        self.controller = controller
+    }
+    
+    func wrapClient(_ client: ContextClient!) -> ContextClient! {
+        return client
+    }
+    
     static let zenkaku = {
         return "　！”＃＄％＆’（）＊＋，−．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［￥］＾＿‘ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝￣"
             .map{ String($0) }
@@ -28,20 +40,20 @@ class ZenkakuMode: Mode {
         }.joined()
     }
     
-    func handle(_ inputEvent: InputEvent, client: ContextClient!, controller: Controller) -> Bool {
+    func handle(_ inputEvent: InputEvent, client: ContextClient!) -> HandleResult {
         switch inputEvent.type {
         case .printable:
             if let inputString = inputEvent.text {
                 let string = han2zen(inputString)
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                return true
+                return .processed
             }
-            return false
+            return .forward
         case .escape:
-            controller.popMode()
-            return true
+            controller?.popMode(self)
+            return .processed
         default:
-            return false
+            return .forward
         }
     }
     

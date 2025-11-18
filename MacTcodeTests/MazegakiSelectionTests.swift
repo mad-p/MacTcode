@@ -14,7 +14,7 @@ import InputMethodKit
 final class MazegakiSelectionTests: XCTestCase {
     var spy: RecentTextClient!
     var client: ContextClient!
-    var controller: ControllerSpy!
+    var controller: HolderSpy!
     
     class CandidateWindowSpy: IMKCandidates {
         var events: [NSEvent] = []
@@ -34,26 +34,14 @@ final class MazegakiSelectionTests: XCTestCase {
             shown = false
         }
     }
-    
-    class ControllerSpy: Controller {
-        func setBackspaceIgnore(_ count: Int) {}
-        var pendingKakutei: MacTcode.PendingKakutei?
-        func setPendingKakutei(_ pending: MacTcode.PendingKakutei?) {}
-        
+
+    class HolderSpy: ControllerSpy {
         var client: ContextClient
-        var modeStack: [Mode]
-        var mode: Mode { get { modeStack.first! } }
-        var candidateWindow: IMKCandidates { get { window } }
         var window: CandidateWindowSpy = CandidateWindowSpy()
-        init(mode: Mode, client: ContextClient) {
-            modeStack = [mode]
+        init(client: ContextClient) {
             self.client = client
-        }
-        func pushMode(_ mode: Mode) {
-            modeStack = [mode] + modeStack
-        }
-        func popMode() {
-            modeStack.removeFirst()
+            super.init()
+            self.candidateWindow = self.window
         }
         func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
             if let client = sender as? ContextClient {
@@ -62,7 +50,12 @@ final class MazegakiSelectionTests: XCTestCase {
                 XCTFail()
             }
             let inputEvent = Translator.translate(event: event)
-            return mode.handle(inputEvent, client: client, controller: self)
+            switch mode.handle(inputEvent, client: client) {
+            case .forward: XCTFail("handle returned .forward")
+            case .passthrough: return false
+            case .processed: return true
+            }
+            return false
         }
         
         func candidates(_ sender: Any!) -> [Any]! {
@@ -93,8 +86,8 @@ final class MazegakiSelectionTests: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = controller.mode.handle(event, client: client, controller: controller)
-            XCTAssertTrue(ret)
+            let ret = controller.mode.handle(event, client: client)
+            XCTAssertEqual(ret, .processed)
         }
     }
     
@@ -102,7 +95,8 @@ final class MazegakiSelectionTests: XCTestCase {
         super.setUp()
         spy = RecentTextClient("")
         client = ContextClient(client: spy, recent: RecentTextClient(""))
-        controller = ControllerSpy(mode: TcodeMode(), client: client)
+        controller = HolderSpy(client: client)
+        controller.pushMode(TcodeMode())
         Log.i("setUp!")
     }
     
@@ -111,16 +105,16 @@ final class MazegakiSelectionTests: XCTestCase {
     }
  
     func testWindowCreation() {
-        XCTAssertFalse(controller.window.shown)
+        XCTAssertFalse(controller!.window.shown)
         feed("fusxfez,uh")
-        XCTAssertTrue(controller.window.shown)
+        XCTAssertTrue(controller!.window.shown)
         XCTAssertEqual("あそう作", spy.text)
     }
     
     func testCandidates() {
-        XCTAssertFalse(controller.window.shown)
+        XCTAssertFalse(controller!.window.shown)
         feed("fusxfez,uh")
-        if let cands = controller.candidates(controller) as? [String] {
+        if let cands = controller!.candidates(controller) as? [String] {
             XCTAssertEqual(["創作", "操作"].sorted(), cands.sorted())
         } else {
             XCTFail("candidates returns nil")
@@ -156,6 +150,6 @@ final class MazegakiSelectionTests: XCTestCase {
         controller.candidateSelected(selected)
         XCTAssertFalse(controller.window.shown)
         XCTAssertEqual("あ操作", spy.text)
-        XCTAssertEqual(1, controller.modeStack.count)
+        XCTAssertEqual(2, controller.modeStack.count)
     }
 }

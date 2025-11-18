@@ -9,7 +9,7 @@ import Foundation
 
 class ZenkakuModeAction: Action {
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
-        controller.pushMode(ZenkakuMode())
+        controller.pushMode(ZenkakuMode(controller: controller))
         return .processed
     }
 }

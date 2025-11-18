@@ -16,11 +16,12 @@ class RecentTextClient: Client {
         self.maxLength = maxLength
     }
     func bundleId() -> String! {
-        return "jp.mad-p.inputmethod.MacTcode.recentTextClient"
+        return Bundle.main.bundleIdentifier
     }
     func selectedRange() -> NSRange {
         return NSRange(location: text.count, length: 0)
     }
+    // rangeは文字数で数える(text.indexではない)
     func string(
         from range: NSRange,
         actualRange: NSRangePointer
@@ -32,6 +33,9 @@ class RecentTextClient: Client {
         var l = range.length
         if s + l > text.count {
             l = text.count - s
+        }
+        if l < 0 {
+            l = 0
         }
         let from = text.index(text.startIndex, offsetBy: s)
         let to = text.index(from, offsetBy: l)
@@ -46,11 +50,19 @@ class RecentTextClient: Client {
         if rr.location == NSNotFound {
             text.append(newString)
         } else {
-            let from = text.index(text.startIndex, offsetBy: rr.location)
-            let to = if rr.length == NSNotFound {
+            var location = rr.location
+            var length = rr.length
+            if location < 0 {
+                location = 0
+            }
+            if length != NSNotFound && length > text.count - location {
+                length = text.count - location
+            }
+            let from = text.index(text.startIndex, offsetBy: location)
+            let to = if length == NSNotFound {
                 text.endIndex
             } else {
-                text.index(from, offsetBy: rr.length)
+                text.index(from, offsetBy: length)
             }
             text.replaceSubrange(from..<to, with: newString)
         }

@@ -120,10 +120,7 @@ class Mazegaki {
             }
 
             let yomiString = hit.yomi.joined()
-            let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
-
-            let pending = PendingKakutei(
-                timeout: timeout,
+            let pending = PendingKakuteiMode(
                 yomi: yomiString,
                 kakutei: string,
                 onAccepted: { parameter in
@@ -138,7 +135,7 @@ class Mazegaki {
                 },
                 parameter: [hit.key, candidateWithoutInflection]
             )
-            controller.setPendingKakutei(pending)
+            controller.pushMode(pending)
         }
 
         return true
@@ -152,9 +149,9 @@ class PostfixMazegakiAction: Action {
         self.inflection = inflection
     }
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
-        // postfix bushu
+        // postfix mazegaki
         guard let client = client as? ContextClient else {
-            Log.i("★★Can't happen: PostfixBushuAction: client is not ContextClient")
+            Log.i("★★Can't happen: PostfixMazegakiAction: client is not ContextClient")
             return .processed
         }
         let context = client.getYomi(1, 10, yomiCharacters: UserConfigs.shared.mazegaki.mazegakiYomiCharacters)
@@ -179,7 +176,7 @@ class PostfixMazegakiAction: Action {
                 return .processed
             }
         }
-        let newMode = MazegakiSelectionMode(controller: controller, mazegaki: mazegaki, hits: hits)
+        let newMode = MazegakiSelectionMode(mazegaki: mazegaki, hits: hits)
         controller.pushMode(newMode)
         newMode.showWindow()
         // Log.i("Mazegaki: more than one candidates")

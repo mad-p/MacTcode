@@ -18,6 +18,7 @@ final class Bushu {
     private var decomposeTable: [String: [String]] = [:]
     private var equivTable: [String: String] = [:]
     var autoDict: [String: String] = [:]  // 自動部首変換学習データ（キー: 合成元2文字、値: 合成結果1文字）
+    var toSyncAutoDict = false
 
     func readDictionary() {
         Log.i("Read bushu dictionary...")
@@ -139,12 +140,17 @@ final class Bushu {
                 }
             }
         }
+        toSyncAutoDict = false
         Log.i("\(autoDict.count) bushu auto entries loaded")
     }
 
     /// 自動学習データを保存する
     func saveAutoData() {
         guard UserConfigs.shared.bushu.autoEnabled else {
+            return
+        }
+        guard toSyncAutoDict else {
+            Log.i("Bushu.autoDict is clean. Nothing to save")
             return
         }
 
@@ -160,6 +166,7 @@ final class Bushu {
             let url = UserConfigs.shared.configFileURL(autoFile)
             try content.write(to: url, atomically: true, encoding: .utf8)
             Log.i("Bushu auto data saved: \(autoDict.count) entries to \(url.path)")
+            toSyncAutoDict = false
         } catch {
             Log.i("Failed to save bushu auto data: \(error)")
         }
@@ -177,8 +184,11 @@ final class Bushu {
 
         // 合成元の2文字をキーとして保存（順序を保持）
         let key = source1 + source2
-        autoDict[key] = result
-        Log.i("updateAutoEntry: '\(key)' -> '\(result)'")
+        if autoDict[key] != result {
+            autoDict[key] = result
+            Log.i("updateAutoEntry: '\(key)' -> '\(result)'")
+            toSyncAutoDict = true
+        }
     }
 
     /// 部首変換を実行してPendingKakuteiを生成する
@@ -207,10 +217,7 @@ final class Bushu {
         // 自動学習が有効な場合、PendingKakuteiを生成
         if UserConfigs.shared.bushu.autoEnabled {
             let yomiString = source1 + source2
-            let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
-
-            let pending = PendingKakutei(
-                timeout: timeout,
+            let pending = PendingKakuteiMode(
                 yomi: yomiString,
                 kakutei: result,
                 onAccepted: { parameter in
@@ -224,7 +231,7 @@ final class Bushu {
                 },
                 parameter: [source1, source2, result]
             )
-            controller.setPendingKakutei(pending)
+            controller.pushMode(pending)
         }
 
         return true
@@ -241,13 +248,16 @@ final class Bushu {
             return false
         }
 
+        guard let recent = client.recent else {
+            return false
+        }
         // 最後の2文字を取得できない場合は何もしない
-        guard client.recent.text.count >= 2 else {
+        guard recent.text.count >= 2 else {
             return false
         }
 
         // 最後の2文字を取得
-        let text = client.recent.text
+        let text = recent.text
         let startIndex = text.index(text.endIndex, offsetBy: -2)
         let src = String(text[startIndex...])
 
@@ -261,7 +271,7 @@ final class Bushu {
         // YomiContextを作成
         let yomiContext = YomiContext(
             string: src,
-            range: NSRange(location: client.recent.text.count - 2, length: 2),
+            range: NSRange(location: recent.text.count - 2, length: 2),
             fromSelection: false,
             fromMirror: true
         )
@@ -271,9 +281,7 @@ final class Bushu {
         controller.setBackspaceIgnore(backspaceCount)
 
         // PendingKakuteiを作成（キャンセルのみ処理、受容時は何もしない）
-        let timeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
-        let pending = PendingKakutei(
-            timeout: timeout,
+        let pending = PendingKakuteiMode(
             yomi: src,
             kakutei: result,
             onAccepted: { _ in
@@ -282,8 +290,8 @@ final class Bushu {
             },
             parameter: nil
         )
-        controller.setPendingKakutei(pending)
-
+        controller.pushMode(pending)
+        
         return true
     }
 }

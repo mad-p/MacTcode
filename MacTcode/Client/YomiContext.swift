@@ -19,5 +19,6 @@ class YomiContext {
         self.range = range
         self.fromSelection = fromSelection
         self.fromMirror = fromMirror
+        // Log.i("YomiContext: string=\(string), range=\(range), fromSelection: \(fromSelection), fromMirror: \(fromMirror)")
     }
 }

@@ -13,24 +13,8 @@ import InputMethodKit
 final class TranslationTests: XCTestCase {
     var mode: TcodeMode!
     var spy: RecentTextClient!
+    var controller: ControllerSpy!
     var client: ContextClient!
-    
-    class HolderSpy: Controller {
-        func setBackspaceIgnore(_ count: Int) {}
-        var pendingKakutei: MacTcode.PendingKakutei?
-        func setPendingKakutei(_ pending: MacTcode.PendingKakutei?) {}
-        
-        var mode: Mode
-        var candidateWindow: IMKCandidates = IMKCandidates() // dummy
-        init(mode: Mode) {
-            self.mode = mode
-        }
-        func pushMode(_ mode: Mode) {
-            self.mode = mode
-        }
-        func popMode() {
-        }
-    }
     
     func stubCharEvent(_ char: String) -> InputEvent {
         return Translator.translate(event: NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, characters: char, charactersIgnoringModifiers: char, isARepeat: false, keyCode: 0)!)
@@ -41,8 +25,8 @@ final class TranslationTests: XCTestCase {
     func feed(_ sequence: String) {
         sequence.forEach { char in
             let event = stubCharEvent(String(char))
-            let ret = mode.handle(event, client: client, controller: HolderSpy(mode: mode))
-            XCTAssertTrue(ret)
+            let ret = mode.handle(event, client: client)
+            XCTAssertEqual(.processed, ret)
         }
     }
 
@@ -50,7 +34,9 @@ final class TranslationTests: XCTestCase {
         super.setUp()
         spy = RecentTextClient("")
         client = ContextClient(client: spy, recent: RecentTextClient(""))
+        controller = ControllerSpy()
         mode = TcodeMode()
+        controller.pushMode(mode)
         Log.i("setUp!")
     }
     
@@ -61,8 +47,8 @@ final class TranslationTests: XCTestCase {
     
     func testPassthrough() {
         let event = stubCharEvent("A")
-        let ret = mode.handle(event, client: client, controller: HolderSpy(mode: mode))
-        XCTAssertFalse(ret)
+        let ret = mode.handle(event, client: client)
+        XCTAssertEqual(ret, .passthrough)
     }
     func testSendFirstBySpace() {
         feed(" a  ")
