@@ -10,11 +10,12 @@ import Cocoa
 /// 部首変換、交ぜ書き変換への入力を取得するためのClient
 /// クライアントのカーソル周辺の文字列、もし得られなければRecentTextClientから取るClient
 class ContextClient: Client {
-    var client: Client
-    let recent: RecentTextClient?
+    var client: Client { get { _client } }
+    private let _client: Client
+    let recent: RecentTextClient
     var lastCursor: NSRange = NSRange(location: NSNotFound, length: NSNotFound)
-    init(client: Client, recent: RecentTextClient?) {
-        self.client = client
+    init(client: Client, recent: RecentTextClient) {
+        self._client = client
         self.recent = recent
     }
     func bundleId() -> String! {
@@ -35,9 +36,9 @@ class ContextClient: Client {
     ) {
         client.insertText(string, replacementRange: rr)
         if rr.length == NSNotFound {
-            recent?.append(string)
+            recent.append(string)
         } else {
-            recent?.replaceLast(length: rr.length, with: string)
+            recent.replaceLast(length: rr.length, with: string)
         }
     }
     func sendBackspace() {
@@ -132,21 +133,17 @@ class ContextClient: Client {
         }
         // Google Docs/Slidesで読みが取れない場合に対応
         if (result.string.count < minLength) {
-            if let recent = recent {
-                if recent.text.count >= minLength {
-                    Log.i("Not enough yomi from client, but recent has enough")
-                    return nil
-                }
+            if recent.text.count >= minLength {
+                Log.i("Not enough yomi from client, but recent has enough")
+                return nil
             }
         }
         
         // recentを見る限りもっと取れそうなのに少ししか取れなかった場合は怪しい
         if (result.string.count < getLength) {
-            if let recent = recent {
-                if recent.text.count > result.string.count {
-                    Log.i("Tried to get \(getLength), but got only \(result.string.count)")
-                    return nil
-                }
+            if recent.text.count > result.string.count {
+                Log.i("Tried to get \(getLength), but got only \(result.string.count)")
+                return nil
             }
         }
         return result
@@ -164,7 +161,6 @@ class ContextClient: Client {
         // textの最も右側のyomiCharactersの連続した部分文字列を取得
         let yomiText = extractValidYomiSuffix(from: text, minLength: fromSelection ? length : 1, yomiCharacters: yomiCharacters)
         if !yomiText.isEmpty {
-            // 2分法でyomiTextと一致するactualRangeを取得
             let actualRange = findActualRangeForYomiText(yomiText, in: replaceRange, using: client)
             Log.i("Yomi taken from client: text=\(yomiText) at actualRange=\(actualRange)")
             return YomiContext(string: yomiText, range: actualRange, fromSelection: fromSelection, fromMirror: fromMirror)
@@ -175,7 +171,6 @@ class ContextClient: Client {
     
     // ミラーから読みを取得
     private func tryGetYomiFromMirror(minLength: Int, maxLength: Int, yomiCharacters: String) -> YomiContext? {
-        guard let recent = recent else { return nil }
         guard recent.text.count >= minLength else {
             Log.i("No yomi found from mirror: recent.text.count < minLength")
             return nil
@@ -297,18 +292,18 @@ class ContextClient: Client {
                     self.client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 }
                 // Log.i("ContextClient.replaceYomi: calling recent.insertText \(string), \(rr)")
-                recent?.insertText(string, replacementRange: rr)
+                recent.insertText(string, replacementRange: rr)
                 return length
             } else {
                 // lengthが長すぎるときは単にinsert
                 Log.i("★★Can't happen: too long length \(length)")
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                recent?.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                recent.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 return 0
             }
         } else {
             client.insertText(string, replacementRange: rr)
-            recent?.replaceLast(length: length, with: string)
+            recent.replaceLast(length: length, with: string)
             return 0
         }
     }
