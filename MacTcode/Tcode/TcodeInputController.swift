@@ -72,7 +72,7 @@ class TcodeInputController: IMKInputController, Controller {
     func wrapClient() -> ContextClient {
         let textInput = self.client()!
         let bid = textInput.bundleIdentifier()
-        var wrappedClient = ContextClient(client: ClientWrapper(textInput, bid), recent: nil)
+        var wrappedClient: ContextClient = ClientWrapper(textInput, bid)
         // モードごとにclientに機能を追加する
         for m in modeStack.reversed() {
             wrappedClient = m.wrapClient(wrappedClient)

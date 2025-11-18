@@ -248,9 +248,8 @@ final class Bushu {
             return false
         }
 
-        guard let recent = client.recent else {
-            return false
-        }
+        let recent = client.recent
+        
         // 最後の2文字を取得できない場合は何もしない
         guard recent.text.count >= 2 else {
             return false

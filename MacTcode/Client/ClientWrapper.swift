@@ -8,33 +8,34 @@
 import Cocoa
 import InputMethodKit
 
-/// IMKTextInputをMyInputTextに見せかけるラッパー
-class ClientWrapper: Client {
-    let client: IMKTextInput
-    let _bundleId: String!
+/// IMKTextInputをContextClientに見せかけるラッパー
+class ClientWrapper: ContextClient {
+    private let inputText: IMKTextInput
+    private let _bundleId: String!
     init(_ client: IMKTextInput!, _ bundleId: String!) {
-        self.client = client
+        self.inputText = client
         self._bundleId = bundleId!
+        super.init(client: RecentTextClient(""), recent: RecentTextClient("")) // dummy
     }
-    func bundleId() -> String! {
+    override func bundleId() -> String! {
         return _bundleId
     }
-    func selectedRange() -> NSRange {
-        return client.selectedRange()
+    override func selectedRange() -> NSRange {
+        return inputText.selectedRange()
     }
-    func string(
+    override func string(
         from range: NSRange,
         actualRange: NSRangePointer
     ) -> String! {
-        return client.string(from: range, actualRange: actualRange)
+        return inputText.string(from: range, actualRange: actualRange)
     }
-    func insertText(
+    override func insertText(
         _ string: String,
         replacementRange rr: NSRange
     ) {
-        client.insertText(string, replacementRange: rr)
+        inputText.insertText(string, replacementRange: rr)
     }
-    func sendBackspace() {
+    override func sendBackspace() {
         let keyCode: CGKeyCode = 0x33
         let backspaceDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
         let backspaceUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
