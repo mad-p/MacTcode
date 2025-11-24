@@ -62,6 +62,7 @@ class LineClient: ContextClient {
         }
         textClient.insertText(string, replacementRange: rr)
         recent.replaceLast(length: length, with: string)
+        updateMarkedText()
         return 0
     }
     override func bundleId() -> String! {

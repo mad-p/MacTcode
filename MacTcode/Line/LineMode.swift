@@ -10,7 +10,7 @@ import Cocoa
 class LineMode: Mode {
     weak var controller: Controller?
     let map = LineModeMap.map
-    let text = RecentTextClient("")
+    let text = RecentTextClient("", 100)
     let recent = RecentTextClient("")
     var line: LineClient?
     init() {
@@ -81,6 +81,9 @@ class ToggleLineModeAction: Action {
             Log.i("ToggleLineModeAction: activate")
             let mode = LineMode()
             controller.pushMode(mode)
+            // show initial indicator (too adhoc)
+            let notFound = NSRange(location: NSNotFound, length: NSNotFound)
+            client.setMarkedText("▲", selectionRange: notFound, replacementRange: notFound)
         }
         return .processed
     }
