@@ -53,7 +53,8 @@
     "mazegakiConversion" : "uh",
     "symbolSet1" : "\\",
     "symbolSet2" : "\\\\",
-    "zenkakuMode" : "90"
+    "zenkakuMode" : "90",
+    "lineMode" : "88"
   },
   "mazegaki" : {
     "dictionaryFile" : "mazegaki.dic",
