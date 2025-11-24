@@ -18,6 +18,11 @@ protocol Client {
         _ string: String,
         replacementRange: NSRange
     )
+    func setMarkedText(
+        _ string: String,
+        selectionRange: NSRange,
+        replacementRange: NSRange
+    )
     func sendBackspace()
     func bundleId() -> String!
 }

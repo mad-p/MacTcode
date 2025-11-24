@@ -35,6 +35,14 @@ class ClientWrapper: ContextClient {
     ) {
         inputText.insertText(string, replacementRange: rr)
     }
+    override func setMarkedText(
+        _ string: String,
+        selectionRange: NSRange,
+        replacementRange: NSRange
+    ) {
+        inputText.setMarkedText(string, selectionRange: selectionRange, replacementRange: replacementRange)
+    }
+
     override func sendBackspace() {
         let keyCode: CGKeyCode = 0x33
         let backspaceDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
