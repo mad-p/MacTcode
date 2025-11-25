@@ -72,6 +72,7 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "mazegakiConversion": "uh",
   "inflectionConversion": "58",
   "zenkakuMode": "90",
+  "lineMode": "88",
   "symbolSet1": "\\",
   "symbolSet2": "\\\\",
   "basicTable": [
@@ -85,6 +86,7 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`mazegakiConversion`**: 交ぜ書き変換を開始するキーシーケンス
 - **`inflectionConversion`**: 活用変換を開始するキーシーケンス
 - **`zenkakuMode`**: 全角入力モードを開始するキーシーケンス
+- **`lineMode`**: 行入力モードを開始するキーシーケンス
 - **`symbolSet1`**, **`symbolSet2`**: 記号入力セットのキーシーケンス
 - **`basicTable`**: T-Code基本文字配列（40行×40文字）
 - キーシーケンスの設定置には、入力される文字を指定してください。上記の `hu`、`uh` はDvorak配列の場合の例となります

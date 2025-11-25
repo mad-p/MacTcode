@@ -173,4 +173,8 @@ class TcodeInputController: IMKInputController, Controller {
             modeStack.remove(at: index)
         }
     }
+    func getActiveMode(of targetClass: Mode.Type) -> Mode? {
+        return modeStack.first { type(of: $0) == targetClass }
+    }
+
 }

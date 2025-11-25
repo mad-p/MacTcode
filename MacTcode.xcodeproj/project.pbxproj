@@ -13,6 +13,10 @@
 		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
 		9D7B903C2EB729FD00DD7920 /* PendingKakuteiMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7B903B2EB729FD00DD7920 /* PendingKakuteiMode.swift */; };
 		9D7C3C9B2ECB52D0009690B8 /* ControllerSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3C9A2ECB52CB009690B8 /* ControllerSpy.swift */; };
+		9D7C3C9F2ED1EC5D009690B8 /* LineClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3C9D2ED1EC57009690B8 /* LineClient.swift */; };
+		9D7C3CA32ED41C57009690B8 /* LineModeMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA22ED41C53009690B8 /* LineModeMap.swift */; };
+		9D7C3CA52ED41E49009690B8 /* LineModeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */; };
+		9D7C3CA72ED41F46009690B8 /* LineMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA62ED41F44009690B8 /* LineMode.swift */; };
 		9D868A012C05F98700128D48 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D868A002C05F98700128D48 /* main@2x.tiff */; };
 		9D868FF32C706AB200293645 /* ContextClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D868FF22C706AB200293645 /* ContextClientTests.swift */; };
 		9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */; };
@@ -92,6 +96,10 @@
 		9D6BA6AA2C46279A007524AC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		9D7B903B2EB729FD00DD7920 /* PendingKakuteiMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingKakuteiMode.swift; sourceTree = "<group>"; };
 		9D7C3C9A2ECB52CB009690B8 /* ControllerSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerSpy.swift; sourceTree = "<group>"; };
+		9D7C3C9D2ED1EC57009690B8 /* LineClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineClient.swift; sourceTree = "<group>"; };
+		9D7C3CA22ED41C53009690B8 /* LineModeMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineModeMap.swift; sourceTree = "<group>"; };
+		9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineModeActions.swift; sourceTree = "<group>"; };
+		9D7C3CA62ED41F44009690B8 /* LineMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineMode.swift; sourceTree = "<group>"; };
 		9D868A002C05F98700128D48 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		9D868FF22C706AB200293645 /* ContextClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextClientTests.swift; sourceTree = "<group>"; };
 		9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeTest.swift; sourceTree = "<group>"; };
@@ -184,6 +192,17 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		9D7C3CA12ED211A6009690B8 /* Line */ = {
+			isa = PBXGroup;
+			children = (
+				9D7C3CA62ED41F44009690B8 /* LineMode.swift */,
+				9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */,
+				9D7C3CA22ED41C53009690B8 /* LineModeMap.swift */,
+				9D7C3C9D2ED1EC57009690B8 /* LineClient.swift */,
+			);
+			path = Line;
+			sourceTree = "<group>";
+		};
 		9D8C8DAB2C01ACEE003D8A43 = {
 			isa = PBXGroup;
 			children = (
@@ -217,16 +236,17 @@
 				9DEA6D392C0AC7F90005BB18 /* Action.swift */,
 				9DEAFE1E2C5F9E5F00E8B5E3 /* Command.swift */,
 				9D8BFECB2C15D64F00B99BA2 /* Log.swift */,
-				9DEAFE312C5FB30400E8B5E3 /* Zenkaku */,
 				9D4818D82C0368DB00906504 /* main.tiff */,
 				9D868A002C05F98700128D48 /* main@2x.tiff */,
 				9DDFC1642C09982F00BAADB5 /* mainw.tiff */,
 				9DDFC1652C09982F00BAADB5 /* mainw@2x.tiff */,
 				9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */,
 				9DEAFE1B2C5F9D1B00E8B5E3 /* Bushu */,
+				9DEAFE1C2C5F9D4C00E8B5E3 /* Mazegaki */,
+				9DEAFE312C5FB30400E8B5E3 /* Zenkaku */,
+				9D7C3CA12ED211A6009690B8 /* Line */,
 				9DEAFE2F2C5FB2D200E8B5E3 /* Client */,
 				9DEAFE2E2C5FB2B300E8B5E3 /* Keymap */,
-				9DEAFE1C2C5F9D4C00E8B5E3 /* Mazegaki */,
 				9DEAFE302C5FB2EC00E8B5E3 /* Mode */,
 				9D8C8DBD2C01ACF0003D8A43 /* Preview Content */,
 				9DEAFE1D2C5F9DC300E8B5E3 /* Tcode */,
@@ -491,7 +511,9 @@
 				9DC8D4962C061E5F00DCB6A2 /* Mazegaki.swift in Sources */,
 				9D9E63BC2EA4C74C0035FC32 /* InputStats.swift in Sources */,
 				9DEAFE292C5FA2CF00E8B5E3 /* ModeWithCandidates.swift in Sources */,
+				9D7C3CA72ED41F46009690B8 /* LineMode.swift in Sources */,
 				9DEA6D422C0B94360005BB18 /* RecentTextClient.swift in Sources */,
+				9D7C3CA32ED41C57009690B8 /* LineModeMap.swift in Sources */,
 				9DEAFE162C5F9B3000E8B5E3 /* EmitPendingAction.swift in Sources */,
 				9DEAFE332C5FD35D00E8B5E3 /* TcodeMode.swift in Sources */,
 				9DEAFE212C5F9E8600E8B5E3 /* KeymapResolver.swift in Sources */,
@@ -511,6 +533,7 @@
 				9DEA6D382C0AC0DA0005BB18 /* Keymap.swift in Sources */,
 				9DEA6D3A2C0AC7F90005BB18 /* Action.swift in Sources */,
 				9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */,
+				9D7C3C9F2ED1EC5D009690B8 /* LineClient.swift in Sources */,
 				9DEAFE252C5FA25D00E8B5E3 /* MultiStroke.swift in Sources */,
 				9DEAFE182C5F9B5400E8B5E3 /* RemoveLastPendingAction.swift in Sources */,
 				9DEAFE232C5F9EE300E8B5E3 /* Translator.swift in Sources */,
@@ -521,6 +544,7 @@
 				9DA358E52E2DEF1500323184 /* MazegakiSelectionActions.swift in Sources */,
 				9DEA6D4A2C0F987B0005BB18 /* ZenkakuMode.swift in Sources */,
 				9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */,
+				9D7C3CA52ED41E49009690B8 /* LineModeActions.swift in Sources */,
 				9DA358EA2E2DEF5B00323184 /* AppDelegate.swift in Sources */,
 				9DA358EB2E2DEF5B00323184 /* NSManualApplication.swift in Sources */,
 			);
@@ -718,7 +742,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.14.1;
+				MARKETING_VERSION = 0.15.0;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -755,7 +779,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.14.1;
+				MARKETING_VERSION = 0.15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

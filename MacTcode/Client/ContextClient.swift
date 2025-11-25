@@ -11,7 +11,7 @@ import Cocoa
 /// クライアントのカーソル周辺の文字列、もし得られなければRecentTextClientから取るClient
 class ContextClient: Client {
     var client: Client { get { _client } }
-    private let _client: Client
+    let _client: Client
     let recent: RecentTextClient
     var lastCursor: NSRange = NSRange(location: NSNotFound, length: NSNotFound)
     init(client: Client, recent: RecentTextClient) {
@@ -40,6 +40,13 @@ class ContextClient: Client {
         } else {
             recent.replaceLast(length: rr.length, with: string)
         }
+    }
+    func setMarkedText(
+        _ string: String,
+        selectionRange: NSRange,
+        replacementRange: NSRange
+    ) {
+        client.setMarkedText(string, selectionRange: selectionRange, replacementRange: replacementRange)
     }
     func sendBackspace() {
         Log.i("ContextClient.sendBackspace")

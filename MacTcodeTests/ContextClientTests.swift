@@ -21,6 +21,10 @@ final class ContextClientTests: XCTestCase {
         var stringReturnRange = NSRange(location: 0, length: 0)
         var stringCalledRange = NSRange(location: 0, length: 0)
         var stringCalled = false
+        var setMarkedTextCalled = false
+        var setMarkedTextString = ""
+        var setMarkedTextSelectionRange: NSRange = NSRange(location: 0, length: 0)
+        var setMarkedTextReplacementRange: NSRange = NSRange(location: 0, length: 0)
         var bundleIdentifier: String!
         
         init(selectedRangeValue: NSRange, 
@@ -53,6 +57,16 @@ final class ContextClientTests: XCTestCase {
             insertedString = string
             insertedRange = rr
             insertCallback()
+        }
+        func setMarkedText(
+            _ string: String,
+            selectionRange: NSRange,
+            replacementRange: NSRange
+        ) {
+            setMarkedTextCalled = true
+            setMarkedTextString = string
+            setMarkedTextSelectionRange = selectionRange
+            setMarkedTextReplacementRange = replacementRange
         }
         func sendBackspace() {
             backSpaceCount += 1

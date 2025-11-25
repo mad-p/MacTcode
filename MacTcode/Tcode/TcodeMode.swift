@@ -38,17 +38,25 @@ class TcodeMode: Mode, MultiStroke {
         // - spaceでpendingを送る
         // - escapeで取り消す
         // - deleteで1文字消す
-        var command: Command =
+        var fromTopLevel = false
+        var command: Command
         if let topLevelEntry = quickMap.lookup(input: inputEvent) {
-            topLevelEntry
+            fromTopLevel = true
+            command = topLevelEntry
         } else {
-            KeymapResolver.resolve(keySequence: seq, keymap: map)
+            fromTopLevel = false
+            command = KeymapResolver.resolve(keySequence: seq, keymap: map)
         }
         while true {
             Log.i("execute command \(command)")
             
             switch command {
             case .passthrough:
+                if fromTopLevel {
+                    command = KeymapResolver.resolve(keySequence: seq, keymap: map)
+                    fromTopLevel = false
+                    continue
+                }
                 resetPending()
                 return .passthrough
             case .processed:

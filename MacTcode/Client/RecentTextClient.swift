@@ -68,6 +68,13 @@ class RecentTextClient: Client {
         }
         trim()
     }
+    func setMarkedText(
+        _ string: String,
+        selectionRange: NSRange,
+        replacementRange: NSRange
+    ) {
+        // nop
+    }
     func trim() {
         let m = maxLength
         if text.count > m {
