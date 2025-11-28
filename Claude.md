@@ -15,6 +15,10 @@ MacTcodeは、macOS用のT-Code日本語入力メソッド（IME）です。T-Co
 make reload          # デバッグビルド→インストール→入力メソッド再起動
 make releaseBuild    # リリースビルド
 make test            # テスト実行
+
+# 特定のテストのみ実行する場合
+xcodebuild -project MacTcode.xcodeproj -scheme MacTcode -destination 'platform=macOS' test -only-testing:MacTcodeTests/BushuTests
+xcodebuild -project MacTcode.xcodeproj -scheme MacTcode -destination 'platform=macOS' test -only-testing:MacTcodeTests/ContextClientTests/testDeleteMarked
 ```
 
 ### ログの確認
@@ -34,7 +38,7 @@ log stream --predicate 'process == "MacTcode"'
 
 **Mode** (入力状態):
 - `handle()`: 入力イベントを処理
-- 例: `TcodeMode`, `ZenkakuMode`, `MazegakiSelectionMode`
+- 例: `TcodeMode`, `ZenkakuMode`, `MazegakiSelectionMode`, `LineMode`
 
 **Controller** (モード管理):
 - `TcodeInputController`が`IMKInputController`を継承
@@ -44,6 +48,7 @@ log stream --predicate 'process == "MacTcode"'
 **Client** (テキスト入出力):
 - `ContextClient`: カーソル周辺のテキスト取得（複雑なロジック）
 - `RecentTextClient`: クライアントが文脈を提供できない場合のフォールバック
+- `LineClient`: 1行モード用のクライアント、バッファにテキストを蓄積して一気に送信
 - 読み取得の順序: 選択範囲 → クライアント → ミラー
 
 ### キーマップシステム
@@ -132,6 +137,7 @@ log stream --predicate 'process == "MacTcode"'
 | `MazegakiDict.swift` | 交ぜ書き辞書、MRU学習データ |
 | `PendingKakutei.swift` | 変換キャンセル機構 |
 | `InputStats.swift` | 統計管理 |
+| `LineMode.swift` | 1行入力モード（バッファに蓄積して一気に送信） |
 
 ## テスト
 
@@ -144,8 +150,13 @@ make test    # すべてのテストを実行
 ## 開発状況
 
 完了した機能:
+- ✅ 基本文字入力、部首変換、交ぜ書き変換
 - ✅ キャンセル期間機能（PendingKakutei）
 - ✅ 交ぜ書き候補MRU学習
 - ✅ 自動部首変換機能
+- ✅ 全角入力モード
+- ✅ 1行入力モード（LineMode）
+- ✅ 統計記録機能
+- ✅ SIGINTハンドリング（統計・学習データの同期）
 
-学習機能の実装はすべて完了。詳細は`TODO.md`を参照。
+詳細は`TODO.md`および`README.md`を参照。
