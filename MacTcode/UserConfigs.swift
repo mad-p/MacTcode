@@ -302,8 +302,8 @@ class UserConfigs {
 
         do {
             let data = try Data(contentsOf: configURL)
-            let decoder = JSONDecoder()
-            let loadedConfig = try decoder.decode(ConfigData.self, from: data)
+            // JSON の欠損項目はデフォルトで埋めるようにマージしてからデコードする
+            let loadedConfig = try decodeConfigData(from: data)
 
             // 設定の妥当性を検証
             try validateConfiguration(loadedConfig)
@@ -319,8 +319,8 @@ class UserConfigs {
 
     func loadConfigFromFile(_ fileURL: URL) throws {
         let data = try Data(contentsOf: fileURL)
-        let decoder = JSONDecoder()
-        let loadedConfig = try decoder.decode(ConfigData.self, from: data)
+        // JSON の欠損項目はデフォルトで埋める
+        let loadedConfig = try decodeConfigData(from: data)
 
         // 設定の妥当性を検証
         try validateConfiguration(loadedConfig)
@@ -328,6 +328,59 @@ class UserConfigs {
         configData = loadedConfig
         log("Configuration loaded from external file: \(fileURL.path)")
         delegate?.userConfigsDidChange(self)
+    }
+
+    // MARK: - Permissive JSON decode (merge with defaults)
+
+    /// 指定された JSON データをデフォルト設定とマージして `ConfigData` を返す
+    private func decodeConfigData(from data: Data) throws -> ConfigData {
+        // デフォルト設定を JSON オブジェクトに変換
+        let encoder = JSONEncoder()
+        let defaultData = try encoder.encode(ConfigData.default)
+
+        let defaultObj = try JSONSerialization.jsonObject(with: defaultData, options: [])
+        let loadedObj = try JSONSerialization.jsonObject(with: data, options: [])
+
+        let merged = merge(defaults: defaultObj, override: loadedObj)
+
+        let mergedData = try JSONSerialization.data(withJSONObject: merged, options: [])
+        let decoder = JSONDecoder()
+        return try decoder.decode(ConfigData.self, from: mergedData)
+    }
+
+    /// JSON オブジェクト（Dictionary/Array/Primitive）を再帰的にマージする。
+    /// - defaults: デフォルト値の JSON オブジェクト
+    /// - override: 上書きする JSON オブジェクト（ファイルから読み込んだもの）
+    /// - returns: マージ結果（override に存在する値を優先、存在しないキーは defaults を使う）
+    private func merge(defaults: Any, override: Any?) -> Any {
+        // override が nil の場合は defaults を返す
+        guard let override = override else { return defaults }
+
+        // 両方とも Dictionary の場合はキーごとにマージ
+        if let defDict = defaults as? [String: Any], let overDict = override as? [String: Any] {
+            var result = [String: Any]()
+            // まず defaults の全キーを入れる（後で override のキーで上書きまたは再帰マージ）
+            for (k, v) in defDict { result[k] = v }
+
+            for (k, v) in overDict {
+                if let defVal = defDict[k] {
+                    result[k] = merge(defaults: defVal, override: v)
+                } else {
+                    // defaults に存在しないキーはそのまま使う
+                    result[k] = v
+                }
+            }
+
+            return result
+        }
+
+        // 配列の場合は override があれば override を優先
+        if let _ = defaults as? [Any], let overArr = override as? [Any] {
+            return overArr
+        }
+
+        // その他のプリミティブ型は override を優先
+        return override
     }
     
     func loadConfig(file: String) -> String? {
