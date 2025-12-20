@@ -119,12 +119,16 @@ class UserConfigs {
         let dictionaryFile: String
         let autoEnabled: Bool
         let autoFile: String
+        let disableAutoKeys: [String]
+        let addAutoKeys: [String]
 
         static let `default` = BushuConfig(
             bushuYomiCharacters: "0-9、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
             dictionaryFile: "bushu.dic",
             autoEnabled: false,
-            autoFile: "bushu_auto.dic"
+            autoFile: "bushu_auto.dic",
+            disableAutoKeys: ["-"],
+            addAutoKeys: ["+"]
         )
     }
 
