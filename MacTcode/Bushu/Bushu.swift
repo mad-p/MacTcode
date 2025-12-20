@@ -271,7 +271,7 @@ final class Bushu {
                 kakutei: result,
                 onAccepted: { parameter, inputEvent in
                     // 受容時の処理: 自動学習データを更新
-                    guard let param = parameter as? [String] else { return }
+                    guard let param = parameter as? [String] else { return .forward }
                     let src1 = param[0]
                     let src2 = param[1]
                     let res = param[2]
@@ -285,19 +285,20 @@ final class Bushu {
                             // 禁止設定を追加
                             Log.i("disable auto bushu: [\(src1), \(src2)]")
                             Bushu.i.disableAutoEntry(source1: src1, source2: src2)
-                            return
+                            return .processed
                         } else if addKeys.contains(text) {
                             // 禁止設定を解除してから自動設定を追加
                             Log.i("enable and add auto bushu: [\(src1), \(src2), \(res)]")
                             Bushu.i.enableAutoEntry(source1: src1, source2: src2)
                             Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
-                            return
+                            return .processed
                         }
                     }
 
                     // 通常の受容処理
                     Log.i("accepted bushu kakutei: parameter = [\(src1), \(src2), \(res)]")
                     Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
+                    return .forward
                 },
                 parameter: [source1, source2, result]
             )
@@ -362,6 +363,7 @@ final class Bushu {
             onAccepted: { _, _ in
                 Log.i("accepted auto bushu kakutei (no learning)")
                 // 自動変換の受容時は学習データを更新しない
+                return .forward
             },
             parameter: nil
         )
