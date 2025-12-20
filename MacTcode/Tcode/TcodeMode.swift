@@ -64,6 +64,7 @@ class TcodeMode: Mode, MultiStroke {
                 return .processed
             case .pending:
                 pending = seq
+                client.sendDummyInsertMaybe()
                 return .processed
             case .text(let string):
                 resetPending()

@@ -215,6 +215,7 @@ class UserConfigs {
         let recentTextMaxLength: Int
         let excludedApplications: [String]
         let disableOneYomiApplications: [String]
+        let dummyInsertTextApps: [String: String]
         let logEnabled: Bool
         let keyboardLayout: String
         let keyboardLayoutMapping: [String]
@@ -225,6 +226,7 @@ class UserConfigs {
             recentTextMaxLength: 20,
             excludedApplications: ["com.apple.loginwindow", "com.apple.SecurityAgent"],
             disableOneYomiApplications: ["com.google.Chrome"],
+            dummyInsertTextApps: [:],
             logEnabled: false,
             keyboardLayout: "dvorak",
             keyboardLayoutMapping: [

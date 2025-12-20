@@ -12,9 +12,11 @@ import InputMethodKit
 class ClientWrapper: ContextClient {
     private let inputText: IMKTextInput
     private let _bundleId: String!
+    private var insertTextCalled: Bool = false
     init(_ client: IMKTextInput!, _ bundleId: String!) {
         self.inputText = client
         self._bundleId = bundleId!
+        self.insertTextCalled = false
         super.init(client: RecentTextClient(""), recent: RecentTextClient("")) // dummy
     }
     override func bundleId() -> String! {
@@ -33,6 +35,7 @@ class ClientWrapper: ContextClient {
         _ string: String,
         replacementRange rr: NSRange
     ) {
+        self.insertTextCalled = true
         inputText.insertText(string, replacementRange: rr)
     }
     override func setMarkedText(
@@ -50,5 +53,16 @@ class ClientWrapper: ContextClient {
 
         backspaceDown?.post(tap: .cghidEventTap)
         backspaceUp?.post(tap: .cghidEventTap)
+    }
+
+    override func sendDummyInsertMaybe() {
+        if !insertTextCalled {
+            let dummyInsertTextApps = UserConfigs.shared.system.dummyInsertTextApps
+            if let dummyMode = dummyInsertTextApps[_bundleId] {
+                let dummyString = (dummyMode == "nul") ? "\0" : ""
+                Log.i("sendDummyInsertMaybe: bundle=\(_bundleId ?? "nil"), mode=\(dummyMode)")
+                inputText.insertText(dummyString, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+            }
+        }
     }
 }

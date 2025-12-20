@@ -87,6 +87,9 @@ class RecentTextClient: Client {
             text.removeLast()
         }
     }
+    func sendDummyInsertMaybe() {
+        // nop - ミラーバッファには何もしない
+    }
     func append(_ newString: String) {
         text.append(newString)
         trim()
