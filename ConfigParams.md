@@ -127,6 +127,9 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "recentTextMaxLength": 20,
   "excludedApplications": ["com.apple.loginwindow", "com.apple.SecurityAgent"],
   "disableOneYomiApplications": ["com.google.Chrome"],
+  "dummyInsertTextApps": {
+    "com.google.android.studio": "nul"
+  },
   "syncStatsInterval": 1200,
   "cancelPeriod": 1.5,
   "keyboardLayout": "dvorak",
@@ -145,6 +148,14 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`disableOneYomiApplications`**: 1文字の読みを無効化するアプリケーションのBundle IDリスト
   - Google Chrome上のGoogle Docsなど、一部のアプリケーションでは読みが1文字しか取れず、変換が正しく動作しない場合があります
   - このリストに含まれるアプリケーションでは、最低2文字の読みが必要になる代わりに、この問題を回避できます
+- **`dummyInsertTextApps`**: 第1打鍵でダミーのinsertTextを送信するアプリケーションの設定（オブジェクト）
+  - 一部のアプリケーション（KeePassX、JetBrains IDE、Android Studio等）では、第1打鍵がpending状態になった際にinsertTextが呼ばれず、ストロークが画面に表示されてしまう問題があります
+  - このオブジェクトに含まれるアプリケーションでは、pending状態時にダミーのinsertTextを送信して問題を回避します
+  - キー: アプリケーションのBundle ID（例: "com.google.android.studio"）
+  - 値: ダミー文字の種類
+    - `"nul"`: NUL文字（\0）を送信
+    - `"empty"`: 空文字列（""）を送信
+  - 例: `{"com.google.android.studio": "nul", "com.jetbrains.intellij": "nul"}`
 - **`syncStatsInterval`**: 統計情報をファイルに出力する間隔（秒単位）
   - デフォルト値: 1200（20分）
   - 0に設定すると統計ファイルの出力が無効になります

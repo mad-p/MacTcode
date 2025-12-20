@@ -71,6 +71,9 @@ final class ContextClientTests: XCTestCase {
         func sendBackspace() {
             backSpaceCount += 1
         }
+        func sendDummyInsertMaybe() {
+            // nop
+        }
     }
     func testYomiExactFromSelection() {
         let client = ClientStub(selectedRangeValue: NSRange(location: 3, length: 2),

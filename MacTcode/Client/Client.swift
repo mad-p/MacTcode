@@ -25,4 +25,5 @@ protocol Client {
     )
     func sendBackspace()
     func bundleId() -> String!
+    func sendDummyInsertMaybe()
 }

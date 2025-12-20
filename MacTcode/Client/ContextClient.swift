@@ -52,6 +52,9 @@ class ContextClient: Client {
         Log.i("ContextClient.sendBackspace")
         client.sendBackspace()
     }
+    func sendDummyInsertMaybe() {
+        client.sendDummyInsertMaybe()
+    }
     // カーソル直前にある読みを取得する
     // クライアントが対応していなければrecentから取る
     func getYomi(_ minLength: Int, _ maxLength: Int, yomiCharacters: String) -> YomiContext {
