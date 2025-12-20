@@ -240,8 +240,10 @@ final class Bushu {
         }
     }
     
+    // 部首変換後の PendingKakutei で受容された場合、あるいは禁止設定コマンドが入力されたときの処理
     func onAccept(_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult {
         // 受容時の処理: 自動学習データを更新
+        Log.i("Bushu.onAccept: parameter=\(String(describing: parameter)), inputEvent=\(String(describing: inputEvent))")
         guard let param = parameter as? [String] else { return .forward }
         let src1 = param[0]
         let src2 = param[1]
@@ -359,11 +361,13 @@ final class Bushu {
         controller.setBackspaceIgnore(backspaceCount)
 
         // PendingKakuteiを作成
+        let source1 = String(src.dropLast())
+        let source2 = String(src.dropFirst())
         let pending = PendingKakuteiMode(
             yomi: src,
             kakutei: result,
             onAccepted: { parameter, inputEvent in return self.onAccept(parameter, inputEvent) },
-            parameter: nil
+            parameter: [source1, source2, result]
         )
         controller.pushMode(pending)
         
