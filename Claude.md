@@ -81,6 +81,9 @@ log stream --predicate 'process == "MacTcode"'
 - Delete、Control-g、Escapeキーでキャンセルして読みに戻せる
 - キャンセルされなかった変換は「受容」され、学習データに反映
 - `Controller`プロトコルの`pendingKakutei`プロパティで管理
+- `onAccepted`コールバック: `(_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult`
+  - 部首変換: `-`/`+`キー処理時は`.processed`を返してイベント消費、それ以外は`.forward`
+  - 交ぜ書き変換: 常に`.forward`を返してイベント転送
 
 **交ぜ書き候補MRU学習**:
 - 選択された候補を先頭に移動（MRU: Most Recently Used）
@@ -91,12 +94,13 @@ log stream --predicate 'process == "MacTcode"'
 
 **自動部首変換**:
 - 手動部首変換で受容された結果を学習し、次回から自動的に変換
-- `Bushu.autoDict`で学習データを管理（キー: 合成元2文字、値: 合成結果1文字）
+- `Bushu.autoDict`で学習データを管理（キー: 合成元2文字、値: 合成結果1文字 or "N"）
 - `TcodeMode.handle()`で文字入力後に`tryAutoBushu()`を実行
 - 順序厳密: "木林"で学習したものは"林木"では自動変換されない
 - 自動変換もキャンセル可能（受容時は学習データ更新なし）
 - `bushu_auto.dic`に自動保存（統計データと同じタイミング）
-- 設定: `bushu.autoEnabled`, `bushu.autoFile`
+- 設定: `bushu.autoEnabled`, `bushu.autoFile`, `bushu.disableAutoKeys`, `bushu.addAutoKeys`
+- **禁止設定**: キャンセル期間内に`-`キーで自動変換を禁止、`+`キーで禁止解除（値が"N"のエントリは自動変換されない）
 
 ### 設定管理
 
@@ -153,10 +157,21 @@ make test    # すべてのテストを実行
 - ✅ 基本文字入力、部首変換、交ぜ書き変換
 - ✅ キャンセル期間機能（PendingKakutei）
 - ✅ 交ぜ書き候補MRU学習
-- ✅ 自動部首変換機能
+- ✅ 自動部首変換機能（禁止設定含む）
 - ✅ 全角入力モード
 - ✅ 1行入力モード（LineMode）
 - ✅ 統計記録機能
 - ✅ SIGINTハンドリング（統計・学習データの同期）
 
 詳細は`TODO.md`および`README.md`を参照。
+
+## 重要な実装詳細
+
+### HandleResult型
+- `.processed`: イベントを消費（次のモードに渡さない）
+- `.forward`: イベントを次のモードに転送
+- `.passthrough`: すべてのモードをスルーしてアプリケーションに渡す
+
+### イベントフロー
+Mode.handle()の返り値として`HandleResult`を返すことで、入力イベントの制御を行う。
+PendingKakuteiMode経由での学習データ操作（`-`/`+`キー）では`.processed`を返してイベントを消費し、意図しない文字入力を防ぐ。
