@@ -37,7 +37,7 @@ class TcodeInputController: IMKInputController, Controller {
         // deactivate時にpendingKakuteiがあれば受容する
         if let pending = mode as? PendingKakuteiMode {
             Log.i("deactivate: accepting pendingKakutei")
-            pending.accept()
+            _ = pending.accept()
         }
         InputStats.i.writeStatsToFileMaybe()
         super.deactivateServer(sender)
