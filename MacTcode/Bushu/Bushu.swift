@@ -239,6 +239,38 @@ final class Bushu {
             toSyncAutoDict = true
         }
     }
+    
+    func onAccept(_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult {
+        // 受容時の処理: 自動学習データを更新
+        guard let param = parameter as? [String] else { return .forward }
+        let src1 = param[0]
+        let src2 = param[1]
+        let res = param[2]
+        
+        // inputEventをチェック
+        if let event = inputEvent, event.type == .printable, let text = event.text {
+            let disableKeys = UserConfigs.shared.bushu.disableAutoKeys
+            let addKeys = UserConfigs.shared.bushu.addAutoKeys
+            
+            if disableKeys.contains(text) {
+                // 禁止設定を追加
+                Log.i("disable auto bushu: [\(src1), \(src2)]")
+                Bushu.i.disableAutoEntry(source1: src1, source2: src2)
+                return .processed
+            } else if addKeys.contains(text) {
+                // 禁止設定を解除してから自動設定を追加
+                Log.i("enable and add auto bushu: [\(src1), \(src2), \(res)]")
+                Bushu.i.enableAutoEntry(source1: src1, source2: src2)
+                Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
+                return .processed
+            }
+        }
+        
+        // 通常の受容処理
+        Log.i("accepted bushu kakutei: parameter = [\(src1), \(src2), \(res)]")
+        Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
+        return .forward
+    }
 
     /// 部首変換を実行してPendingKakuteiを生成する
     /// - Parameters:
@@ -269,37 +301,7 @@ final class Bushu {
             let pending = PendingKakuteiMode(
                 yomi: yomiString,
                 kakutei: result,
-                onAccepted: { parameter, inputEvent in
-                    // 受容時の処理: 自動学習データを更新
-                    guard let param = parameter as? [String] else { return .forward }
-                    let src1 = param[0]
-                    let src2 = param[1]
-                    let res = param[2]
-
-                    // inputEventをチェック
-                    if let event = inputEvent, event.type == .printable, let text = event.text {
-                        let disableKeys = UserConfigs.shared.bushu.disableAutoKeys
-                        let addKeys = UserConfigs.shared.bushu.addAutoKeys
-
-                        if disableKeys.contains(text) {
-                            // 禁止設定を追加
-                            Log.i("disable auto bushu: [\(src1), \(src2)]")
-                            Bushu.i.disableAutoEntry(source1: src1, source2: src2)
-                            return .processed
-                        } else if addKeys.contains(text) {
-                            // 禁止設定を解除してから自動設定を追加
-                            Log.i("enable and add auto bushu: [\(src1), \(src2), \(res)]")
-                            Bushu.i.enableAutoEntry(source1: src1, source2: src2)
-                            Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
-                            return .processed
-                        }
-                    }
-
-                    // 通常の受容処理
-                    Log.i("accepted bushu kakutei: parameter = [\(src1), \(src2), \(res)]")
-                    Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
-                    return .forward
-                },
+                onAccepted: { parameter, inputEvent in return self.onAccept(parameter, inputEvent) },
                 parameter: [source1, source2, result]
             )
             controller.pushMode(pending)
@@ -356,15 +358,11 @@ final class Bushu {
         let backspaceCount = client.replaceYomi(result, length: 2, from: yomiContext)
         controller.setBackspaceIgnore(backspaceCount)
 
-        // PendingKakuteiを作成（キャンセルのみ処理、受容時は何もしない）
+        // PendingKakuteiを作成
         let pending = PendingKakuteiMode(
             yomi: src,
             kakutei: result,
-            onAccepted: { _, _ in
-                Log.i("accepted auto bushu kakutei (no learning)")
-                // 自動変換の受容時は学習データを更新しない
-                return .forward
-            },
+            onAccepted: { parameter, inputEvent in return self.onAccept(parameter, inputEvent) },
             parameter: nil
         )
         controller.pushMode(pending)
