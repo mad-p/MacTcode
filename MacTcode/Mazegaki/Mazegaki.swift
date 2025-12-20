@@ -13,7 +13,7 @@ import Foundation
 
 class Mazegaki {
     // UserConfigsから設定値を取得するためのcomputed properties
-    static var maxInflection: Int { UserConfigs.shared.mazegaki.maxInflection }
+    static var maxInflection: Int { UserConfigs.i.mazegaki.maxInflection }
     static var inflectionCharsMin = 0x3041 // 活用部分に許される文字コードポイントの下限
     static var inflectionCharsMax = 0x30fe // 活用部分に許される文字上限
     static var inflectionRange = inflectionCharsMin...inflectionCharsMax
@@ -104,12 +104,12 @@ class Mazegaki {
         }
         let length = hit.length
         Log.i("Kakutei \(string)  client=\(type(of:client))")
-        InputStats.shared.incrementMazegakiCount()
+        InputStats.i.incrementMazegakiCount()
         let backspaceCount = client.replaceYomi(string, length: length, from: context)
         controller.setBackspaceIgnore(backspaceCount)
 
         // MRU学習が有効な場合、PendingKakuteiを生成
-        if UserConfigs.shared.mazegaki.mruEnabled {
+        if UserConfigs.i.mazegaki.mruEnabled {
             // 活用部分を除いた候補文字列を取得
             let inflection = hit.yomi.suffix(hit.offset).joined()
             let candidateWithoutInflection: String
@@ -144,7 +144,7 @@ class Mazegaki {
 }
 
 class PostfixMazegakiAction: Action {
-    var maxYomi: Int { UserConfigs.shared.mazegaki.maxYomi }
+    var maxYomi: Int { UserConfigs.i.mazegaki.maxYomi }
     let inflection : Bool
     init(inflection: Bool) {
         self.inflection = inflection
@@ -155,7 +155,7 @@ class PostfixMazegakiAction: Action {
             Log.i("★★Can't happen: PostfixMazegakiAction: client is not ContextClient")
             return .processed
         }
-        let context = client.getYomi(1, 10, yomiCharacters: UserConfigs.shared.mazegaki.mazegakiYomiCharacters)
+        let context = client.getYomi(1, 10, yomiCharacters: UserConfigs.i.mazegaki.mazegakiYomiCharacters)
         if context.string.count < 1 {
             Log.i("Mazegaki henkan: no input")
             return .processed

@@ -124,7 +124,7 @@ class ContextClient: Client {
             return nil
         }
         
-        let systemConfig = UserConfigs.shared.system
+        let systemConfig = UserConfigs.i.system
         if systemConfig.disableOneYomiApplications.contains(client.bundleId()) {
             if minLength < 2 {
                 minLength = 2
@@ -289,7 +289,7 @@ class ContextClient: Client {
         }
         if yomiContext.fromMirror {
             // Mirrorから読みを取った場合は、BackSpaceを送ってから文字列を送る
-            let uiConfig = UserConfigs.shared.ui
+            let uiConfig = UserConfigs.i.ui
             if length < uiConfig.backspaceLimit {
                 Log.i("Sending \(length) BackSpaces and then \(string)")
                 let now = DispatchTime.now()

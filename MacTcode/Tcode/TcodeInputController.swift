@@ -39,13 +39,13 @@ class TcodeInputController: IMKInputController, Controller {
             Log.i("deactivate: accepting pendingKakutei")
             pending.accept()
         }
-        InputStats.shared.writeStatsToFileMaybe()
+        InputStats.i.writeStatsToFileMaybe()
         super.deactivateServer(sender)
     }
     
     func setupCandidateWindow() {
         // UserConfigsから候補選択キーを取得してVirtual Key Codeに変換
-        let configKeys = UserConfigs.shared.ui.candidateSelectionKeys
+        let configKeys = UserConfigs.i.ui.candidateSelectionKeys
         let keyMap: [String: Int] = [
             // アルファベット a-z
             "a": kVK_ANSI_A, "b": kVK_ANSI_B, "c": kVK_ANSI_C, "d": kVK_ANSI_D,
@@ -92,7 +92,7 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("  modeStack=\(modeStack)")
         let bid = client.bundleIdentifier()
         Log.i("  client.bundleIdentifier=\(bid ?? "nil")")
-        let excludedApps = UserConfigs.shared.system.excludedApplications
+        let excludedApps = UserConfigs.i.system.excludedApplications
         let bundleId = bid
         if bundleId != nil && excludedApps.contains(bundleId!) {
             return false

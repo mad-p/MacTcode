@@ -2,7 +2,7 @@ import Foundation
 
 /// 入力統計情報を管理するシングルトンクラス
 class InputStats {
-    static let shared = InputStats()
+    static let i = InputStats()
     
     private var lastSyncDate = Date()
 
@@ -49,7 +49,7 @@ class InputStats {
     }
 
     public func writeStatsToFileMaybe() {
-        let systemConfig = UserConfigs.shared.system
+        let systemConfig = UserConfigs.i.system
         let interval = systemConfig.syncStatsInterval
         Log.i("interval = \(interval), since last sync = \(Date().timeIntervalSince(lastSyncDate))")
         if interval > 0 {
@@ -69,12 +69,12 @@ class InputStats {
                 lastSyncDate = Date()
                 return
             }
-            guard UserConfigs.shared.system.syncStatsInterval > 0 else {
+            guard UserConfigs.i.system.syncStatsInterval > 0 else {
                 return
             }
             
             let fileManager = FileManager.default
-            let fileURL = UserConfigs.shared.configFileURL("tc-record.txt")
+            let fileURL = UserConfigs.i.configFileURL("tc-record.txt")
 
             // 現在の日時を取得
             let dateFormatter = DateFormatter()

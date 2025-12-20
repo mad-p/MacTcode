@@ -57,7 +57,7 @@ class ClientWrapper: ContextClient {
 
     override func sendDummyInsertMaybe() {
         if !insertTextCalled {
-            let dummyInsertTextApps = UserConfigs.shared.system.dummyInsertTextApps
+            let dummyInsertTextApps = UserConfigs.i.system.dummyInsertTextApps
             if let dummyMode = dummyInsertTextApps[_bundleId] {
                 let dummyString = (dummyMode == "nul") ? "\0" : ""
                 Log.i("sendDummyInsertMaybe: bundle=\(_bundleId ?? "nil"), mode=\(dummyMode)")

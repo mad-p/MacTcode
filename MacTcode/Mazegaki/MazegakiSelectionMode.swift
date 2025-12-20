@@ -98,7 +98,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         Log.i("MazegakiSelectionMode.candidates")
         let cands = hits[row].candidates()
         let candsWithKey = cands.enumerated().map { (index, element) in
-            let keys = UserConfigs.shared.ui.candidateSelectionKeys
+            let keys = UserConfigs.i.ui.candidateSelectionKeys
             let key = (index < keys.count) ? keys[index] : ""
             return ("0" <= key && key <= "9") ? "\(key):\(element)" : element
         }

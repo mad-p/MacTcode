@@ -10,7 +10,7 @@ import Foundation
 class TcodeKeymap {
     static var map: Keymap = {
         // UserConfigsから基文文字マップを取得
-        let keyBindings = UserConfigs.shared.keyBindings
+        let keyBindings = UserConfigs.i.keyBindings
         let basicTableString = keyBindings.basicTable.joined(separator: "\n")
         
         let map = Keymap("TCode2D", from2d: basicTableString)
@@ -29,9 +29,9 @@ class TcodeKeymap {
         KeymapResolver.define(sequence: keyBindings.zenkakuMode, keymap: map, action: ZenkakuModeAction())
         KeymapResolver.define(sequence: keyBindings.lineMode, keymap: map, action: ToggleLineModeAction())
         KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: map, entry: Command.keymap(
-            Keymap("outset1", fromChars: UserConfigs.shared.ui.symbolSet1Chars)))
+            Keymap("outset1", fromChars: UserConfigs.i.ui.symbolSet1Chars)))
         KeymapResolver.define(sequence: keyBindings.symbolSet2, keymap: map, entry: Command.keymap(
-            Keymap("outset2", fromChars: UserConfigs.shared.ui.symbolSet2Chars)))
+            Keymap("outset2", fromChars: UserConfigs.i.ui.symbolSet2Chars)))
         
         return map
     }()
@@ -39,7 +39,7 @@ class TcodeKeymap {
     // 設定変更時にキーマップを再初期化するためのメソッド
     static func reloadKeymap() {
         map = {
-            let keyBindings = UserConfigs.shared.keyBindings
+            let keyBindings = UserConfigs.i.keyBindings
             let basicTableString = keyBindings.basicTable.joined(separator: "\n")
             
             let newMap = Keymap("TCode2D", from2d: basicTableString)
@@ -54,9 +54,9 @@ class TcodeKeymap {
             KeymapResolver.define(sequence: keyBindings.zenkakuMode, keymap: newMap, action: ZenkakuModeAction())
             KeymapResolver.define(sequence: keyBindings.lineMode, keymap: newMap, action: ToggleLineModeAction())
             KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: newMap, entry: Command.keymap(
-                Keymap("outset1", fromChars: UserConfigs.shared.ui.symbolSet1Chars)))
+                Keymap("outset1", fromChars: UserConfigs.i.ui.symbolSet1Chars)))
             KeymapResolver.define(sequence: keyBindings.symbolSet2, keymap: newMap, entry: Command.keymap(
-                Keymap("outset2", fromChars: UserConfigs.shared.ui.symbolSet2Chars)))
+                Keymap("outset2", fromChars: UserConfigs.i.ui.symbolSet2Chars)))
             
             return newMap
         }()

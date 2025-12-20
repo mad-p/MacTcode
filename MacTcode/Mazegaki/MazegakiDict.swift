@@ -18,8 +18,8 @@ final class MazegakiDict {
     func readDictionary() {
         Log.i("Read mazegaki dictionary...")
         dict = [:]
-        let dictionaryFile = UserConfigs.shared.mazegaki.dictionaryFile
-        if let mazedic = UserConfigs.shared.loadConfig(file: dictionaryFile) {
+        let dictionaryFile = UserConfigs.i.mazegaki.dictionaryFile
+        if let mazedic = UserConfigs.i.loadConfig(file: dictionaryFile) {
             for line in mazedic.components(separatedBy: .newlines) {
                 let kv = line.components(separatedBy: " ")
                 if kv.count == 2 {
@@ -34,7 +34,7 @@ final class MazegakiDict {
         Log.i("\(dict.count) mazegaki entries read")
 
         // MRU学習データを読み込む
-        if UserConfigs.shared.mazegaki.mruEnabled {
+        if UserConfigs.i.mazegaki.mruEnabled {
             loadMruData()
         }
     }
@@ -43,8 +43,8 @@ final class MazegakiDict {
     func loadMruData() {
         Log.i("Load mazegaki MRU data...")
         mruDict = [:]
-        let mruFile = UserConfigs.shared.mazegaki.mruFile
-        if let mruData = UserConfigs.shared.loadConfig(file: mruFile) {
+        let mruFile = UserConfigs.i.mazegaki.mruFile
+        if let mruData = UserConfigs.i.loadConfig(file: mruFile) {
             for line in mruData.components(separatedBy: .newlines) {
                 let kv = line.components(separatedBy: " ")
                 if kv.count == 2 {
@@ -62,7 +62,7 @@ final class MazegakiDict {
 
     /// MRU学習データを保存する
     func saveMruData() {
-        guard UserConfigs.shared.mazegaki.mruEnabled else {
+        guard UserConfigs.i.mazegaki.mruEnabled else {
             return
         }
         guard toSyncMruDict else {
@@ -72,7 +72,7 @@ final class MazegakiDict {
         
 
         Log.i("Save mazegaki MRU data...")
-        let mruFile = UserConfigs.shared.mazegaki.mruFile
+        let mruFile = UserConfigs.i.mazegaki.mruFile
         var lines: [String] = []
         for (key, value) in mruDict.sorted(by: { $0.key < $1.key }) {
             lines.append("\(key) \(value)")
@@ -80,7 +80,7 @@ final class MazegakiDict {
         let content = lines.joined(separator: "\n")
 
         do {
-            let url = UserConfigs.shared.configFileURL(mruFile)
+            let url = UserConfigs.i.configFileURL(mruFile)
             try content.write(to: url, atomically: true, encoding: .utf8)
             Log.i("Mazegaki MRU data saved: \(mruDict.count) entries to \(url.path)")
             toSyncMruDict = false
@@ -94,7 +94,7 @@ final class MazegakiDict {
     ///   - key: 辞書のキー
     ///   - selectedCandidate: 選択された候補（活用なし）
     func updateMruEntry(key: String, selectedCandidate: String) {
-        guard UserConfigs.shared.mazegaki.mruEnabled else {
+        guard UserConfigs.i.mazegaki.mruEnabled else {
             return
         }
 

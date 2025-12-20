@@ -25,8 +25,8 @@ final class Bushu {
         composeTable = [:]
         decomposeTable = [:]
         equivTable = [:]
-        let dictionaryFile = UserConfigs.shared.bushu.dictionaryFile
-        if let bushuDic = UserConfigs.shared.loadConfig(file: dictionaryFile) {
+        let dictionaryFile = UserConfigs.i.bushu.dictionaryFile
+        if let bushuDic = UserConfigs.i.loadConfig(file: dictionaryFile) {
             for line in bushuDic.components(separatedBy: .newlines) {
                 let chars = line.map {String($0)}
                 if chars.count == 3 {
@@ -51,7 +51,7 @@ final class Bushu {
         readDictionary()
 
         // 自動学習データを読み込む
-        if UserConfigs.shared.bushu.autoEnabled {
+        if UserConfigs.i.bushu.autoEnabled {
             loadAutoData()
         }
     }
@@ -125,8 +125,8 @@ final class Bushu {
     func loadAutoData() {
         Log.i("Load bushu auto data...")
         autoDict = [:]
-        let autoFile = UserConfigs.shared.bushu.autoFile
-        if let autoData = UserConfigs.shared.loadConfig(file: autoFile) {
+        let autoFile = UserConfigs.i.bushu.autoFile
+        if let autoData = UserConfigs.i.loadConfig(file: autoFile) {
             for line in autoData.components(separatedBy: .newlines) {
                 let chars = line.map { String($0) }
                 if chars.count == 3 {
@@ -146,7 +146,7 @@ final class Bushu {
 
     /// 自動学習データを保存する
     func saveAutoData() {
-        guard UserConfigs.shared.bushu.autoEnabled else {
+        guard UserConfigs.i.bushu.autoEnabled else {
             return
         }
         guard toSyncAutoDict else {
@@ -155,7 +155,7 @@ final class Bushu {
         }
 
         Log.i("Save bushu auto data...")
-        let autoFile = UserConfigs.shared.bushu.autoFile
+        let autoFile = UserConfigs.i.bushu.autoFile
         var lines: [String] = []
         for (key, value) in autoDict.sorted(by: { $0.key < $1.key }) {
             lines.append("\(key)\(value)")
@@ -163,7 +163,7 @@ final class Bushu {
         let content = lines.joined(separator: "\n")
 
         do {
-            let url = UserConfigs.shared.configFileURL(autoFile)
+            let url = UserConfigs.i.configFileURL(autoFile)
             try content.write(to: url, atomically: true, encoding: .utf8)
             Log.i("Bushu auto data saved: \(autoDict.count) entries to \(url.path)")
             toSyncAutoDict = false
@@ -178,7 +178,7 @@ final class Bushu {
     ///   - source2: 合成元の2文字目
     ///   - result: 合成結果
     func updateAutoEntry(source1: String, source2: String, result: String) {
-        guard UserConfigs.shared.bushu.autoEnabled else {
+        guard UserConfigs.i.bushu.autoEnabled else {
             return
         }
 
@@ -203,7 +203,7 @@ final class Bushu {
     ///   - source1: 合成元の1文字目
     ///   - source2: 合成元の2文字目
     func disableAutoEntry(source1: String, source2: String) {
-        guard UserConfigs.shared.bushu.autoEnabled else {
+        guard UserConfigs.i.bushu.autoEnabled else {
             return
         }
 
@@ -226,7 +226,7 @@ final class Bushu {
     ///   - source1: 合成元の1文字目
     ///   - source2: 合成元の2文字目
     func enableAutoEntry(source1: String, source2: String) {
-        guard UserConfigs.shared.bushu.autoEnabled else {
+        guard UserConfigs.i.bushu.autoEnabled else {
             return
         }
 
@@ -251,8 +251,8 @@ final class Bushu {
         
         // inputEventをチェック
         if let event = inputEvent, event.type == .printable, let text = event.text {
-            let disableKeys = UserConfigs.shared.bushu.disableAutoKeys
-            let addKeys = UserConfigs.shared.bushu.addAutoKeys
+            let disableKeys = UserConfigs.i.bushu.disableAutoKeys
+            let addKeys = UserConfigs.i.bushu.addAutoKeys
             
             if disableKeys.contains(text) {
                 // 禁止設定を追加
@@ -295,10 +295,10 @@ final class Bushu {
         Log.i("Bushu \(source1)\(source2) -> \(result)")
         let backspaceCount = client.replaceYomi(result, length: 2, from: yomi)
         controller.setBackspaceIgnore(backspaceCount)
-        InputStats.shared.incrementBushuCount()
+        InputStats.i.incrementBushuCount()
 
         // 自動学習が有効な場合、PendingKakuteiを生成
-        if UserConfigs.shared.bushu.autoEnabled {
+        if UserConfigs.i.bushu.autoEnabled {
             let yomiString = source1 + source2
             let pending = PendingKakuteiMode(
                 yomi: yomiString,
@@ -319,7 +319,7 @@ final class Bushu {
     /// - Returns: 自動変換が実行されたかどうか
     func tryAutoBushu(client: ContextClient!, controller: Controller) -> Bool {
         // 自動学習が無効な場合は何もしない
-        guard UserConfigs.shared.bushu.autoEnabled else {
+        guard UserConfigs.i.bushu.autoEnabled else {
             return false
         }
 

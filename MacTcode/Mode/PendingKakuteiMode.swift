@@ -36,7 +36,7 @@ class PendingKakuteiMode: Mode {
     ///   - onAccepted: 受容時のハンドラ
     init(yomi: String, kakutei: String,
          onAccepted: @escaping (_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult, parameter: Any? = nil) {
-        self.acceptedTimeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
+        self.acceptedTimeout = Date().addingTimeInterval(UserConfigs.i.system.cancelPeriod)
         self.yomiString = yomi
         self.kakuteiString = kakutei
         self.onAccepted = onAccepted

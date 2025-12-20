@@ -51,7 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Log.i("★AppDelegate launched self=\(ObjectIdentifier(self))")
 
         // 統計情報の初期化
-        _ = InputStats.shared
+        _ = InputStats.i
 
         // アクセシビリティ権限の確認
         let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
@@ -69,7 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         Log.i("★AppDelegate terminating self=\(ObjectIdentifier(self))")
-        InputStats.shared.writeStatsToFile()
+        InputStats.i.writeStatsToFile()
     }
 
     private func setupSigintHandler() {
@@ -128,11 +128,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 // シグナルの種類によって処理を分岐
                 if buf == SIGNAL_SIGINT {
                     Log.i("★SIGINT received, syncing data...")
-                    InputStats.shared.writeStatsToFile()
+                    InputStats.i.writeStatsToFile()
                     Log.i("Data sync completed")
                 } else if buf == SIGNAL_SIGTERM {
                     Log.i("★SIGTERM received, syncing data and exiting...")
-                    InputStats.shared.writeStatsToFile()
+                    InputStats.i.writeStatsToFile()
                     Log.i("Data sync completed, exiting")
                     _exit(0)
                 }

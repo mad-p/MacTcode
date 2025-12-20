@@ -11,7 +11,7 @@ import InputMethodKit
 /// NSEventをInputEventに変換する
 class Translator {
     static var layout: [String] {
-        return UserConfigs.shared.system.keyboardLayoutMapping
+        return UserConfigs.i.system.keyboardLayoutMapping
     }
     static func strToKey(_ string: String!) -> Int? {
         return layout.firstIndex(of: string)

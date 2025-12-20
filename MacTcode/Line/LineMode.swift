@@ -29,7 +29,7 @@ class LineMode: Mode {
         if let command = map.lookup(input: inputEvent) {
             switch command {
             case .action(let action):
-                InputStats.shared.incrementFunctionCount()
+                InputStats.i.incrementFunctionCount()
                 switch action.execute(client: client, mode: self, controller: controller!) {
                 case .processed:
                     return .processed

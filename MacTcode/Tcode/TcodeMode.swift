@@ -72,13 +72,13 @@ class TcodeMode: Mode, MultiStroke {
 
                 // 自動部首変換を試みる
                 if Bushu.i.tryAutoBushu(client: client, controller: controller!) {
-                    InputStats.shared.incrementBushuCount()
+                    InputStats.i.incrementBushuCount()
                 } else {
-                    InputStats.shared.incrementBasicCount()
+                    InputStats.i.incrementBasicCount()
                 }
                 return .processed
             case .action(let action):
-                InputStats.shared.incrementFunctionCount()
+                InputStats.i.incrementFunctionCount()
                 command = action.execute(client: client, mode: self, controller: controller!)
                 resetPending()
                 continue

@@ -11,7 +11,7 @@ import Cocoa
 class RecentTextClient: Client {
     var maxLength: Int = 20
     var text: String
-    init(_ string: String, _ maxLength: Int = UserConfigs.shared.system.recentTextMaxLength) {
+    init(_ string: String, _ maxLength: Int = UserConfigs.i.system.recentTextMaxLength) {
         self.text = string
         self.maxLength = maxLength
     }

@@ -104,7 +104,7 @@ log stream --predicate 'process == "MacTcode"'
 
 ### 設定管理
 
-`UserConfigs.shared`（シングルトン）が5つの設定カテゴリを管理:
+`UserConfigs.i`（シングルトン）が5つの設定カテゴリを管理:
 1. **MazegakiConfig**: 交ぜ書き変換設定、MRU学習設定
 2. **BushuConfig**: 部首変換設定、自動部首変換学習設定
 3. **KeyBindingsConfig**: キーバインド、基本文字配列（40x40）
@@ -115,7 +115,7 @@ log stream --predicate 'process == "MacTcode"'
 
 ### 統計管理
 
-`InputStats.shared`（シングルトン）:
+`InputStats.i`（シングルトン）:
 - スレッドセーフ（DispatchQueueで排他制御）
 - 基本文字、部首変換、交ぜ書き変換、機能実行をカウント
 - 定期的に`tc-record.txt`に出力（デフォルト1200秒間隔）
@@ -123,7 +123,7 @@ log stream --predicate 'process == "MacTcode"'
 ## 重要なパターン
 
 1. **プロトコル指向**: `Mode`, `Controller`, `Client`などで責務を明確化
-2. **シングルトン**: `UserConfigs.shared`, `InputStats.shared`, `MazegakiDict.i`, `Bushu.i`
+2. **シングルトン**: `UserConfigs.i`, `InputStats.i`, `MazegakiDict.i`, `Bushu.i`
 3. **モードスタック**: 候補選択などのサブモードを一時的にプッシュ
 4. **フォールバック**: クライアント → ミラーの順で読み取得、設定不正時はデフォルトで動作
 

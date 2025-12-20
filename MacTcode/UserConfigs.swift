@@ -16,7 +16,7 @@ import Foundation
  *
  * ## 設計パターン
  * ### シングルトンパターン
- * - `shared`静的プロパティで唯一のインスタンスにアクセス
+ * - `i`静的プロパティで唯一のインスタンスにアクセス
  * - アプリケーション全体で一貫した設定状態を保持
  * - 設定変更時の通知機能を提供
  *
@@ -46,11 +46,11 @@ import Foundation
  * ## 使用例
  * ```swift
  * // 設定値の取得
- * let maxYomi = UserConfigs.shared.mazegaki.maxYomi
- * let candidateKeys = UserConfigs.shared.ui.candidateSelectionKeys
+ * let maxYomi = UserConfigs.i.mazegaki.maxYomi
+ * let candidateKeys = UserConfigs.i.ui.candidateSelectionKeys
  *
  * // 設定変更の監視
- * UserConfigs.shared.delegate = self
+ * UserConfigs.i.delegate = self
  * ```
  */
 
@@ -92,7 +92,7 @@ enum ConfigValidationError: LocalizedError {
 }
 
 class UserConfigs {
-    static let shared = UserConfigs()
+    static let i = UserConfigs()
 
     // MARK: - Configuration Categories
 
@@ -566,7 +566,7 @@ class UserConfigs {
 
     // This function is used for logging messages
     // while initializing the singleton instance.
-    // Log.i refers to UserConfig.shared.system.logEnabled, however,
+    // Log.i refers to UserConfig.i.system.logEnabled, however,
     // during the initialization of UserConfig itself, it may lead to a bus error.
     private func log(_ message: String) {
         NSLog(message)
