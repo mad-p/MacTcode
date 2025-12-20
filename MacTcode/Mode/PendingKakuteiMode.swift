@@ -23,7 +23,7 @@ class PendingKakuteiMode: Mode {
     let kakuteiString: String
     
     /// 受容されたときに学習データのメンテナンスのために呼び出される処理
-    let onAccepted: (_ parameter: Any?) -> Void
+    let onAccepted: (_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult
     
     /// onAcceptedに渡すパラメータ
     let parameter: Any?
@@ -35,7 +35,7 @@ class PendingKakuteiMode: Mode {
     ///   - kakutei: 変換後文字列
     ///   - onAccepted: 受容時のハンドラ
     init(yomi: String, kakutei: String,
-         onAccepted: @escaping (_ parameter: Any?) -> Void, parameter: Any? = nil) {
+         onAccepted: @escaping (_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult, parameter: Any? = nil) {
         self.acceptedTimeout = Date().addingTimeInterval(UserConfigs.shared.system.cancelPeriod)
         self.yomiString = yomi
         self.kakuteiString = kakutei
@@ -67,14 +67,14 @@ class PendingKakuteiMode: Mode {
     }
     
     /// 受容処理を実行
-    func accept() {
+    func accept(inputEvent: InputEvent? = nil) -> HandleResult {
         if let param = parameter {
             Log.i("accepted \(yomiString) -> \(kakuteiString); parameter = \(param)")
         } else {
             Log.i("accepted \(yomiString) -> \(kakuteiString); parameter = nil")
         }
         uninstall()
-        onAccepted(parameter)
+        return onAccepted(parameter, inputEvent)
     }
     
     /// PendingKakuteiをキャンセルする
@@ -96,8 +96,7 @@ class PendingKakuteiMode: Mode {
         if self.isTimedOut() {
             // タイムアウトしている場合は受容
             Log.i("handle: pendingKakutei timed out, accepting")
-            accept()
-            return .forward
+            return accept(inputEvent: nil)
         }
         // キャンセル期間内
         // キャンセルキーの場合はキャンセル処理を実行して入力イベントを消費
@@ -110,9 +109,7 @@ class PendingKakuteiMode: Mode {
         } else {
             // キャンセルキー以外の入力イベントはキャンセル期間を終了し、受容する
             Log.i("handle: non-cancel key, accepting pendingKakutei")
-            accept()
-            // そのまま次の処理に進む（イベントは消費しない）
-            return .forward
+            return accept(inputEvent: inputEvent)
         }
     }
 }

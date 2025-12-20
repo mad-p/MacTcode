@@ -184,9 +184,58 @@ final class Bushu {
 
         // 合成元の2文字をキーとして保存（順序を保持）
         let key = source1 + source2
+
+        // 既存の値が禁止設定("N")の場合は上書きしない
+        if let existingValue = autoDict[key], existingValue == "N" {
+            Log.i("updateAutoEntry: '\(key)' is disabled, not updating")
+            return
+        }
+
         if autoDict[key] != result {
             autoDict[key] = result
             Log.i("updateAutoEntry: '\(key)' -> '\(result)'")
+            toSyncAutoDict = true
+        }
+    }
+
+    /// 自動部首変換を禁止する設定を追加
+    /// - Parameters:
+    ///   - source1: 合成元の1文字目
+    ///   - source2: 合成元の2文字目
+    func disableAutoEntry(source1: String, source2: String) {
+        guard UserConfigs.shared.bushu.autoEnabled else {
+            return
+        }
+
+        let key = source1 + source2
+        let currentValue = autoDict[key]
+
+        // 既に禁止設定の場合は何もしない
+        if currentValue == "N" {
+            Log.i("disableAutoEntry: '\(key)' is already disabled")
+            return
+        }
+
+        autoDict[key] = "N"
+        Log.i("disableAutoEntry: '\(key)' -> 'N'")
+        toSyncAutoDict = true
+    }
+
+    /// 禁止設定を解除する（値を削除するのみ、自動設定の追加は通常の受容処理で行う）
+    /// - Parameters:
+    ///   - source1: 合成元の1文字目
+    ///   - source2: 合成元の2文字目
+    func enableAutoEntry(source1: String, source2: String) {
+        guard UserConfigs.shared.bushu.autoEnabled else {
+            return
+        }
+
+        let key = source1 + source2
+
+        // 禁止設定の場合のみ解除
+        if let currentValue = autoDict[key], currentValue == "N" {
+            autoDict.removeValue(forKey: key)
+            Log.i("enableAutoEntry: '\(key)' removed from disabled list")
             toSyncAutoDict = true
         }
     }
@@ -220,14 +269,36 @@ final class Bushu {
             let pending = PendingKakuteiMode(
                 yomi: yomiString,
                 kakutei: result,
-                onAccepted: { parameter in
+                onAccepted: { parameter, inputEvent in
                     // 受容時の処理: 自動学習データを更新
-                    guard let param = parameter as? [String] else { return }
+                    guard let param = parameter as? [String] else { return .forward }
                     let src1 = param[0]
                     let src2 = param[1]
                     let res = param[2]
+
+                    // inputEventをチェック
+                    if let event = inputEvent, event.type == .printable, let text = event.text {
+                        let disableKeys = UserConfigs.shared.bushu.disableAutoKeys
+                        let addKeys = UserConfigs.shared.bushu.addAutoKeys
+
+                        if disableKeys.contains(text) {
+                            // 禁止設定を追加
+                            Log.i("disable auto bushu: [\(src1), \(src2)]")
+                            Bushu.i.disableAutoEntry(source1: src1, source2: src2)
+                            return .processed
+                        } else if addKeys.contains(text) {
+                            // 禁止設定を解除してから自動設定を追加
+                            Log.i("enable and add auto bushu: [\(src1), \(src2), \(res)]")
+                            Bushu.i.enableAutoEntry(source1: src1, source2: src2)
+                            Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
+                            return .processed
+                        }
+                    }
+
+                    // 通常の受容処理
                     Log.i("accepted bushu kakutei: parameter = [\(src1), \(src2), \(res)]")
                     Bushu.i.updateAutoEntry(source1: src1, source2: src2, result: res)
+                    return .forward
                 },
                 parameter: [source1, source2, result]
             )
@@ -265,6 +336,12 @@ final class Bushu {
             return false
         }
 
+        // 禁止設定チェック
+        if result == "N" {
+            Log.i("Auto bushu disabled for: \(src)")
+            return false
+        }
+
         Log.i("Auto bushu: \(src) -> \(result)")
 
         // YomiContextを作成
@@ -283,9 +360,10 @@ final class Bushu {
         let pending = PendingKakuteiMode(
             yomi: src,
             kakutei: result,
-            onAccepted: { _ in
+            onAccepted: { _, _ in
                 Log.i("accepted auto bushu kakutei (no learning)")
                 // 自動変換の受容時は学習データを更新しない
+                return .forward
             },
             parameter: nil
         )

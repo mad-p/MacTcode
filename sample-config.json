@@ -3,7 +3,9 @@
     "autoEnabled" : false,
     "autoFile" : "bushu_auto.dic",
     "bushuYomiCharacters" : "0-9、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
-    "dictionaryFile" : "bushu.dic"
+    "dictionaryFile" : "bushu.dic",
+    "disableAutoKeys" : ["-"],
+    "addAutoKeys" : ["+"]
   },
   "keyBindings" : {
     "basicTable" : [

@@ -1,59 +1,31 @@
-# SIGINTのハンドル
+# 自動部首変換の禁止設定
 
-SIGINTを受けて、統計情報、部首/交ぜ書きの学習データをディスクに同期する。
-将来的にはSIGTERMも同様に処理したいが、まずはSIGINTについてのみ実装する。
+`中心→患` のように、部首変換したいが自動では使いたくない語を、「自動変換しない組み合わせ」として学習できるようにしたい
+
+- bushu_auto.dicのエントリとして `中心N` のように書くと、その組合せは自動変換禁止の意味とする
+    - 合成後のフィールドが `N` の場合に禁止設定とする
+
+- 自動変換禁止エントリはPendingKakuteiの受容では上書きせず、禁止のままを保存する
+
+- 自動変換禁止の組合せであることをbushu_auto.dicに追加するキーストロークを実装する
+    - PendingKakuteiモードのときに `-` キーを入力すると、その組合せを禁止する
+        - すでにautoDictにエントリがある場合
+            - 禁止設定でなければ禁止設定にする
+            - 禁止設定であれば何もしない
+        - ない場合
+            - 禁止設定を追加する
+        - このキー `-` は設定項目のbushu.disableAutoKeysで指定する(複数指定可)
+    - PendingKakuteiモードのときに `+` キーを入力すると、禁止設定を解除し、自動設定を追加する
+        - すでにautoDictにエントリがある場合
+            - 禁止設定を解除する
+        - その後、通常の受容処理を行う
+        - このキー `+` は設定項目のbushu.addAutoKeysで指定する(複数指定可)
 
 ## 実装方針
 
-- シグナルハンドラ内でのファイルI/Oは困難なため、シグナル検出を伝えるためにpipeを利用する
-    - SIGINTのシグナルハンドラではpipeに1バイトを書き込む
-    - 別スレッドでpipeを見張っておき、書き込みを検出したら情報同期ルーチンを呼ぶ
-    - pipeのファイルハンドルは大域変数で保持してよい
-- signalハンドラ、signal見張りスレッド、pipeはAppDelegete内に持つのがよさそうだが、より適切なクラスがあれば提案してほしい
-
-## サンプルコード
-
-以下のサンプルコードを参考にしてよい。そのまま使うのではなく、適宜修正してよい
-
-```
-// ---- self-pipe ----
-var sigpipe: [Int32] = [0, 0]
-guard pipe(&sigpipe) == 0 else { perror("pipe"); _exit(1) }
-let sigpipeR = sigpipe[0]
-let sigpipeW = sigpipe[1]
-
-// ハンドラから参照するためのグローバル（書き込みFD）
-var gSigpipeW: Int32 = sigpipeW
-
-// C呼び出し規約のハンドラ（クロージャ不可）
-@_cdecl("sigint_handler")
-func sigint_handler(_ signo: Int32, _ info: UnsafeMutablePointer<__siginfo>?, _ uctx: UnsafeMutableRawPointer?) -> Void {
-    // async-signal-safe な write() だけを使う
-    var one: UInt8 = 1
-    // 失敗しても構わない（他にやれることがない）
-    _ = withUnsafePointer(to: &one) { ptr in
-        ptr.withMemoryRebound(to: UInt8.self, capacity: 1) { p in
-            write(gSigpipeW, p, 1)
-        }
-    }
-}
-
-// SIGINT を sigaction で捕捉
-var sa = sigaction()
-sigemptyset(&sa.sa_mask)
-sa.sa_flags = SA_SIGINFO
-sa.__sigaction_u.__sa_sigaction = sigint_handler
-guard sigaction(SIGINT, &sa, nil) == 0 else { perror("sigaction"); _exit(1) }
-
-// signal watcher
-Thread.detachNewThread {
-    var buf: UInt8 = 0
-    while true {
-        let n = read(sigpipeR, &buf, 1)
-        if n <= 0 { if errno == EINTR { continue } else { break } }
-        InputStats.shared.writeStatsToFile()
-        // SIGTERMの場合はここで _exit(0)
-    }
-}
-
-```
+- tryAutoBushuで、resultが `"N"` の場合は変換しない
+- PendingKakuteiModeでの禁止設定編集コマンドはinputEventTypeが.printableである場合にtextの内容で判定する(PendingKakuteiModeはキーマップを持たないため)
+    - PendingKakuteiModeに渡すonAcceptに引数を追加して、InputEventを受けとれるようにする
+    - PendingKakuteiMode.handleからaccept経由でイベントをonAcceptに渡す
+- 部首変換のonAcceptではこのイベントを見て、上記の禁止設定/自動設定の処理を行う
+- 交ぜ書き変換のonAcceptでは引数のイベントを無視する

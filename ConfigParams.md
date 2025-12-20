@@ -55,7 +55,9 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
   "bushuYomiCharacters": "0-9()、。「」・\\p{Hiragana}\\p{Katakana}\\p{Han}",
   "dictionaryFile": "bushu.dic",
   "autoEnabled": false,
-  "autoFile": "bushu_auto.dic"
+  "autoFile": "bushu_auto.dic",
+  "disableAutoKeys": ["-"],
+  "addAutoKeys": ["+"]
 }
 ```
 
@@ -63,6 +65,14 @@ MacTcodeは`config.json`形式の設定ファイルを使用してカスタマ�
 - **`dictionaryFile`**: 部首変換辞書のファイル名
 - **`autoEnabled`**: 部首変換自動学習機能の有効/無効
 - **`autoFile`**: 部首変換自動学習データのファイル名
+- **`disableAutoKeys`**: 自動部首変換を禁止設定にするキーのリスト
+  - 手動部首変換後のキャンセル期間内にこのキーを入力すると、その組み合わせが自動変換禁止リストに追加されます
+  - 例: "中心→患"を手動変換後に`-`キーを入力すると、次回から"中心"は自動変換されなくなります
+  - 複数のキーを指定可能です
+- **`addAutoKeys`**: 禁止設定を解除して自動設定を追加するキーのリスト
+  - 手動部首変換後のキャンセル期間内にこのキーを入力すると、禁止設定が解除され自動変換が有効になります
+  - 例: 禁止設定済みの"中心"を手動変換後に`+`キーを入力すると、次回から自動変換されるようになります
+  - 複数のキーを指定可能です
 
 ### 3. キーバインド設定 (`keyBindings`)
 

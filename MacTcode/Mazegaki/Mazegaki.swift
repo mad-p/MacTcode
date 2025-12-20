@@ -123,15 +123,16 @@ class Mazegaki {
             let pending = PendingKakuteiMode(
                 yomi: yomiString,
                 kakutei: string,
-                onAccepted: { parameter in
+                onAccepted: { parameter, inputEvent in
                     // 受容時の処理: MRU学習データを更新
-                    guard let param = parameter as? [String] else { return }
+                    guard let param = parameter as? [String] else { return .forward }
                     let key = param[0]
                     let candidateWithoutInflection = param[1]
                     Log.i(
                         "accepted mazegaki kakutei: parameter = [\(key), \(candidateWithoutInflection)]"
                     )
                     MazegakiDict.i.updateMruEntry(key: key, selectedCandidate: candidateWithoutInflection)
+                    return .forward
                 },
                 parameter: [hit.key, candidateWithoutInflection]
             )
