@@ -10,6 +10,8 @@ import InputMethodKit
 
 @objc(TcodeInputController)
 class TcodeInputController: IMKInputController, Controller {
+    let menuObj: NSMenu
+
     var modeStack: [Mode] = []
     let candidateWindow: IMKCandidates
     var pendingKakutei: PendingKakuteiMode?
@@ -21,10 +23,29 @@ class TcodeInputController: IMKInputController, Controller {
     }
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
+        self.menuObj = NSMenu(title: "MacTcode")
+        self.menuObj.addItem(withTitle: "設定ファイルフォルダを開く", action: #selector(openConfigFolder), keyEquivalent: "")
+        self.menuObj.addItem(withTitle: "学習/統計ファイルを更新", action: #selector(writeStatsToFile), keyEquivalent: "")
+
         candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
         setupCandidateWindow()
         Log.i("★★TcodeInputController: init self=\(ObjectIdentifier(self))")
+    }
+
+    override func menu() -> NSMenu! {
+        return menuObj
+    }
+
+    @objc
+    func openConfigFolder() {
+        let url = UserConfigs.i.macTcodeURL
+        NSWorkspace.shared.open(url)
+    }
+
+    @objc
+    func writeStatsToFile() {
+        InputStats.i.writeStatsToFile()
     }
 
     override func inputControllerWillClose() {
