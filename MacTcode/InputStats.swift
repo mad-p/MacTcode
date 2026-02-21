@@ -83,6 +83,12 @@ class InputStats {
         queue.async(flags: .barrier) {
             let idx = key1 * nKeys + key2
             self.basicCharCount[idx] += 1
+            let pane1 = key1 % 10 < 5 ? "L" : "R"
+            let pane2 = key2 % 10 < 5 ? "L" : "R"
+            let pair = pane1 + pane2
+            if self.panes[pair] != nil {
+                self.panes[pair]! += 1
+            }
         }
     }
 
@@ -101,10 +107,6 @@ class InputStats {
                 self.bigramCount[idx] += 1
                 // panes pair
                 if let lastPane = self.lastStrokePane {
-                    let pair = lastPane + pane
-                    if self.panes[pair] != nil {
-                        self.panes[pair]! += 1
-                    }
                     // alternation
                     if lastPane == pane {
                         self.alternation["consecutive"]! += 1
@@ -193,6 +195,7 @@ class InputStats {
             } catch {
                 Log.i("Failed to write stroke-stats: \(error)")
             }
+            Log.i("★Stroke statistics written")
         }
     }
 
