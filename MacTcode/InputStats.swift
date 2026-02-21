@@ -74,6 +74,18 @@ class InputStats {
 
     // MARK: - Stroke statistics API
 
+    /// ストローク（T-Code基本文字）を記録する
+    /// - Parameter key1, key2: 0..(nKeys-1)
+    func recordBasicStroke(key1: Int, key2: Int) {
+        guard UserConfigs.i.system.strokeStatsEnabled else { return }
+        guard (0..<nKeys).contains(key1) else { return }
+        guard (0..<nKeys).contains(key2) else { return }
+        queue.async(flags: .barrier) {
+            let idx = key1 * nKeys + key2
+            self.basicCharCount[idx] += 1
+        }
+    }
+
     /// ストローク（T-Code基本キー）を記録する
     /// - Parameter key: 0..(nKeys-1)
     func recordStroke(key: Int) {
@@ -87,7 +99,6 @@ class InputStats {
                 // bigram
                 let idx = last * nKeys + key
                 self.bigramCount[idx] += 1
-                self.basicCharCount[idx] += 1
                 // panes pair
                 if let lastPane = self.lastStrokePane {
                     let pair = lastPane + pane

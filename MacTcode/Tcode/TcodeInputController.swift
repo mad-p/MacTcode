@@ -146,7 +146,7 @@ class TcodeInputController: IMKInputController, Controller {
                 Log.i("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")
             }
         } else {
-            Log.i("*** TcodeInputController.candidateSelected: called for non-ModeWithCandidates???)")
+            Log.i("*** TcodeInputController.candidateSelected: called for non-ModeWithCandidates???")
         }
     }
     
