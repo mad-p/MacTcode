@@ -465,13 +465,7 @@ class UserConfigs {
 
     func saveConfig() {
         do {
-            // 保存前に妥当性を検証
-            try validateConfiguration(configData)
-
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(configData)
-            try data.write(to: configURL)
+            try saveConfigToFile(configURL)
             log("Configuration saved successfully.")
         } catch {
             log("Failed to save configuration: \(error)")
@@ -485,7 +479,6 @@ class UserConfigs {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(configData)
         try data.write(to: fileURL)
-        log("Configuration exported to: \(fileURL.path)")
     }
 
     func resetToDefaults() {
@@ -515,9 +508,12 @@ class UserConfigs {
     }
 
     func createSampleConfigFile() {
-        if !configFileExists {
-            saveConfig()
-            log("Sample configuration file created at: \(configURL.path)")
+        let sampleConfigURL = macTcodeURL.appendingPathComponent("sample-config.json")
+        do {
+            try saveConfigToFile(sampleConfigURL)
+            log("Sample configuration file created at: \(sampleConfigURL.path)")
+        } catch {
+            log("Failed to create sample configuration file: \(error)")
         }
     }
 
