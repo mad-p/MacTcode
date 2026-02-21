@@ -24,8 +24,9 @@ class TcodeInputController: IMKInputController, Controller {
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         self.menuObj = NSMenu(title: "MacTcode")
-        self.menuObj.addItem(withTitle: "設定ファイルフォルダを開く", action: #selector(openConfigFolder), keyEquivalent: "")
         self.menuObj.addItem(withTitle: "学習/統計ファイルを更新", action: #selector(writeStatsToFile), keyEquivalent: "")
+        self.menuObj.addItem(withTitle: "設定ファイルフォルダを開く", action: #selector(openConfigFolder), keyEquivalent: "")
+        self.menuObj.addItem(withTitle: "サンプル設定ファイルを作成", action: #selector(createSampleConfigFile), keyEquivalent: "")
 
         candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
@@ -46,6 +47,11 @@ class TcodeInputController: IMKInputController, Controller {
     @objc
     func writeStatsToFile() {
         InputStats.i.writeStatsToFile()
+    }
+
+    @objc
+    func createSampleConfigFile() {
+        UserConfigs.i.createSampleConfigFile()
     }
 
     override func inputControllerWillClose() {
