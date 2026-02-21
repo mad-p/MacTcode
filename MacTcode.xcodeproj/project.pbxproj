@@ -17,6 +17,7 @@
 		9D7C3CA32ED41C57009690B8 /* LineModeMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA22ED41C53009690B8 /* LineModeMap.swift */; };
 		9D7C3CA52ED41E49009690B8 /* LineModeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */; };
 		9D7C3CA72ED41F46009690B8 /* LineMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA62ED41F44009690B8 /* LineMode.swift */; };
+		9D8530172F4984F800740496 /* StrokeStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8530162F4984F800740496 /* StrokeStatsTests.swift */; };
 		9D868A012C05F98700128D48 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D868A002C05F98700128D48 /* main@2x.tiff */; };
 		9D868FF32C706AB200293645 /* ContextClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D868FF22C706AB200293645 /* ContextClientTests.swift */; };
 		9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */; };
@@ -100,6 +101,7 @@
 		9D7C3CA22ED41C53009690B8 /* LineModeMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineModeMap.swift; sourceTree = "<group>"; };
 		9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineModeActions.swift; sourceTree = "<group>"; };
 		9D7C3CA62ED41F44009690B8 /* LineMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineMode.swift; sourceTree = "<group>"; };
+		9D8530162F4984F800740496 /* StrokeStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeStatsTests.swift; sourceTree = "<group>"; };
 		9D868A002C05F98700128D48 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "main@2x.tiff"; sourceTree = "<group>"; };
 		9D868FF22C706AB200293645 /* ContextClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextClientTests.swift; sourceTree = "<group>"; };
 		9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeTest.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 		9D8C8DC82C01ACF1003D8A43 /* MacTcodeTests */ = {
 			isa = PBXGroup;
 			children = (
+				9D8530162F4984F800740496 /* StrokeStatsTests.swift */,
 				9D7C3C9A2ECB52CB009690B8 /* ControllerSpy.swift */,
 				9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */,
 				9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */,
@@ -555,6 +558,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8C8DCA2C01ACF1003D8A43 /* KeymapTests.swift in Sources */,
+				9D8530172F4984F800740496 /* StrokeStatsTests.swift in Sources */,
 				9DEA6D3E2C0B40320005BB18 /* RecentTextTests.swift in Sources */,
 				9D868FF32C706AB200293645 /* ContextClientTests.swift in Sources */,
 				9DEA6D402C0B6C680005BB18 /* TranslationTests.swift in Sources */,

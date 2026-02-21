@@ -75,6 +75,15 @@ class TcodeMode: Mode, MultiStroke {
                     InputStats.i.incrementBushuCount()
                 } else {
                     InputStats.i.incrementBasicCount()
+                    // ここでストローク統計を記録（Option A: 実際に basic と判定された箇所）
+                    // 文字列内の各文字について Translator.strToKey を試み、0..39 のキーであれば記録する
+                    for ch in string.map({ String($0) }) {
+                        if let k = Translator.strToKey(ch) {
+                            if (0..<nKeys).contains(k) {
+                                InputStats.i.recordStroke(key: k)
+                            }
+                        }
+                    }
                 }
                 return .processed
             case .action(let action):

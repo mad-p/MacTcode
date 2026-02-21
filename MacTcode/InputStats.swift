@@ -12,9 +12,27 @@ class InputStats {
     private var functionCount = 0
     private var totalActionCount = 0
 
+    // ストローク統計 (T-Code基本キーのみ)
+    // per-key count (0..39)
+    private var keyCount: [Int] = Array(repeating: 0, count: nKeys)
+    // basic character frequency (1st*40 + 2nd -> 0..1599)
+    private var basicCharCount: [Int] = Array(repeating: 0, count: nKeys * nKeys)
+    // bigram (same shape as basicCharCount)
+    private var bigramCount: [Int] = Array(repeating: 0, count: nKeys * nKeys)
+    // panes frequency: "RL","RR","LL","LR"
+    private var panes: [String: Int] = ["RL": 0, "RR": 0, "LL": 0, "LR": 0]
+    // alternation counts
+    private var alternation: [String: Int] = ["alternate": 0, "consecutive": 0, "first": 0]
+
+    // state for continuity
+    private var lastStrokeKey: Int? = nil
+    private var lastStrokePane: String? = nil // "L" or "R"
+
     private let queue = DispatchQueue(label: "jp.mad-p.inputmethods.MacTcode.inputstats", attributes: .concurrent)
 
     private init() {
+        // 初期化時に保存済みの stroke-stats.json を読み込む
+        loadStrokeStatsMaybe()
     }
 
     /// 基本文字入力のカウントを増やす
@@ -30,6 +48,8 @@ class InputStats {
     func incrementBushuCount() {
         queue.async(flags: .barrier) {
             self.bushuCount += 1
+            // continuity break
+            self.recordNonStrokeEventInternal()
         }
     }
 
@@ -37,6 +57,8 @@ class InputStats {
     func incrementMazegakiCount() {
         queue.async(flags: .barrier) {
             self.mazegakiCount += 1
+            // continuity break
+            self.recordNonStrokeEventInternal()
         }
     }
 
@@ -45,6 +67,121 @@ class InputStats {
         queue.async(flags: .barrier) {
             self.functionCount += 1
             self.totalActionCount += 1
+            // continuity break
+            self.recordNonStrokeEventInternal()
+        }
+    }
+
+    // MARK: - Stroke statistics API
+
+    /// ストローク（T-Code基本キー）を記録する
+    /// - Parameter key: 0..(nKeys-1)
+    func recordStroke(key: Int) {
+        guard UserConfigs.i.system.strokeStatsEnabled else { return }
+        guard (0..<nKeys).contains(key) else { return }
+        queue.async(flags: .barrier) {
+            self.keyCount[key] += 1
+            // panes
+            let pane = (key % 10) < 5 ? "L" : "R"
+            if let last = self.lastStrokeKey {
+                // bigram
+                let idx = last * nKeys + key
+                self.bigramCount[idx] += 1
+                self.basicCharCount[idx] += 1
+                // panes pair
+                if let lastPane = self.lastStrokePane {
+                    let pair = lastPane + pane
+                    if self.panes[pair] != nil {
+                        self.panes[pair]! += 1
+                    }
+                    // alternation
+                    if lastPane == pane {
+                        self.alternation["consecutive"]! += 1
+                    } else {
+                        self.alternation["alternate"]! += 1
+                    }
+                }
+            } else {
+                // first hit
+                self.alternation["first"]! += 1
+            }
+            // update last
+            self.lastStrokeKey = key
+            self.lastStrokePane = pane
+        }
+    }
+
+    /// 非ストロークイベントを記録して連続性を断つ
+    func recordNonStrokeEvent() {
+        guard UserConfigs.i.system.strokeStatsEnabled else { return }
+        queue.async(flags: .barrier) {
+            self.recordNonStrokeEventInternal()
+        }
+    }
+
+    // internal: assumes barrier queue
+    private func recordNonStrokeEventInternal() {
+        self.lastStrokeKey = nil
+        self.lastStrokePane = nil
+    }
+
+    /// ストローク統計をリセット（メモリ内）
+    func resetStrokeStats() {
+        queue.async(flags: .barrier) {
+            self.keyCount = Array(repeating: 0, count: nKeys)
+            self.basicCharCount = Array(repeating: 0, count: nKeys * nKeys)
+            self.bigramCount = Array(repeating: 0, count: nKeys * nKeys)
+            self.panes = ["RL": 0, "RR": 0, "LL": 0, "LR": 0]
+            self.alternation = ["alternate": 0, "consecutive": 0, "first": 0]
+            self.lastStrokeKey = nil
+            self.lastStrokePane = nil
+        }
+    }
+
+    // MARK: - Persistence (JSON)
+
+    private func strokeStatsFileURL() -> URL {
+        return UserConfigs.i.configFileURL("stroke-stats.json")
+    }
+
+    func loadStrokeStatsMaybe() {
+        guard UserConfigs.i.system.strokeStatsEnabled else { return }
+        let fileURL = strokeStatsFileURL()
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+        queue.async(flags: .barrier) {
+            do {
+                let data = try Data(contentsOf: fileURL)
+                if let obj = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                    if let k = obj["keyCount"] as? [Int], k.count == nKeys { self.keyCount = k }
+                    if let b = obj["basicCharCount"] as? [Int], b.count == nKeys * nKeys { self.basicCharCount = b }
+                    if let bg = obj["bigram"] as? [Int], bg.count == nKeys * nKeys { self.bigramCount = bg }
+                    if let p = obj["panes"] as? [String: Int] { self.panes = p }
+                    if let a = obj["alternation"] as? [String: Int] { self.alternation = a }
+                }
+            } catch {
+                Log.i("Failed to load stroke-stats: \(error)")
+            }
+        }
+    }
+
+    func writeStrokeStatsToFile() {
+        guard UserConfigs.i.system.strokeStatsEnabled else { return }
+        queue.sync {
+            let fileURL = strokeStatsFileURL()
+            var obj: [String: Any] = [:]
+            obj["keyCount"] = self.keyCount
+            obj["basicCharCount"] = self.basicCharCount
+            obj["bigram"] = self.bigramCount
+            obj["panes"] = self.panes
+            obj["alternation"] = self.alternation
+            obj["lastUpdated"] = ISO8601DateFormatter().string(from: Date())
+
+            do {
+                let data = try JSONSerialization.data(withJSONObject: obj, options: [.prettyPrinted, .sortedKeys])
+                try data.write(to: fileURL)
+            } catch {
+                Log.i("Failed to write stroke-stats: \(error)")
+            }
         }
     }
 
@@ -108,6 +245,9 @@ class InputStats {
                     try? data.write(to: fileURL)
                 }
             }
+
+            // 同期タイミングでstroke-statsも書き出す（累積）
+            self.writeStrokeStatsToFile()
 
             Log.i("★Statistics written: \(statsLine.trimmingCharacters(in: .whitespacesAndNewlines))")
             lastSyncDate = Date()

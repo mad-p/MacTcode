@@ -221,6 +221,8 @@ class UserConfigs {
         let keyboardLayoutMapping: [String]
         let syncStatsInterval: Int
         let cancelPeriod: Double
+        // ストローク統計を有効にするかどうか
+        let strokeStatsEnabled: Bool
 
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
@@ -236,7 +238,8 @@ class UserConfigs {
                 ";", "q", "j", "k", "x", "b", "m", "w", "v", "z"
             ],
             syncStatsInterval: 1200,
-            cancelPeriod: 1.5
+            cancelPeriod: 1.5,
+            strokeStatsEnabled: true
         )
     }
 

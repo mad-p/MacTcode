@@ -120,6 +120,42 @@ log stream --predicate 'process == "MacTcode"'
 - 基本文字、部首変換、交ぜ書き変換、機能実行をカウント
 - 定期的に`tc-record.txt`に出力（デフォルト1200秒間隔）
 
+### このセッションで行った変更（要約・2026-02-21）
+
+以下はこの作業セッションで実装／追加した内容の短いサマリです。将来の解析やデバッグ時に参照してください。
+
+- InputStats の拡張
+  - ストローク（T‑Code基本キー）単位の頻度統計を追加しました。
+  - 追加メソッド: `recordStroke(key:)`, `recordNonStrokeEvent()`, `resetStrokeStats()`, `writeStrokeStatsToFile()`, `loadStrokeStatsMaybe()`。
+  - 内部データ構造: `keyCount[40]`, `basicCharCount[1600]`, `bigram[1600]`, `panes`, `alternation`。
+  - 書き出しは既存の統計同期タイミング（`tc-record.txt` と同時）で行います。累積保存です（リセットしない）。
+
+- 設定変更
+  - 新しい設定フラグを追加: `system.strokeStatsEnabled`（デフォルト: `true`）。
+  - このフラグが `false` の場合、ストローク統計の収集および `stroke-stats.json` の読み書きは行われません。
+
+- 記録フックと連続性ルール
+  - 記録は Option A（実際に basic と判定された箇所）を採用し、`TcodeMode` の `.text` 分岐で `Translator.strToKey` が 0..39 を返す文字を `recordStroke` で記録します。
+  - 連続性を断つ（バイグラムを切る）イベント: 部首/交ぜ書き受容、機能実行、モード切替、候補確定、PendingKakutei の受容、非基本キー入力など。
+
+- コードの主な変更箇所
+  - `MacTcode/InputStats.swift` — ストローク統計実装
+  - `MacTcode/UserConfigs.swift` — `strokeStatsEnabled` を追加（デフォルト true）
+  - `MacTcode/Tcode/TcodeMode.swift` — `.text` 分岐で `recordStroke` 呼び出し
+  - `MacTcode/Tcode/TcodeInputController.swift` — push/pop/deactivate/candidateSelected で `recordNonStrokeEvent` 呼び出し
+  - `MacTcode/Mode/PendingKakuteiMode.swift` — accept() で連続性断ち
+
+- テストとドキュメント
+  - 単体テスト追加: `MacTcodeTests/StrokeStatsTests.swift`（ストローク記録、連続性切断、無効化挙動の検証）
+  - ドキュメント追加／更新:
+    - `STROKE_STATS.md`：`stroke-stats.json` のフォーマット仕様
+    - `README.md`：統計セクションにストローク統計の説明追記
+    - `ConfigParams.md`：`system.strokeStatsEnabled` の説明追記
+
+重要: これら変更は既存のビルドとテストスイートで検証済み（Debug ビルド成功、ユニットテスト実行成功）。
+
+必要に応じて、`STROKE_STATS.md` に記載した JSON を読み取る解析スクリプト（Python など）を追加できます。希望があれば実装します。
+
 ## 重要なパターン
 
 1. **プロトコル指向**: `Mode`, `Controller`, `Client`などで責務を明確化
