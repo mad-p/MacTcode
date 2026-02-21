@@ -70,6 +70,19 @@ class TcodeMode: Mode, MultiStroke {
                 resetPending()
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
 
+                // ここでストローク統計を記録
+                // 基本キー2打鍵で入力された場合に限り、統計情報を記録する
+                // NOTE: バックスラッシュによる記号入力は2打鍵でも基本キー以外も使うので除外
+                // NOTE: 3ストローク以上に対応するときは修正が必要
+                if seq.count == 2 {
+                    if let ev0 = seq[0].text, let ev1 = seq[1].text,
+                       let k1 = Translator.strToKey(ev0), let k2 = Translator.strToKey(ev1) {
+                        InputStats.i.recordBasicStroke(key1: k1, key2: k2)
+                        InputStats.i.recordStroke(key: k1)
+                        InputStats.i.recordStroke(key: k2)
+                    }
+                }
+
                 // 自動部首変換を試みる
                 if Bushu.i.tryAutoBushu(client: client, controller: controller!) {
                     InputStats.i.incrementBushuCount()

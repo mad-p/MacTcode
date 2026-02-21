@@ -24,3 +24,4 @@ work/
 .vscode
 release/
 /.claude
+/.envrc
