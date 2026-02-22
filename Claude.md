@@ -125,7 +125,7 @@ log stream --predicate 'process == "MacTcode"'
 以下はこの作業セッションで実装／追加した内容の短いサマリです。将来の解析やデバッグ時に参照してください。
 
 - InputStats の拡張
-  - ストローク（T‑Code基本キー）単位の頻度統計を追加しました。
+  - ストローク（T-Code基本キー）単位の頻度統計を追加しました。
   - 追加メソッド: `recordStroke(key:)`, `recordNonStrokeEvent()`, `resetStrokeStats()`, `writeStrokeStatsToFile()`, `loadStrokeStatsMaybe()`。
   - 内部データ構造: `keyCount[40]`, `basicCharCount[1600]`, `bigram[1600]`, `panes`, `alternation`。
   - 書き出しは既存の統計同期タイミング（`tc-record.txt` と同時）で行います。累積保存です（リセットしない）。

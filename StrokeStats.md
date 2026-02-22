@@ -2,7 +2,7 @@
 
 目的
 
-- T‑Code の基本キーに関する詳細な頻度統計を累積保存するためのファイル仕様。
+- T-Code の基本キーに関する詳細な頻度統計を累積保存するためのファイル仕様。
 - ファイル名: `stroke-stats.json`
 - 保存場所: `UserConfigs.i.configFileURL("stroke-stats.json")`（`tc-record.txt` と同じディレクトリ）
 
@@ -14,7 +14,7 @@
 主要フィールド
 
 - `keyCount`: 整数配列（長さ 40）
-  - インデックス 0..39 が各 T‑Code 基本キーに対応
+  - インデックス 0..39 が各 T-Code 基本キーに対応
   - 値はそのキー単体の使用回数（累積）
 
 - `basicCharCount`: 整数配列（長さ 1600 = 40 * 40）
@@ -51,14 +51,14 @@
 
 連続性（バイグラム計算）についてのルール
 
-- バイグラム／交互打鍵の "連続" と見なすのは、同じ入力シーケンス内で連続する T‑Code 基本キー（0..39）だけです。
+- バイグラム／交互打鍵の "連続" と見なすのは、同じ入力シーケンス内で連続する T-Code 基本キー（0..39）だけです。
 - 以下のイベントは "連続性を断つ" とみなし、次の基本キーは `first` としてカウントされます:
   - 部首変換の適用（`InputStats.i.incrementBushuCount()` が呼ばれた場合）
   - 交ぜ書き変換の適用（`incrementMazegakiCount()`）
   - 機能実行（モード切替やアクション、`incrementFunctionCount()`）
   - モードの push/pop
   - 候補の確定（`candidateSelected`）や PendingKakutei の受容
-  - printable でも `Translator.strToKey` が 0..39 を返さないキー（T‑Code 基本外の入力）
+  - printable でも `Translator.strToKey` が 0..39 を返さないキー（T-Code 基本外の入力）
 
 書き出しタイミング
 
@@ -109,5 +109,5 @@ print('bigram[2,7] =', bigram[idx])
 
 更新履歴
 
-- 2026-02-21: 初版（STROKE_STATS.md）
+- 2026-02-21: 初版（StrokeStats.md）
 
