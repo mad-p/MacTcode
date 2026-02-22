@@ -57,6 +57,7 @@ MacTcodeは設定ファイルを使用してカスタマイズできます。
 ```
 
 MacTcodeを一度起動するとディレクトリが作られます。
+IMEメニューから「設定ファイルフォルダを開く」を選ぶとファインダーで表示します。
 
 ### 設定ファイルの構造
 
@@ -70,13 +71,7 @@ MacTcodeを一度起動するとディレクトリが作られます。
 
 ### サンプル設定ファイル
 
-プロジェクトルートの`sample-config.json`ファイルに完全なサンプル設定があります。このファイルをコピーして使用してください：
-
-```bash
-cp sample-config.json ~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application\ Support/MacTcode/config.json
-```
-
-MacTcodeを一度起動するとコピー先ディレクトリが作られます。
+IMEメニューから「サンプル設定ファイルを作成」を選ぶと、現在の設定が `sample-config.json` として設定ファイルフォルダ内に作成されます。これをコピーして `config.json` を作成し、編集してください。
 
 ### 主な設定項目
 
@@ -113,23 +108,18 @@ MacTcodeは入力操作の統計情報を自動的に記録します。
 - **交ぜ書き**: 交ぜ書き変換の実行回数と全体に占める割合（%）
 - **機能**: キーマップ内に割り当てられている機能(部首/交ぜ書き変換のトリガを含む)の実行回数と全体に占める割合（%）
 
-+### ストローク頻度統計（`stroke-stats.json`）
-+
-+`stroke-stats.json` は `tc-record.txt` と同じディレクトリに保存される累積統計ファイルです。主な内容は次のとおりです。
-+
-+- `keyCount`: 長さ40の配列。インデックス0..39 がそれぞれT‑Codeの基本キーに対応し、使用回数を格納します。
-+- `basicCharCount`: 長さ1600の配列（1打目*40 + 2打目）。基本文字（2打）の頻度を格納します。
-+- `bigram`: 長さ1600の配列（1打目*40 + 2打目）。バイグラム（連続した2キー）の頻度を格納します。
-+- `panes`: オブジェクト {"RL":Int, "RR":Int, "LL":Int, "LR":Int}。左右ペインの組合せ頻度を格納します。
-+- `alternation`: オブジェクト {"alternate":Int, "consecutive":Int, "first":Int}。交互打鍵/連続打鍵/第1打目の頻度を格納します。
-+- `lastUpdated`: 最終更新時刻のISO8601文字列
-+
-+記録対象はT‑Codeの基本キー（`Translator.strToKey` が0..39を返すキー）のみです。部首・交ぜ書き変換やモード切替、機能実行などはバイグラムの連続性を断ちます。
-+
-+### `strokeStatsEnabled` 設定
-+
-+- `system.strokeStatsEnabled`（デフォルト `true`）で、ストローク頻度統計の収集を有効/無効にできます。`false` にすると `stroke-stats.json` の収集・書き出しが行われなくなります。
-+
+### ストローク頻度統計（`stroke-stats.json`）
+
+`stroke-stats.json` は `tc-record.txt` と同じディレクトリに保存される累積統計ファイルです。主な内容は次のとおりです。
+
+- `keyCount`: 長さ40の配列。インデックス0..39 がそれぞれT-Codeの基本キーに対応し、使用回数を格納します。
+- `basicCharCount`: 長さ1600の配列（1打目*40 + 2打目）。基本文字（2打）の頻度を格納します。
+- `bigram`: 長さ1600の配列（1打目*40 + 2打目）。バイグラム（連続した2キー）の頻度を格納します。
+- `panes`: オブジェクト {"RL":Int, "RR":Int, "LL":Int, "LR":Int}。左右ペインの組合せ頻度を格納します。
+- `alternation`: オブジェクト {"alternate":Int, "consecutive":Int, "first":Int}。交互打鍵/連続打鍵/第1打目の頻度を格納します。
+- `lastUpdated`: 最終更新時刻のISO8601文字列
+
+記録対象はT-Codeの基本キーのみです。部首・交ぜ書き変換やモード切替、機能実行などはバイグラムの連続性を断ちます。
 
 ### 統計出力のタイミング
 
@@ -161,6 +151,11 @@ MacTcodeは入力操作の統計情報を自動的に記録します。
   "syncStatsInterval": 0
 }
 ```
+
+- **`strokeStatsEnabled`**: ストローク頻度統計の出力
+  - デフォルト値: `true`
+  - ストローク頻度統計の収集を有効/無効にできます。`false` にすると `stroke-stats.json` の収集・書き出しが行われなくなります。
+
 
 詳細な設定方法については[ConfigParams.md](ConfigParams.md)を参照してください。
 
