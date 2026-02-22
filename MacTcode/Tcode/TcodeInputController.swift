@@ -46,7 +46,7 @@ class TcodeInputController: IMKInputController, Controller {
 
     @objc
     func writeStatsToFile() {
-        InputStats.i.writeStatsToFile()
+        InputStats.i.writeStatsToFile(force: true)
     }
 
     @objc
@@ -68,7 +68,8 @@ class TcodeInputController: IMKInputController, Controller {
         }
         // continuity break
         InputStats.i.recordNonStrokeEvent()
-        InputStats.i.writeStatsToFileMaybe()
+        // Force a write on deactivate (user action / IME switch)
+        InputStats.i.writeStatsToFile(force: true)
         super.deactivateServer(sender)
     }
     
