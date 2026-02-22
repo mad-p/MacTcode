@@ -69,7 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         Log.i("★AppDelegate terminating self=\(ObjectIdentifier(self))")
-        InputStats.i.writeStatsToFile()
+        InputStats.i.writeStatsToFile(force: true)
     }
 
     private func setupSigintHandler() {
@@ -128,11 +128,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 // シグナルの種類によって処理を分岐
                 if buf == SIGNAL_SIGINT {
                     Log.i("★SIGINT received, syncing data...")
-                    InputStats.i.writeStatsToFile()
+                    InputStats.i.writeStatsToFile(force: true)
                     Log.i("Data sync completed")
                 } else if buf == SIGNAL_SIGTERM {
                     Log.i("★SIGTERM received, syncing data and exiting...")
-                    InputStats.i.writeStatsToFile()
+                    InputStats.i.writeStatsToFile(force: true)
                     Log.i("Data sync completed, exiting")
                     _exit(0)
                 }

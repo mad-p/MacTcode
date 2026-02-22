@@ -3,7 +3,7 @@ import Foundation
 /// 入力統計情報を管理するシングルトンクラス
 class InputStats {
     static let i = InputStats()
-    
+
     private var lastSyncDate = Date()
 
     private var basicCount = 0
@@ -210,7 +210,7 @@ class InputStats {
         }
     }
     /// 統計情報をファイルに書き出す
-    public func writeStatsToFile() {
+    public func writeStatsToFile(force: Bool = false) {
         queue.sync {
             // 学習データも同じタイミングで保存
             MazegakiDict.i.saveMruData()
@@ -220,10 +220,13 @@ class InputStats {
                 lastSyncDate = Date()
                 return
             }
-            guard UserConfigs.i.system.syncStatsInterval > 0 else {
-                return
+            // If not forced, obey syncStatsInterval; if forced (manual/menu/signal), allow write even when interval == 0
+            if !force {
+                guard UserConfigs.i.system.syncStatsInterval > 0 else {
+                    return
+                }
             }
-            
+
             let fileManager = FileManager.default
             let fileURL = UserConfigs.i.configFileURL("tc-record.txt")
 
@@ -241,11 +244,11 @@ class InputStats {
 
             // 統計行を作成
             let statsLine = String(format: "%@ 文字: %4d  部首: %3d(%d%%)  交ぜ書き: %3d(%d%%)  機能: %3d(%d%%)\n",
-                                 dateString,
-                                 basicCount,
-                                 bushuCount, bushuPercent,
-                                 mazegakiCount, mazegakiPercent,
-                                 functionCount, functionPercent)
+                                   dateString,
+                                   basicCount,
+                                   bushuCount, bushuPercent,
+                                   mazegakiCount, mazegakiPercent,
+                                   functionCount, functionPercent)
 
             // ファイルに追記
             if let data = statsLine.data(using: .utf8) {
