@@ -126,7 +126,7 @@ if key_count_sum > 0
   end
   # convert to percent (of key_count_sum)
   finger_percent = finger_values.map { |v| v.to_f * 100.0 / key_count_sum }
-  finger_path = File.join(out_dir, 'finger_stats.png')
+  finger_path = File.join(out_dir, 'fingers.png')
   puts "Rendering finger stats -> #{finger_path}"
   Renderers.render_bar_chart(finger_labels8, finger_percent, out_path: finger_path, width: options[:width],
                              font_path: options[:font_path], title: '指の使用率')
@@ -143,7 +143,7 @@ if key_count_sum > 0
   end
   row_percent = rows.map { |v| v.to_f * 100.0 / key_count_sum }
   row_labels = ['最上段','上段','中段','下段']
-  row_path = File.join(out_dir, 'row_stats.png')
+  row_path = File.join(out_dir, 'rows.png')
   puts "Rendering row stats -> #{row_path}"
   Renderers.render_side_bar_chart(row_labels, row_percent, out_path: row_path, width: options[:width],
                                   font_path: options[:font_path], title: '段の使用率')

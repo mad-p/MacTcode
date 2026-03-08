@@ -55,8 +55,8 @@ bundle exec ruby plot_strokes.rb --font /System/Library/Fonts/ヒラギノ角ゴ
 | ファイル名 | 内容 |
 |---|---|
 | `heatmap.png` | keyCount のキーごと使用率ヒートマップ（4行×10列、各セルに%値を表示） |
-| `finger_stats.png` | 指別使用率の棒グラフ（左小指〜右小指の8本） |
-| `row_stats.png` | 段別使用率の横棒グラフ（最上段〜下段） |
+| `fingers.png` | 指別使用率の棒グラフ（左小指〜右小指の8本） |
+| `rows.png` | 段別使用率の横棒グラフ（最上段〜下段） |
 | `panes.png` | ペイン（RL/RR/LL/LR）別の使用率横棒グラフ（頻度降順） |
 | `alternation.png` | 交互打鍵／連続打鍵／初打の割合横棒グラフ（頻度降順） |
 | `bigram.png` | バイグラムのヒートマップ（40×40、左手→右手のグループ順） |
