@@ -76,6 +76,7 @@ stats = aggregator.summary
 # Prepare percentages
 key_count_sum = stats[:key_count_sum]
 bigram_sum = stats[:bigram_sum]
+basic_char_count_sum = stats[:basic_char_count_sum]
 
 key_percent = if key_count_sum > 0
   stats[:keyCount].map { |v| v.to_f * 100.0 / key_count_sum }
@@ -89,12 +90,19 @@ else
   Array.new(1600, 0.0)
 end
 
+basic_char_percent = if basic_char_count_sum > 0
+  stats[:basicCharCount].map { |v| v.to_f * 100.0 / basic_char_count_sum }
+else
+  Array.new(1600, 0.0)
+end
+
 # Render heatmap (keyCount) - requires non-zero key_count_sum
 if key_count_sum > 0
   heatmap_path = File.join(out_dir, 'heatmap.png')
   puts "Rendering heatmap -> #{heatmap_path}"
   Renderers.render_heatmap(key_percent, out_path: heatmap_path, width: options[:width],
-                           font_path: options[:font_path], font_magick: options[:font_magick])
+                           font_path: options[:font_path], font_magick: options[:font_magick],
+                           title: 'キー別ヒートマップ')
 else
   warn 'keyCount total is zero; skipping heatmap'
 end
@@ -126,7 +134,7 @@ if key_count_sum > 0
   end
   # convert to percent (of key_count_sum)
   finger_percent = finger_values.map { |v| v.to_f * 100.0 / key_count_sum }
-  finger_path = File.join(out_dir, 'fingers.png')
+  finger_path = File.join(out_dir, 'finger_stats.png')
   puts "Rendering finger stats -> #{finger_path}"
   Renderers.render_bar_chart(finger_labels8, finger_percent, out_path: finger_path, width: options[:width],
                              font_path: options[:font_path], title: '指の使用率')
@@ -143,7 +151,7 @@ if key_count_sum > 0
   end
   row_percent = rows.map { |v| v.to_f * 100.0 / key_count_sum }
   row_labels = ['最上段','上段','中段','下段']
-  row_path = File.join(out_dir, 'rows.png')
+  row_path = File.join(out_dir, 'row_stats.png')
   puts "Rendering row stats -> #{row_path}"
   Renderers.render_side_bar_chart(row_labels, row_percent, out_path: row_path, width: options[:width],
                                   font_path: options[:font_path], title: '段の使用率')
@@ -189,9 +197,19 @@ if bigram_sum > 0
   bigram_path = File.join(out_dir, 'bigram.png')
   puts "Rendering bigram -> #{bigram_path}"
   Renderers.render_bigram(bigram_percent, out_path: bigram_path, width: options[:width],
-                          font_magick: options[:font_magick])
+                          font_magick: options[:font_magick], title: 'バイグラムヒートマップ')
 else
   warn 'bigram total is zero; skipping bigram chart'
+end
+
+# BasicCharCount
+if basic_char_count_sum > 0
+  basic_chars_path = File.join(out_dir, 'basic_chars.png')
+  puts "Rendering basic_chars -> #{basic_chars_path}"
+  Renderers.render_basic_chars(basic_char_percent, out_path: basic_chars_path, width: options[:width],
+                               font_magick: options[:font_magick], title: '基本文字ヒートマップ')
+else
+  warn 'basicCharCount total is zero; skipping basic_chars chart'
 end
 
 puts "All done. Output in #{out_dir}"

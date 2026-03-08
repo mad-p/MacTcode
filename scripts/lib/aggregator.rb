@@ -8,13 +8,14 @@ class Aggregator
   PANE_KEYS = %w[RL RR LL LR]
   ALTERNATION_KEYS = %w[alternate consecutive first]
 
-  attr_reader :key_count, :bigram, :panes, :alternation
+  attr_reader :key_count, :bigram, :basic_char_count, :panes, :alternation
 
   def initialize
-    @key_count = Array.new(EXPECTED_KEYCOUNT_LEN, 0)
-    @bigram = Array.new(EXPECTED_BIGRAM_LEN, 0)
-    @panes = Hash[PANE_KEYS.map { |k| [k, 0] }]
-    @alternation = Hash[ALTERNATION_KEYS.map { |k| [k, 0] }]
+    @key_count        = Array.new(EXPECTED_KEYCOUNT_LEN, 0)
+    @bigram           = Array.new(EXPECTED_BIGRAM_LEN, 0)
+    @basic_char_count = Array.new(EXPECTED_BIGRAM_LEN, 0)
+    @panes            = Hash[PANE_KEYS.map { |k| [k, 0] }]
+    @alternation      = Hash[ALTERNATION_KEYS.map { |k| [k, 0] }]
     @valid_files = 0
   end
 
@@ -59,6 +60,36 @@ class Aggregator
       warn "bigram missing or invalid in #{path}, treating as zeros"
     end
 
+    # basicCharCount
+    if data['basicCharCount'].is_a?(Array)
+      bc = data['basicCharCount'].map { |v| to_non_neg_int(v) }
+      if bc.length < EXPECTED_BIGRAM_LEN
+        warn "basicCharCount length #{bc.length} < #{EXPECTED_BIGRAM_LEN}, padding with zeros"
+        bc += Array.new(EXPECTED_BIGRAM_LEN - bc.length, 0)
+      elsif bc.length > EXPECTED_BIGRAM_LEN
+        warn "basicCharCount length #{bc.length} > #{EXPECTED_BIGRAM_LEN}, truncating"
+        bc = bc[0, EXPECTED_BIGRAM_LEN]
+      end
+      @basic_char_count = @basic_char_count.each_with_index.map { |orig, i| orig + bc[i] }
+    else
+      warn "basicCharCount missing or invalid in #{path}, treating as zeros"
+    end
+
+    # basicCharCount
+    if data['basicCharCount'].is_a?(Array)
+      bc = data['basicCharCount'].map { |v| to_non_neg_int(v) }
+      if bc.length < EXPECTED_BIGRAM_LEN
+        warn "basicCharCount length #{bc.length} < #{EXPECTED_BIGRAM_LEN}, padding with zeros"
+        bc += Array.new(EXPECTED_BIGRAM_LEN - bc.length, 0)
+      elsif bc.length > EXPECTED_BIGRAM_LEN
+        warn "basicCharCount length #{bc.length} > #{EXPECTED_BIGRAM_LEN}, truncating"
+        bc = bc[0, EXPECTED_BIGRAM_LEN]
+      end
+      @basic_char_count = @basic_char_count.each_with_index.map { |orig, i| orig + bc[i] }
+    else
+      warn "basicCharCount missing or invalid in #{path}, treating as zeros"
+    end
+
     # panes
     if data['panes'].is_a?(Hash)
       PANE_KEYS.each do |k|
@@ -84,7 +115,8 @@ class Aggregator
   end
 
   def total_counts_zero?
-    total = @key_count.sum + @bigram.sum + @panes.values.sum + @alternation.values.sum
+    total = @key_count.sum + @bigram.sum + @basic_char_count.sum +
+            @panes.values.sum + @alternation.values.sum
     total == 0
   end
 
@@ -92,10 +124,12 @@ class Aggregator
     {
       keyCount: @key_count,
       bigram: @bigram,
+      basicCharCount: @basic_char_count,
       panes: @panes,
       alternation: @alternation,
       key_count_sum: @key_count.sum,
       bigram_sum: @bigram.sum,
+      basic_char_count_sum: @basic_char_count.sum,
       files_used: @valid_files
     }
   end

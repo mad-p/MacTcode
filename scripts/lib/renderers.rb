@@ -50,12 +50,12 @@ module Renderers
   # font_path:   path to font file (for gruff, unused here)
   # font_magick: ImageMagick font name (for text annotation)
   # ---------------------------------------------------------------------------
-  def self.render_heatmap(values, out_path:, width: 1000, font_path: nil, font_magick: nil)
+  def self.render_heatmap(values, out_path:, width: 1000, font_path: nil, font_magick: nil, title: nil)
     raise ArgumentError, "values must be 40 elements (got #{values.length})" unless values.length == 40
 
     pad_left   = 50
     pad_right  = 20
-    pad_top    = 50
+    pad_top    = title ? 70 : 50
     pad_bottom = 50
 
     grid_w  = width - pad_left - pad_right
@@ -68,6 +68,14 @@ module Renderers
     max_v  = values.max.nonzero? || 1.0
 
     annotations = []
+
+    # Title
+    if title
+      title_ps = [[( width * 0.025).to_i, 14].max, 28].min
+      tx = (width / 2) - (title_ps * title.length * 0.3).to_i
+      annotations << { x: [tx, 4].max, y: 8, text: title, color: 'black', pointsize: title_ps }
+    end
+
     4.times do |r|
       10.times do |c|
         idx = r * 10 + c
@@ -143,12 +151,16 @@ module Renderers
     'R最上段', 'R上段', 'R中段', 'R下段'
   ].freeze
 
-  def self.render_bigram(bigram_pct, out_path:, width: 1000, font_magick: nil)
-    raise ArgumentError, "bigram must be 1600 elements (got #{bigram_pct.length})" unless bigram_pct.length == 1600
+  # ---------------------------------------------------------------------------
+  # Internal: shared 40x40 heatmap renderer for bigram and basicCharCount
+  # pct_1600: 1600-element array of percentages
+  # ---------------------------------------------------------------------------
+  def self.render_1600_heatmap(pct_1600, out_path:, width: 1000, font_magick: nil, label_name: 'bigram', title: nil)
+    raise ArgumentError, "#{label_name} must be 1600 elements (got #{pct_1600.length})" unless pct_1600.length == 1600
 
     pad_left   = 100
     pad_right  = 20
-    pad_top    = 100
+    pad_top    = title ? 120 : 100
     pad_bottom = 20
 
     grid_w  = width - pad_left - pad_right
@@ -156,12 +168,12 @@ module Renderers
     cell_h  = cell_w
     height  = pad_top + cell_h * 40 + pad_bottom
 
-    img    = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::WHITE)
-    max_v  = bigram_pct.max.nonzero? || 1.0
+    img   = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::WHITE)
+    max_v = pct_1600.max.nonzero? || 1.0
 
     BIGRAM_ORDER.each_with_index do |first_key, ri|
       BIGRAM_ORDER.each_with_index do |second_key, ci|
-        v   = bigram_pct[first_key * 40 + second_key]
+        v   = pct_1600[first_key * 40 + second_key]
         t   = v / max_v.to_f
         col = heat_color(t)
         x0  = pad_left + ci * cell_w
@@ -184,6 +196,14 @@ module Renderers
     img.save(out_path)
 
     annotations = []
+    title_ps = [[( width * 0.025).to_i, 14].max, 28].min
+
+    # Title
+    if title
+      tx = (width / 2) - (title_ps * title.length * 0.3).to_i
+      annotations << { x: [tx, 4].max, y: 8, text: title, color: 'black', pointsize: title_ps }
+    end
+
     ps = [[cell_w * 5 / 8, 8].max, 14].min
     BIGRAM_GROUP_LABELS.each_with_index do |label, gi|
       cx = pad_left + gi * 5 * cell_w + (5 * cell_w / 2) - (ps * label.length * 0.3).to_i
@@ -196,5 +216,17 @@ module Renderers
     end
 
     annotate_png(out_path, annotations, font_magick: font_magick)
+  end
+
+  # Bigram heatmap (wrapper)
+  def self.render_bigram(bigram_pct, out_path:, width: 1000, font_magick: nil, title: nil)
+    render_1600_heatmap(bigram_pct, out_path: out_path, width: width,
+                        font_magick: font_magick, label_name: 'bigram', title: title)
+  end
+
+  # basicCharCount heatmap (same layout as bigram)
+  def self.render_basic_chars(basic_char_pct, out_path:, width: 1000, font_magick: nil, title: nil)
+    render_1600_heatmap(basic_char_pct, out_path: out_path, width: width,
+                        font_magick: font_magick, label_name: 'basicCharCount', title: title)
   end
 end
