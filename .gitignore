@@ -28,3 +28,4 @@ release/
 scripts/data
 scripts/out
 /.ruby-version
+/out

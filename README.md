@@ -159,6 +159,12 @@ MacTcodeは入力操作の統計情報を自動的に記録します。
 
 詳細な設定方法については[ConfigParams.md](ConfigParams.md)を参照してください。
 
+## 統計情報の可視化
+
+`scripts/` フォルダに、`stroke-stats.json` を読み込んでヒートマップや棒グラフを PNG として出力する Ruby スクリプトがあります。
+複数のファイルを指定して合算した統計を表示することもできます。
+詳細な使い方・セットアップ・出力ファイルの説明は [scripts/README.md](scripts/README.md) を参照してください。
+
 ## 参考文献
 
 - https://github.com/ensan-hcl/azooKey-Desktop
