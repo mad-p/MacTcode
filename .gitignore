@@ -25,3 +25,7 @@ work/
 release/
 /.claude
 /.envrc
+scripts/data
+scripts/out
+/.ruby-version
+/out

@@ -1,0 +1,44 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    bigdecimal (4.0.1)
+    chunky_png (1.4.0)
+    gruff (0.29.0)
+      bigdecimal (>= 3.0)
+      histogram
+      rmagick (>= 5.5)
+    histogram (0.2.4.1)
+    logger (1.7.0)
+    mini_magick (5.3.1)
+      logger
+    observer (0.1.2)
+    pkg-config (1.6.5)
+    rmagick (6.2.0)
+      observer (~> 0.1)
+      pkg-config (~> 1.4)
+
+PLATFORMS
+  arm64-darwin-24
+  ruby
+
+DEPENDENCIES
+  chunky_png
+  gruff
+  mini_magick
+
+CHECKSUMS
+  bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
+  chunky_png (1.4.0) sha256=89d5b31b55c0cf4da3cf89a2b4ebc3178d8abe8cbaf116a1dba95668502fdcfe
+  gruff (0.29.0) sha256=ab808cbf507abda7ffacd4ba5805a43c47ad0ec6aa2a7b125cf8a165110047a0
+  histogram (0.2.4.1) sha256=9a6e379172b88ea842ab71700a535dd037185a4e17abcce742c7444679ae2abc
+  logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
+  mini_magick (5.3.1) sha256=29395dfd76badcabb6403ee5aff6f681e867074f8f28ce08d78661e9e4a351c4
+  observer (0.1.2) sha256=d8a3107131ba661138d748e7be3dbafc0d82e732fffba9fccb3d7829880950ac
+  pkg-config (1.6.5) sha256=33f9f81c5322983d22b439b8b672f27777b406fea23bfec74ff14bbeb42ec733
+  rmagick (6.2.0) sha256=792791ccf513d84c48bac44ae12fa6988e25d27387f95bbf4dd44dcc8486569f
+
+RUBY VERSION
+  ruby 3.3.0
+
+BUNDLED WITH
+  4.0.7
