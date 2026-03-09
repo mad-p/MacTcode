@@ -75,21 +75,6 @@ class Aggregator
       warn "basicCharCount missing or invalid in #{path}, treating as zeros"
     end
 
-    # basicCharCount
-    if data['basicCharCount'].is_a?(Array)
-      bc = data['basicCharCount'].map { |v| to_non_neg_int(v) }
-      if bc.length < EXPECTED_BIGRAM_LEN
-        warn "basicCharCount length #{bc.length} < #{EXPECTED_BIGRAM_LEN}, padding with zeros"
-        bc += Array.new(EXPECTED_BIGRAM_LEN - bc.length, 0)
-      elsif bc.length > EXPECTED_BIGRAM_LEN
-        warn "basicCharCount length #{bc.length} > #{EXPECTED_BIGRAM_LEN}, truncating"
-        bc = bc[0, EXPECTED_BIGRAM_LEN]
-      end
-      @basic_char_count = @basic_char_count.each_with_index.map { |orig, i| orig + bc[i] }
-    else
-      warn "basicCharCount missing or invalid in #{path}, treating as zeros"
-    end
-
     # panes
     if data['panes'].is_a?(Hash)
       PANE_KEYS.each do |k|
