@@ -14,8 +14,15 @@ module Renderers
   # Internal helpers
   # ---------------------------------------------------------------------------
 
-  # linear interpolation: white(0) -> red(1)
-  def self.heat_color(t)
+  # t (0.0..1.0) を white -> red の色にマップする。
+  # scale: :linear (デフォルト) または :log
+  def self.heat_color(t, scale: :linear)
+    t = [[t, 0.0].max, 1.0].min
+    t = if scale == :log && t > 0
+      Math.log(t * (Math::E - 1) + 1)   # log(1)=0, log(e)=1 に正規化
+    else
+      t
+    end
     t = [[t, 0.0].max, 1.0].min
     r = 255
     g = (255 * (1.0 - t)).round
@@ -50,7 +57,7 @@ module Renderers
   # font_path:   path to font file (for gruff, unused here)
   # font_magick: ImageMagick font name (for text annotation)
   # ---------------------------------------------------------------------------
-  def self.render_heatmap(values, out_path:, width: 1000, font_path: nil, font_magick: nil, title: nil)
+  def self.render_heatmap(values, out_path:, width: 1000, font_path: nil, font_magick: nil, title: nil, scale: :linear)
     raise ArgumentError, "values must be 40 elements (got #{values.length})" unless values.length == 40
 
     pad_left   = 50
@@ -81,7 +88,7 @@ module Renderers
         idx = r * 10 + c
         v   = values[idx]
         t   = v / max_v.to_f
-        col = heat_color(t)
+        col = heat_color(t, scale: scale)
         x0  = pad_left + c * cell_w
         y0  = pad_top  + r * cell_h
 
@@ -153,9 +160,10 @@ module Renderers
 
   # ---------------------------------------------------------------------------
   # Internal: shared 40x40 heatmap renderer for bigram and basicCharCount
-  # pct_1600: 1600-element array of percentages
+  # pct_1600:   1600-element array of percentages
+  # char_table: optional Hash { index(0..1599) => char } for cell labels
   # ---------------------------------------------------------------------------
-  def self.render_1600_heatmap(pct_1600, out_path:, width: 1000, font_magick: nil, label_name: 'bigram', title: nil)
+  def self.render_1600_heatmap(pct_1600, out_path:, width: 1000, font_magick: nil, label_name: 'bigram', title: nil, scale: :linear, char_table: nil)
     raise ArgumentError, "#{label_name} must be 1600 elements (got #{pct_1600.length})" unless pct_1600.length == 1600
 
     pad_left   = 100
@@ -175,7 +183,7 @@ module Renderers
       BIGRAM_ORDER.each_with_index do |second_key, ci|
         v   = pct_1600[first_key * 40 + second_key]
         t   = v / max_v.to_f
-        col = heat_color(t)
+        col = heat_color(t, scale: scale)
         x0  = pad_left + ci * cell_w
         y0  = pad_top  + ri * cell_h
         (0...cell_w).each do |px|
@@ -215,18 +223,155 @@ module Renderers
       annotations << { x: rx, y: ry, text: label, color: 'black', pointsize: ps }
     end
 
+    # セル内文字ラベル (basicCharCount用)
+    if char_table
+      char_ps = [[cell_w * 3 / 4, 6].max, 12].min
+      BIGRAM_ORDER.each_with_index do |first_key, ri|
+        BIGRAM_ORDER.each_with_index do |second_key, ci|
+          idx = first_key * 40 + second_key
+          ch  = char_table[idx]
+          next unless ch
+
+          v   = pct_1600[idx]
+          t   = (v / max_v.to_f)
+          t   = (scale == :log && t > 0) ? Math.log(t * (Math::E - 1) + 1) : t
+          text_color = t > 0.6 ? 'white' : 'black'
+          x0  = pad_left + ci * cell_w
+          y0  = pad_top  + ri * cell_h
+          tx  = x0 + (cell_w / 2) - (char_ps * 0.5).to_i
+          ty  = y0 + (cell_h / 2) - (char_ps * 0.5).to_i
+          annotations << { x: [tx, pad_left].max, y: [ty, pad_top].max, text: ch, color: text_color, pointsize: char_ps }
+        end
+      end
+    end
+
     annotate_png(out_path, annotations, font_magick: font_magick)
   end
 
   # Bigram heatmap (wrapper)
-  def self.render_bigram(bigram_pct, out_path:, width: 1000, font_magick: nil, title: nil)
+  def self.render_bigram(bigram_pct, out_path:, width: 1000, font_magick: nil, title: nil, scale: :linear)
     render_1600_heatmap(bigram_pct, out_path: out_path, width: width,
-                        font_magick: font_magick, label_name: 'bigram', title: title)
+                        font_magick: font_magick, label_name: 'bigram', title: title, scale: scale)
   end
 
-  # basicCharCount heatmap (same layout as bigram)
-  def self.render_basic_chars(basic_char_pct, out_path:, width: 1000, font_magick: nil, title: nil)
+  # basicCharCount heatmap: セルにT-Code基本文字を描画
+  def self.render_basic_chars(basic_char_pct, out_path:, width: 1000, font_magick: nil, title: nil, scale: :linear)
+    require_relative 'tcode'
+    char_table = Tcode.all_chars
     render_1600_heatmap(basic_char_pct, out_path: out_path, width: width,
-                        font_magick: font_magick, label_name: 'basicCharCount', title: title)
+                        font_magick: font_magick, label_name: 'basicCharCount', title: title,
+                        scale: scale, char_table: char_table)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Percentile chart: 出現頻度順基本文字一覧
+  # sorted_chars: [ [char, count], ... ] 頻度降順
+  # cols:         1行あたりの文字数 (デフォルト40)
+  # ---------------------------------------------------------------------------
+  PERCENTILE_BANDS = [
+    { upto: 50,  color: [255, 160, 160] },   # 濃いピンク
+    { upto: 75,  color: [255, 192, 192] },
+    { upto: 90,  color: [255, 210, 210] },
+    { upto: 95,  color: [255, 228, 228] },
+    { upto: 100, color: [255, 255, 255] },   # 白
+  ].freeze
+
+  def self.render_percentile(sorted_chars, out_path:, width: 1000, font_magick: nil,
+                             title: '入力したことのある字(出現頻度順)', cols: 40)
+    return if sorted_chars.empty?
+
+    total = sorted_chars.sum { |_, c| c }.to_f
+
+    # 各文字のパーセンタイル (累積頻度の割合)
+    cumulative = 0.0
+    char_pct = sorted_chars.map do |ch, cnt|
+      cumulative += cnt / total * 100.0
+      [ch, cumulative]
+    end
+
+    rows = (char_pct.length.to_f / cols).ceil
+
+    # レイアウト定数
+    pad_left   = 10
+    pad_right  = 10
+    title_ps   = title ? [[(width * 0.025).to_i, 14].max, 28].min : 0
+    title_h    = title ? title_ps + 10 : 0
+
+    # 凡例: バンドごとに色ボックス＋ラベル
+    legend_ps    = [[(width * 0.018).to_i, 10].max, 18].min
+    legend_box_h = legend_ps + 6
+    legend_h     = legend_box_h + 8   # ボックス＋下余白
+
+    pad_top    = pad_left + title_h + legend_h
+    pad_bottom = 10
+
+    cell_w = ((width - pad_left - pad_right).to_f / cols).floor
+    cell_h = (cell_w * 1.4).to_i
+    height = pad_top + cell_h * rows + pad_bottom
+
+    img = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::WHITE)
+
+    annotations = []
+
+    # タイトル
+    if title
+      tx = (width / 2) - (title_ps * title.length * 0.3).to_i
+      annotations << { x: [tx, 4].max, y: pad_left, text: title, color: 'black', pointsize: title_ps }
+    end
+
+    # 凡例描画
+    legend_labels = [
+      '0-50%',
+      '50-75%',
+      '75-90%',
+      '90-95%',
+      '95-100%',
+    ]
+    n_bands   = PERCENTILE_BANDS.length
+    band_w    = (width - pad_left - pad_right) / n_bands
+    legend_y0 = pad_left + title_h + 4
+
+    PERCENTILE_BANDS.each_with_index do |band, i|
+      r, g, b = band[:color]
+      bg = ChunkyPNG::Color.rgba(r, g, b, 255)
+      x0 = pad_left + i * band_w
+      # 色ボックスを塗る
+      (0...band_w).each do |px|
+        (0...legend_box_h).each { |py| img[x0 + px, legend_y0 + py] = bg }
+      end
+      # ボックス枠線
+      border = ChunkyPNG::Color.rgba(180, 180, 180, 255)
+      (0...band_w).each { |px| img[x0 + px, legend_y0] = border; img[x0 + px, legend_y0 + legend_box_h - 1] = border }
+      (0...legend_box_h).each { |py| img[x0, legend_y0 + py] = border; img[x0 + band_w - 1, legend_y0 + py] = border }
+      # ラベルテキスト
+      label = legend_labels[i]
+      tx = x0 + (band_w / 2) - (legend_ps * label.length * 0.3).to_i
+      ty = legend_y0 + (legend_box_h / 2) - (legend_ps * 0.5).to_i
+      annotations << { x: [tx, x0].max, y: [ty, legend_y0].max, text: label, color: 'black', pointsize: legend_ps }
+    end
+
+    char_pct.each_with_index do |(ch, cum_pct), idx|
+      row = idx / cols
+      col = idx % cols
+      x0  = pad_left + col * cell_w
+      y0  = pad_top  + row * cell_h
+
+      # 背景色
+      band  = PERCENTILE_BANDS.find { |b| cum_pct <= b[:upto] } || PERCENTILE_BANDS.last
+      r, g, b = band[:color]
+      bg_color = ChunkyPNG::Color.rgba(r, g, b, 255)
+      (0...cell_w).each do |px|
+        (0...cell_h).each { |py| img[x0 + px, y0 + py] = bg_color }
+      end
+
+      # 文字アノテーション
+      char_ps = [[cell_w * 3 / 4, 8].max, 18].min
+      tx = x0 + (cell_w / 2) - (char_ps * 0.5).to_i
+      ty = y0 + (cell_h / 2) - (char_ps * 0.5).to_i
+      annotations << { x: [tx, 0].max, y: [ty, 0].max, text: ch, color: 'black', pointsize: char_ps }
+    end
+
+    img.save(out_path)
+    annotate_png(out_path, annotations, font_magick: font_magick)
   end
 end

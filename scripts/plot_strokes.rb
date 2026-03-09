@@ -9,6 +9,7 @@ require 'fileutils'
 require 'json'
 require_relative 'lib/aggregator'
 require_relative 'lib/renderers'
+require_relative 'lib/tcode'
 
 FONT_PATH_DEFAULT    = '/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc'
 FONT_MAGICK_DEFAULT  = '.Hiragino-Kaku-Gothic-Interface-W3'
@@ -19,6 +20,7 @@ options = {
   font_path: FONT_PATH_DEFAULT,
   font_magick: FONT_MAGICK_DEFAULT,
   force: false,
+  scale: :linear,
 }
 
 opt_parser = OptionParser.new do |opts|
@@ -39,6 +41,10 @@ opt_parser = OptionParser.new do |opts|
 
   opts.on('--force', 'Overwrite existing output files') do
     options[:force] = true
+  end
+
+  opts.on('--scale SCALE', %w[log linear], 'Color scale for heatmaps: log or linear (default: linear)') do |s|
+    options[:scale] = s.to_sym
   end
 
   opts.on('-h', '--help', 'Prints this help') do
@@ -102,7 +108,7 @@ if key_count_sum > 0
   puts "Rendering heatmap -> #{heatmap_path}"
   Renderers.render_heatmap(key_percent, out_path: heatmap_path, width: options[:width],
                            font_path: options[:font_path], font_magick: options[:font_magick],
-                           title: 'キー別ヒートマップ')
+                           title: 'キー別ヒートマップ', scale: options[:scale])
 else
   warn 'keyCount total is zero; skipping heatmap'
 end
@@ -197,7 +203,8 @@ if bigram_sum > 0
   bigram_path = File.join(out_dir, 'bigram.png')
   puts "Rendering bigram -> #{bigram_path}"
   Renderers.render_bigram(bigram_percent, out_path: bigram_path, width: options[:width],
-                          font_magick: options[:font_magick], title: 'バイグラムヒートマップ')
+                          font_magick: options[:font_magick], title: 'バイグラムヒートマップ',
+                          scale: options[:scale])
 else
   warn 'bigram total is zero; skipping bigram chart'
 end
@@ -207,9 +214,41 @@ if basic_char_count_sum > 0
   basic_chars_path = File.join(out_dir, 'basic_chars.png')
   puts "Rendering basic_chars -> #{basic_chars_path}"
   Renderers.render_basic_chars(basic_char_percent, out_path: basic_chars_path, width: options[:width],
-                               font_magick: options[:font_magick], title: '基本文字ヒートマップ')
+                               font_magick: options[:font_magick], title: '基本文字ヒートマップ',
+                               scale: options[:scale])
 else
   warn 'basicCharCount total is zero; skipping basic_chars chart'
+end
+
+# top100.txt & percentile.png (basicCharCount + tcode basicTable)
+if basic_char_count_sum > 0
+  char_table = Tcode.all_chars   # { index => char }
+
+  # 文字ごとにカウントを集計 (■以外・重複キー合算)
+  char_count = Hash.new(0)
+  stats[:basicCharCount].each_with_index do |cnt, idx|
+    next if cnt == 0
+    ch = char_table[idx]
+    next unless ch
+    char_count[ch] += cnt
+  end
+
+  # 漢字トップ100
+  kanji_sorted = char_count.select { |ch, _| ch =~ /\p{Han}/ }
+                            .sort_by { |_, c| -c }
+                            .first(100)
+  top100_path = File.join(out_dir, 'top100.txt')
+  puts "Writing top100 kanji -> #{top100_path}"
+  File.write(top100_path, kanji_sorted.map { |ch, _| ch }.join, encoding: 'UTF-8')
+
+  # percentile.png: '■'以外の全文字を頻度降順
+  sorted_chars = char_count.sort_by { |_, c| -c }
+  percentile_path = File.join(out_dir, 'percentile.png')
+  puts "Rendering percentile -> #{percentile_path}"
+  Renderers.render_percentile(sorted_chars, out_path: percentile_path, width: options[:width],
+                              font_magick: options[:font_magick])
+else
+  warn 'basicCharCount total is zero; skipping top100/percentile'
 end
 
 puts "All done. Output in #{out_dir}"

@@ -148,10 +148,12 @@ else
 
     assert('script exits with code 0', exit_code == 0)
 
-    %w[heatmap.png fingers.png rows.png panes.png alternation.png bigram.png basic_chars.png].each do |fname|
+    %w[heatmap.png fingers.png rows.png panes.png alternation.png bigram.png basic_chars.png percentile.png].each do |fname|
       path = File.join(out_dir, fname)
       assert("#{fname} was generated", File.exist?(path) && File.size(path) > 1000)
     end
+    top100_path = File.join(out_dir, 'top100.txt')
+    assert('top100.txt was generated', File.exist?(top100_path) && File.size(top100_path) > 0)
   end
 end
 
