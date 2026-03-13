@@ -248,6 +248,164 @@ module Renderers
     annotate_png(out_path, annotations, font_magick: font_magick)
   end
 
+  # ---------------------------------------------------------------------------
+  # 木を見て森を見るストローク表ヒートマップ: 50cols x 32rows
+  # pct_1600:   1600要素の割合配列 (basicCharCount を正規化したもの)
+  # char_table: Hash { index(0..1599) => char }  セル内文字ラベル用
+  #
+  # 座標変換:
+  #   k1 = index / 40, k2 = index % 40
+  #   p1 = k1%10 < 5 ? 0 : 1  (0=左手, 1=右手)
+  #   p2 = k2%10 < 5 ? 0 : 1
+  #   x1=k1%5, y1=k1/10,  x2=k2%5, y2=k2/10
+  #   x = x2*5 + x1 + p2*25   (0..49)
+  #   y = y2*4 + y1 + p1*16   (0..31)
+  # ---------------------------------------------------------------------------
+  def self.render_1600_stroke_heatmap(pct_1600, out_path:, width: 1200, font_magick: nil,
+                                      title: '木を見て森を見るヒートマップ', scale: :linear,
+                                      char_table: nil)
+    raise ArgumentError, "pct_1600 must be 1600 elements (got #{pct_1600.length})" unless pct_1600.length == 1600
+
+    n_cols = 50
+    n_rows = 32
+
+    # 象限ラベル行（上・下それぞれ）と標題行を確保
+    title_ps   = 18
+    title_h    = title ? title_ps + 10 : 0
+    qlabel_h   = 20   # 象限ラベルの高さ
+    pad_left   = 10
+    pad_right  = 10
+    pad_top    = title_h + qlabel_h + 4
+    pad_bottom = qlabel_h + 4
+
+    grid_w  = width - pad_left - pad_right
+    cell_w  = (grid_w.to_f / n_cols).floor
+    cell_h  = cell_w
+    height  = pad_top + cell_h * n_rows + pad_bottom
+
+    img   = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::WHITE)
+    max_v = pct_1600.max.nonzero? || 1.0
+
+    # --- セルの塗りつぶし ---
+    grid = Array.new(n_cols * n_rows, 0.0)   # (x, y) -> pct
+    1600.times do |idx|
+      k1 = idx / 40
+      k2 = idx % 40
+      p1 = k1 % 10 < 5 ? 0 : 1
+      p2 = k2 % 10 < 5 ? 0 : 1
+      x1 = k1 % 5;  y1 = k1 / 10
+      x2 = k2 % 5;  y2 = k2 / 10
+      x  = x2 * 5 + x1 + p2 * 25
+      y  = y2 * 4 + y1 + p1 * 16
+      grid[y * n_cols + x] = pct_1600[idx]
+    end
+
+    n_rows.times do |gy|
+      n_cols.times do |gx|
+        v   = grid[gy * n_cols + gx]
+        t   = v / max_v.to_f
+        col = heat_color(t, scale: scale)
+        x0  = pad_left + gx * cell_w
+        y0  = pad_top  + gy * cell_h
+        (0...cell_w).each do |px|
+          (0...cell_h).each { |py| img[x0 + px, y0 + py] = col }
+        end
+      end
+    end
+
+    # --- 罫線（森の境界） ---
+    thin_sep  = ChunkyPNG::Color.rgba(120, 120, 120, 200)
+    thick_sep = ChunkyPNG::Color.rgba(0,   0,   0,   255)
+
+    # 縦線: x = 5, 10, 15, 20 | 25(太) | 30, 35, 40, 45
+    (0...n_cols).step(5) do |gx|
+      next if gx == 0
+      color = (gx == 25) ? thick_sep : thin_sep
+      x = pad_left + gx * cell_w
+      (pad_top...(pad_top + n_rows * cell_h)).each { |yy| img[x, yy] = color if x < width }
+    end
+
+    # 横線: y = 4, 8, 12 | 16(太) | 20, 24, 28
+    (0...n_rows).step(4) do |gy|
+      next if gy == 0
+      color = (gy == 16) ? thick_sep : thin_sep
+      y = pad_top + gy * cell_h
+      (pad_left...(pad_left + n_cols * cell_w)).each { |xx| img[xx, y] = color if y < height }
+    end
+
+    img.save(out_path)
+
+    annotations = []
+
+    # --- 標題 ---
+    if title
+      tx = (width / 2) - (title_ps * title.length * 0.3).to_i
+      annotations << { x: [tx, 4].max, y: 4, text: title, color: 'black', pointsize: title_ps }
+    end
+
+    # --- 象限ラベル ---
+    # p1=0(左手)=上半分(y<16), p1=1(右手)=下半分(y>=16)
+    # p2=0(左手)=左半分(x<25), p2=1(右手)=右半分(x>=25)
+    # ラベル位置: 上(y<pad_top)と下(y>pad_top+n_rows*cell_h)
+    ql_ps   = 13
+    left_cx  = pad_left + 12 * cell_w + cell_w / 2   # 左半分中央
+    right_cx = pad_left + 37 * cell_w + cell_w / 2   # 右半分中央
+    top_y    = title_h + 4
+    bot_y    = pad_top + n_rows * cell_h + 4
+
+    [
+      { text: 'LL', x: left_cx,  y: top_y },
+      { text: 'LR', x: right_cx, y: top_y },
+      { text: 'RL', x: left_cx,  y: bot_y },
+      { text: 'RR', x: right_cx, y: bot_y },
+    ].each do |q|
+      tx = q[:x] - (ql_ps * q[:text].length * 0.35).to_i
+      annotations << { x: [tx, 0].max, y: q[:y], text: q[:text], color: 'black', pointsize: ql_ps }
+    end
+
+    # --- セル内文字ラベル ---
+    if char_table
+      char_ps = [[cell_w * 3 / 4, 6].max, 12].min
+      1600.times do |idx|
+        ch = char_table[idx]
+        next unless ch
+
+        k1 = idx / 40
+        k2 = idx % 40
+        p1 = k1 % 10 < 5 ? 0 : 1
+        p2 = k2 % 10 < 5 ? 0 : 1
+        x1 = k1 % 5;  y1 = k1 / 10
+        x2 = k2 % 5;  y2 = k2 / 10
+        gx = x2 * 5 + x1 + p2 * 25
+        gy = y2 * 4 + y1 + p1 * 16
+
+        v  = grid[gy * n_cols + gx]
+        t  = v / max_v.to_f
+        t  = (scale == :log && t > 0) ? Math.log(t * (Math::E - 1) + 1) : t
+        text_color = t > 0.6 ? 'white' : 'black'
+
+        x0 = pad_left + gx * cell_w
+        y0 = pad_top  + gy * cell_h
+        tx = x0 + (cell_w / 2) - (char_ps * 0.5).to_i
+        ty = y0 + (cell_h / 2) - (char_ps * 0.5).to_i
+        annotations << { x: [tx, pad_left].max, y: [ty, pad_top].max,
+                         text: ch, color: text_color, pointsize: char_ps }
+      end
+    end
+
+    annotate_png(out_path, annotations, font_magick: font_magick)
+  end
+
+  # stroke_map wrapper
+  def self.render_stroke_map(pct_1600, out_path:, width: 1200, font_magick: nil,
+                             title: '木を見て森を見るヒートマップ', scale: :linear)
+    require_relative 'tcode'
+    char_table = Tcode.all_chars
+    render_1600_stroke_heatmap(pct_1600, out_path: out_path, width: width,
+                               font_magick: font_magick, title: title,
+                               scale: scale, char_table: char_table)
+  end
+
   # Bigram heatmap (wrapper)
   def self.render_bigram(bigram_pct, out_path:, width: 1000, font_magick: nil, title: nil, scale: :linear)
     render_1600_heatmap(bigram_pct, out_path: out_path, width: width,
