@@ -216,6 +216,14 @@ if basic_char_count_sum > 0
   Renderers.render_basic_chars(basic_char_percent, out_path: basic_chars_path, width: options[:width],
                                font_magick: options[:font_magick], title: '基本文字ヒートマップ',
                                scale: options[:scale])
+
+  # 木を見て森を見るストローク表
+  stroke_map_path = File.join(out_dir, 'stroke_map.png')
+  puts "Rendering stroke_map -> #{stroke_map_path}"
+  Renderers.render_stroke_map(basic_char_percent, out_path: stroke_map_path, width: options[:width],
+                              font_magick: options[:font_magick],
+                              title: '木を見て森を見るヒートマップ',
+                              scale: options[:scale])
 else
   warn 'basicCharCount total is zero; skipping basic_chars chart'
 end
