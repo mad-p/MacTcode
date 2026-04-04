@@ -91,6 +91,7 @@ class TcodeMode: Mode, MultiStroke {
                     InputStats.i.incrementBasicCount()
                     InputStats.i.recordKakutei(charCount: 1)
                 }
+                return .processed
             case .action(let action):
                 InputStats.i.incrementFunctionCount()
                 command = action.execute(client: client, mode: self, controller: controller!)
