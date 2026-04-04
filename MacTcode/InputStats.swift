@@ -26,7 +26,7 @@ class StreamCounter {
     func endStream() {
         guard currentLength > 0 else { return }
         let idx = min(currentLength, 50)
-        Log.i("★Stream ended with length \(currentLength), updating histogram at index \(idx)")
+        // Log.i("★Stream ended with length \(currentLength), updating histogram at index \(idx)")
         histogram[idx] += 1
         currentLength = 0
     }
@@ -96,7 +96,7 @@ class InputStats {
         queue.async(flags: .barrier) {
             self.basicCount += 1
             self.totalActionCount += 1
-            Log.i("basicCount = \(self.basicCount)")
+            // Log.i("basicCount = \(self.basicCount)")
         }
     }
 
@@ -183,7 +183,7 @@ class InputStats {
 
     /// 非ストロークイベントを記録して連続性を断つ（バイグラム統計のみ）
     func recordNonStrokeEvent() {
-        Log.i("recordNonStrokeEvent called")
+        // Log.i("recordNonStrokeEvent called")
         guard UserConfigs.i.system.strokeStatsEnabled else { return }
         queue.async(flags: .barrier) {
             self.recordNonStrokeEventInternal()
@@ -198,7 +198,7 @@ class InputStats {
 
     /// ストリーム統計の不連続を記録する（ストリームを終了させる）
     func recordStreamEndEvent() {
-        Log.i("recordStreamEndEvent called")
+        // Log.i("recordStreamEndEvent called")
         guard UserConfigs.i.system.streamStatsEnabled else { return }
         queue.async(flags: .barrier) {
             self.recordStreamEndEventInternal()
@@ -218,7 +218,7 @@ class InputStats {
     ///   - charCount: 確定された文字数
     ///   - subtract: 減算する文字数（ヨミ分など。Bushuでは2、Mazegakiではhit.length）
     func recordKakutei(charCount: Int, subtract: Int = 0) {
-        Log.i("recordKakutei called: charCount = \(charCount), subtract = \(subtract)")
+        // Log.i("recordKakutei called: charCount = \(charCount), subtract = \(subtract)")
         guard UserConfigs.i.system.streamStatsEnabled else { return }
         queue.async(flags: .barrier) {
             let now = Date()
@@ -227,7 +227,7 @@ class InputStats {
                 for (key, counter) in self.streamCounters {
                     guard let threshold = Double(key) else { continue }
                     if elapsed >= threshold {
-                        Log.i("Stream threshold \(threshold) exceeded (elapsed = \(elapsed)), ending stream")
+                        // Log.i("Stream threshold \(threshold) exceeded (elapsed = \(elapsed)), ending stream")
                         counter.endStream()
                     }
                     counter.addChars(charCount, subtract: subtract)
