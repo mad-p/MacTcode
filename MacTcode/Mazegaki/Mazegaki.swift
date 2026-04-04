@@ -105,6 +105,7 @@ class Mazegaki {
         let length = hit.length
         Log.i("Kakutei \(string)  client=\(type(of:client))")
         InputStats.i.incrementMazegakiCount()
+        InputStats.i.recordKakutei(charCount: string.count, subtract: length)
         let backspaceCount = client.replaceYomi(string, length: length, from: context)
         controller.setBackspaceIgnore(backspaceCount)
 

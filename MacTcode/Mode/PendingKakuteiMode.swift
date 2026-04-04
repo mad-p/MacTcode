@@ -73,7 +73,7 @@ class PendingKakuteiMode: Mode {
         } else {
             Log.i("accepted \(yomiString) -> \(kakuteiString); parameter = nil")
         }
-        // 受容は連続性を断つ
+        // 受容はバイグラム連続性のみ断つ（ストリームは継続）
         InputStats.i.recordNonStrokeEvent()
         uninstall()
         return onAccepted(parameter, inputEvent)

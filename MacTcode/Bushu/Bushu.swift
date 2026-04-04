@@ -296,6 +296,7 @@ final class Bushu {
         let backspaceCount = client.replaceYomi(result, length: 2, from: yomi)
         controller.setBackspaceIgnore(backspaceCount)
         InputStats.i.incrementBushuCount()
+        InputStats.i.recordKakutei(charCount: 1, subtract: 2)
 
         // 自動学習が有効な場合、PendingKakuteiを生成
         if UserConfigs.i.bushu.autoEnabled {

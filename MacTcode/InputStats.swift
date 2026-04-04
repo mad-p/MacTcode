@@ -1,5 +1,42 @@
 import Foundation
 
+/// しきい値ごとのストリーム統計を管理するクラス
+class StreamCounter {
+    /// 現在カウント中のストリーム長（文字数）
+    var currentLength: Int = 0
+    /// ストリーム長さのヒストグラム（要素数51、インデックス0..50）
+    var histogram: [Int] = Array(repeating: 0, count: 51)
+
+    /// ストリームに文字を追加する
+    /// - Parameters:
+    ///   - count: 追加する文字数
+    ///   - subtract: 減算する文字数（ヨミ分の除外など）
+    func addChars(_ count: Int, subtract: Int = 0) {
+        let net = count - subtract
+        if net > 0 {
+            currentLength += net
+        } else if net < 0 {
+            // 理論的には発生しないが予防的に
+            currentLength = max(0, currentLength + net)
+        }
+        // net == 0 は何もしない
+    }
+
+    /// 現在のストリームを終了してヒストグラムを更新する
+    func endStream() {
+        guard currentLength > 0 else { return }
+        let idx = min(currentLength, 50)
+        histogram[idx] += 1
+        currentLength = 0
+    }
+
+    /// カウンタをリセットする
+    func reset() {
+        currentLength = 0
+        histogram = Array(repeating: 0, count: 51)
+    }
+}
+
 /// 入力統計情報を管理するシングルトンクラス
 class InputStats {
     static let i = InputStats()
@@ -28,11 +65,29 @@ class InputStats {
     private var lastStrokeKey: Int? = nil
     private var lastStrokePane: String? = nil // "L" or "R"
 
+    // ストリーム統計
+    // 最後に確定した時刻（全しきい値で共有）
+    private var lastKakuteiDate: Date? = nil
+    // しきい値文字列 -> StreamCounter
+    private var streamCounters: [String: StreamCounter] = [:]
+
     private let queue = DispatchQueue(label: "jp.mad-p.inputmethods.MacTcode.inputstats", attributes: .concurrent)
 
     private init() {
         // 初期化時に保存済みの stroke-stats.json を読み込む
         loadStrokeStatsMaybe()
+        // ストリームカウンタを初期化
+        initStreamCounters()
+    }
+
+    /// 設定のしきい値に基づいてストリームカウンタを初期化する
+    private func initStreamCounters() {
+        let thresholds = UserConfigs.i.system.streamThresholds
+        for key in thresholds {
+            if streamCounters[key] == nil {
+                streamCounters[key] = StreamCounter()
+            }
+        }
     }
 
     /// 基本文字入力のカウントを増やす
@@ -48,7 +103,7 @@ class InputStats {
     func incrementBushuCount() {
         queue.async(flags: .barrier) {
             self.bushuCount += 1
-            // continuity break
+            // バイグラム連続性を断つ（ストリームはrecordKakuteiで管理）
             self.recordNonStrokeEventInternal()
         }
     }
@@ -57,7 +112,7 @@ class InputStats {
     func incrementMazegakiCount() {
         queue.async(flags: .barrier) {
             self.mazegakiCount += 1
-            // continuity break
+            // バイグラム連続性を断つ（ストリームはrecordKakuteiで管理）
             self.recordNonStrokeEventInternal()
         }
     }
@@ -67,8 +122,9 @@ class InputStats {
         queue.async(flags: .barrier) {
             self.functionCount += 1
             self.totalActionCount += 1
-            // continuity break
+            // バイグラム・ストリーム両方の連続性を断つ
             self.recordNonStrokeEventInternal()
+            self.recordStreamEndEventInternal()
         }
     }
 
@@ -124,7 +180,7 @@ class InputStats {
         }
     }
 
-    /// 非ストロークイベントを記録して連続性を断つ
+    /// 非ストロークイベントを記録して連続性を断つ（バイグラム統計のみ）
     func recordNonStrokeEvent() {
         guard UserConfigs.i.system.strokeStatsEnabled else { return }
         queue.async(flags: .barrier) {
@@ -132,10 +188,52 @@ class InputStats {
         }
     }
 
-    // internal: assumes barrier queue
+    // internal: assumes barrier queue（バイグラム統計のみ）
     private func recordNonStrokeEventInternal() {
         self.lastStrokeKey = nil
         self.lastStrokePane = nil
+    }
+
+    /// ストリーム統計の不連続を記録する（ストリームを終了させる）
+    func recordStreamEndEvent() {
+        guard UserConfigs.i.system.streamStatsEnabled else { return }
+        queue.async(flags: .barrier) {
+            self.recordStreamEndEventInternal()
+        }
+    }
+
+    // internal: assumes barrier queue
+    private func recordStreamEndEventInternal() {
+        for counter in self.streamCounters.values {
+            counter.endStream()
+        }
+        self.lastKakuteiDate = nil
+    }
+
+    /// 漢直入力の確定を記録する（ストリーム統計用）
+    /// - Parameters:
+    ///   - charCount: 確定された文字数
+    ///   - subtract: 減算する文字数（ヨミ分など。Bushuでは2、Mazegakiではhit.length）
+    func recordKakutei(charCount: Int, subtract: Int = 0) {
+        guard UserConfigs.i.system.streamStatsEnabled else { return }
+        queue.async(flags: .barrier) {
+            let now = Date()
+            if let last = self.lastKakuteiDate {
+                let elapsed = now.timeIntervalSince(last)
+                for (key, counter) in self.streamCounters {
+                    guard let threshold = Double(key) else { continue }
+                    if elapsed >= threshold {
+                        counter.endStream()
+                    }
+                    counter.addChars(charCount, subtract: subtract)
+                }
+            } else {
+                for counter in self.streamCounters.values {
+                    counter.addChars(charCount, subtract: subtract)
+                }
+            }
+            self.lastKakuteiDate = now
+        }
     }
 
     /// ストローク統計をリセット（メモリ内）
@@ -148,6 +246,9 @@ class InputStats {
             self.alternation = ["alternate": 0, "consecutive": 0, "first": 0]
             self.lastStrokeKey = nil
             self.lastStrokePane = nil
+            // ストリーム統計もリセット
+            for counter in self.streamCounters.values { counter.reset() }
+            self.lastKakuteiDate = nil
         }
     }
 
@@ -170,6 +271,16 @@ class InputStats {
                     if let bg = obj["bigram"] as? [Int], bg.count == nKeys * nKeys { self.bigramCount = bg }
                     if let p = obj["panes"] as? [String: Int] { self.panes = p }
                     if let a = obj["alternation"] as? [String: Int] { self.alternation = a }
+                    // ストリーム統計を読み込む
+                    if let sc = obj["streamCount"] as? [String: [Int]] {
+                        for (key, hist) in sc {
+                            if hist.count == 51 {
+                                let counter = self.streamCounters[key] ?? StreamCounter()
+                                counter.histogram = hist
+                                self.streamCounters[key] = counter
+                            }
+                        }
+                    }
                 }
             } catch {
                 Log.i("Failed to load stroke-stats: \(error)")
@@ -188,6 +299,14 @@ class InputStats {
             obj["panes"] = self.panes
             obj["alternation"] = self.alternation
             obj["lastUpdated"] = ISO8601DateFormatter().string(from: Date())
+            // ストリーム統計を書き出す（現在進行中のストリームは反映しない）
+            if UserConfigs.i.system.streamStatsEnabled {
+                var streamCount: [String: [Int]] = [:]
+                for (key, counter) in self.streamCounters {
+                    streamCount[key] = counter.histogram
+                }
+                obj["streamCount"] = streamCount
+            }
 
             do {
                 let data = try JSONSerialization.data(withJSONObject: obj, options: [.prettyPrinted, .sortedKeys])

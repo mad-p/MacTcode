@@ -223,6 +223,10 @@ class UserConfigs {
         let cancelPeriod: Double
         // ストローク統計を有効にするかどうか
         let strokeStatsEnabled: Bool
+        // ストリーム統計を有効にするかどうか
+        let streamStatsEnabled: Bool
+        // ストリーム連続判定のしきい値（秒）の文字列リスト
+        let streamThresholds: [String]
 
         static let `default` = SystemConfig(
             recentTextMaxLength: 20,
@@ -239,7 +243,9 @@ class UserConfigs {
             ],
             syncStatsInterval: 1200,
             cancelPeriod: 1.5,
-            strokeStatsEnabled: true
+            strokeStatsEnabled: true,
+            streamStatsEnabled: true,
+            streamThresholds: ["0.5", "1.0"]
         )
     }
 
