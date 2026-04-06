@@ -109,52 +109,47 @@ log stream --predicate 'process == "MacTcode"'
 2. **BushuConfig**: 部首変換設定、自動部首変換学習設定
 3. **KeyBindingsConfig**: キーバインド、基本文字配列（40x40）
 4. **UIConfig**: 候補選択キー、記号セット
-5. **SystemConfig**: 除外アプリ、ログ、統計同期間隔、キャンセル期間
+5. **SystemConfig**: 除外アプリ、ログ、統計同期間隔、キャンセル期間、ストローク統計設定（`strokeStatsEnabled`, `streamStatsEnabled`, `streamThresholds`）
 
 設定変更は`UserConfigsDelegate`プロトコルで通知。
 
 ### 統計管理
 
-`InputStats.i`（シングルトン）:
-- スレッドセーフ（DispatchQueueで排他制御）
+`InputStats.i`（シングルトン）はスレッドセーフ（DispatchQueueで排他制御）で2種類の統計を管理する。
+
+#### 入力頻度統計
 - 基本文字、部首変換、交ぜ書き変換、機能実行をカウント
-- 定期的に`tc-record.txt`に出力（デフォルト1200秒間隔）
+- 定期的に`tc-record.txt`に追記（デフォルト1200秒間隔）
+- 設定変更・学習データ保存も同タイミングで実行
 
-### このセッションで行った変更（要約・2026-02-21）
+#### ストローク統計（`stroke-stats.json`に累積保存）
+- **keyCount[40]**: キーごとの打鍵数
+- **basicCharCount[1600]**: 基本文字（2打鍵）ごとの出現頻度（インデックス = key1 * 40 + key2）
+- **bigram[1600]**: 連続する2打鍵のバイグラム頻度
+- **panes**: 象限ペア（"LL","LR","RL","RR"）ごとの頻度
+- **alternation**: 交互打鍵（"alternate"/"consecutive"/"first"）の頻度
+- 設定: `system.strokeStatsEnabled`（デフォルト: true）
 
-以下はこの作業セッションで実装／追加した内容の短いサマリです。将来の解析やデバッグ時に参照してください。
+#### バイグラム連続性
+- `recordNonStrokeEvent()`: バイグラムの連続性を断つ（部首/交ぜ書き確定、機能実行、モード切替など）
+- `PendingKakuteiMode.accept()`: バイグラムのみ不連続（ストリームは継続）
 
-- InputStats の拡張
-  - ストローク（T-Code基本キー）単位の頻度統計を追加しました。
-  - 追加メソッド: `recordStroke(key:)`, `recordNonStrokeEvent()`, `resetStrokeStats()`, `writeStrokeStatsToFile()`, `loadStrokeStatsMaybe()`。
-  - 内部データ構造: `keyCount[40]`, `basicCharCount[1600]`, `bigram[1600]`, `panes`, `alternation`。
-  - 書き出しは既存の統計同期タイミング（`tc-record.txt` と同時）で行います。累積保存です（リセットしない）。
+#### ストリーム統計（`stroke-stats.json`の`streamCount`キーに保存）
+連続した漢直入力（ストリーム）の長さを複数のしきい値で計測する。
 
-- 設定変更
-  - 新しい設定フラグを追加: `system.strokeStatsEnabled`（デフォルト: `true`）。
-  - このフラグが `false` の場合、ストローク統計の収集および `stroke-stats.json` の読み書きは行われません。
-
-- 記録フックと連続性ルール
-  - 記録は Option A（実際に basic と判定された箇所）を採用し、`TcodeMode` の `.text` 分岐で `Translator.strToKey` が 0..39 を返す文字を `recordStroke` で記録します。
-  - 連続性を断つ（バイグラムを切る）イベント: 部首/交ぜ書き受容、機能実行、モード切替、候補確定、PendingKakutei の受容、非基本キー入力など。
-
-- コードの主な変更箇所
-  - `MacTcode/InputStats.swift` — ストローク統計実装
-  - `MacTcode/UserConfigs.swift` — `strokeStatsEnabled` を追加（デフォルト true）
-  - `MacTcode/Tcode/TcodeMode.swift` — `.text` 分岐で `recordStroke` 呼び出し
-  - `MacTcode/Tcode/TcodeInputController.swift` — push/pop/deactivate/candidateSelected で `recordNonStrokeEvent` 呼び出し
-  - `MacTcode/Mode/PendingKakuteiMode.swift` — accept() で連続性断ち
-
-- テストとドキュメント
-  - 単体テスト追加: `MacTcodeTests/StrokeStatsTests.swift`（ストローク記録、連続性切断、無効化挙動の検証）
-  - ドキュメント追加／更新:
-    - `STROKE_STATS.md`：`stroke-stats.json` のフォーマット仕様
-    - `README.md`：統計セクションにストローク統計の説明追記
-    - `ConfigParams.md`：`system.strokeStatsEnabled` の説明追記
-
-重要: これら変更は既存のビルドとテストスイートで検証済み（Debug ビルド成功、ユニットテスト実行成功）。
-
-必要に応じて、`STROKE_STATS.md` に記載した JSON を読み取る解析スクリプト（Python など）を追加できます。希望があれば実装します。
+- **StreamCounterクラス**: しきい値ごとの独立したカウンタ
+  - `currentLength`: 現在カウント中のストリーム長（文字数）
+  - `histogram[51]`: ストリーム長のヒストグラム（インデックス50でキャップ）
+- **ストリームの定義**: 確定と確定の間隔がしきい値未満であれば同一ストリームとみなし文字数を累積。しきい値以上またはストリーム終了イベント発生時にヒストグラムを更新してリセット。
+- **文字数カウントのルール**:
+  - `recordKakutei(charCount:subtract:)` で確定を記録
+  - `subtract` はヨミ文字数の差し引き（Bushu: 2、Mazegaki: `hit.length`）
+  - `net = charCount - subtract` が正なら加算、負なら `max(0, currentLength + net)` で下限0を保証
+- **recordStreamEndEvent()**: ストリーム統計の不連続を記録（全StreamCounterを`endStream()`）
+  - 呼び出し箇所: IMEオフ（`deactivateServer`）、モード切替（`pushMode`/`popMode`）、機能実行（`incrementFunctionCount`）
+  - `candidateSelected`はバイグラムのみ（Mazegakiの`recordKakutei`がストリームを管理）
+- **永続化形式**: `streamCount: { "0.5": [0,0,...], "1.0": [0,0,...] }` — しきい値文字列をキー、51要素ヒストグラムを値
+- 設定: `system.streamStatsEnabled`（デフォルト: true）、`system.streamThresholds`（デフォルト: `["0.5", "1.0"]`）
 
 ## 重要なパターン
 
@@ -176,7 +171,7 @@ log stream --predicate 'process == "MacTcode"'
 | `Bushu.swift` | 部首変換アルゴリズム |
 | `MazegakiDict.swift` | 交ぜ書き辞書、MRU学習データ |
 | `PendingKakutei.swift` | 変換キャンセル機構 |
-| `InputStats.swift` | 統計管理 |
+| `InputStats.swift` | 統計管理（入力頻度・ストローク統計・ストリーム統計） |
 | `LineMode.swift` | 1行入力モード（バッファに蓄積して一気に送信） |
 
 ## テスト
@@ -196,7 +191,7 @@ make test    # すべてのテストを実行
 - ✅ 自動部首変換機能（禁止設定含む）
 - ✅ 全角入力モード
 - ✅ 1行入力モード（LineMode）
-- ✅ 統計記録機能
+- ✅ 統計記録機能（入力頻度・ストローク統計・ストリーム統計）
 - ✅ SIGINTハンドリング（統計・学習データの同期）
 
 詳細は`TODO.md`および`README.md`を参照。

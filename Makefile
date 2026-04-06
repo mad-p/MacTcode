@@ -46,3 +46,9 @@ notary:
 
 test:
 	xcodebuild -project MacTcode.xcodeproj -scheme MacTcode -destination 'platform=macOS' test
+
+charts:
+	-rm -rf scripts/out
+	mkdir -p scripts/out
+	(cd scripts; bundle exec ruby ./plot_strokes.rb --scale log data/*.json)
+	(cd scripts; ruby loc_treemap.rb ..)

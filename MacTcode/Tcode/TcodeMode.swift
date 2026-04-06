@@ -86,8 +86,10 @@ class TcodeMode: Mode, MultiStroke {
                 // 自動部首変換を試みる
                 if Bushu.i.tryAutoBushu(client: client, controller: controller!) {
                     InputStats.i.incrementBushuCount()
+                    InputStats.i.recordKakutei(charCount: 1, subtract: 2)
                 } else {
                     InputStats.i.incrementBasicCount()
+                    InputStats.i.recordKakutei(charCount: 1)
                 }
                 return .processed
             case .action(let action):

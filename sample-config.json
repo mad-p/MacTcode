@@ -87,6 +87,9 @@
     ],
     "logEnabled" : false,
     "recentTextMaxLength" : 20,
+    "strokeStatsEnabled" : true,
+    "streamStatsEnabled" : true,
+    "streamThresholds" : ["0.5", "1.0"],
     "syncStatsInterval" : 1200
   },
   "ui" : {

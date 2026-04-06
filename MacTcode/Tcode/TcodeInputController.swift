@@ -66,8 +66,9 @@ class TcodeInputController: IMKInputController, Controller {
             Log.i("deactivate: accepting pendingKakutei")
             _ = pending.accept()
         }
-        // continuity break
+        // バイグラム・ストリーム両方の連続性を断つ
         InputStats.i.recordNonStrokeEvent()
+        InputStats.i.recordStreamEndEvent()
         // Force a write on deactivate (user action / IME switch)
         InputStats.i.writeStatsToFile(force: true)
         super.deactivateServer(sender)
@@ -168,7 +169,7 @@ class TcodeInputController: IMKInputController, Controller {
         if let modeWithCandidates = mode as? ModeWithCandidates {
             if self.client() != nil {
                 modeWithCandidates.candidateSelected(candidateString, client: wrapClient())
-                // 候補確定は連続性を断つ
+                // 候補確定はバイグラム連続性を断つ（ストリームはMazegaki側のrecordKakuteiで管理）
                 InputStats.i.recordNonStrokeEvent()
             } else {
                 Log.i("*** TcodeInputController.candidateSelected: client is not IMKTextInput???")
@@ -199,14 +200,16 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("TcodeInputController.pushMode: \(mode)")
         modeStack = [mode] + modeStack
         mode.setController(self)
-        // モード切替はストローク連続性を断つ
+        // モード切替はバイグラム・ストリーム両方の連続性を断つ
         InputStats.i.recordNonStrokeEvent()
+        InputStats.i.recordStreamEndEvent()
     }
     func popMode(_ mode: Mode) {
         if let index = modeStack.firstIndex(where: { $0 === mode }) {
             modeStack.remove(at: index)
-            // モード切替は連続性を断つ
+            // モード切替はバイグラム・ストリーム両方の連続性を断つ
             InputStats.i.recordNonStrokeEvent()
+            InputStats.i.recordStreamEndEvent()
         }
     }
     func getActiveMode(of targetClass: Mode.Type) -> Mode? {
