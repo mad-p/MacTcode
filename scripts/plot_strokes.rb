@@ -260,3 +260,18 @@ else
 end
 
 puts "All done. Output in #{out_dir}"
+
+# Stream histograms
+stream_count = stats[:streamCount]
+if stream_count.empty?
+  warn 'streamCount not found in input files; skipping stream histograms'
+else
+  stream_count.each do |threshold, histogram|
+    next if histogram.sum == 0
+    histo_path = File.join(out_dir, "stream-histo-#{threshold}.png")
+    puts "Rendering stream histogram (#{threshold}s) -> #{histo_path}"
+    Renderers.render_stream_histogram(histogram, out_path: histo_path, threshold: threshold,
+                                      width: options[:width], font_path: options[:font_path])
+  end
+end
+ 
