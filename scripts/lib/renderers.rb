@@ -568,6 +568,8 @@ module Renderers
     g.theme_pastel
     g.hide_legend = true
     g.x_axis_label = 'count'
+    g.bar_spacing = 0.9
+    g.group_spacing = 0
     g.labels = display_labels.each_with_index.map { |l, i| [i, l] }.to_h
     g.data :count, display_counts
     g.write(out_path)
