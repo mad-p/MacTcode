@@ -148,7 +148,7 @@ else
 
     assert('script exits with code 0', exit_code == 0)
 
-    %w[heatmap.png fingers.png rows.png panes.png alternation.png bigram.png basic_chars.png stroke_map.png percentile.png stream-histo-0.5.png stream-histo-1.0.png].each do |fname|
+    %w[heatmap.png fingers.png rows.png panes.png alternation.png bigram.png basic_chars.png stroke_map.png percentile.png stream-histo-0.5.png stream-histo-1.0.png stream-charcount-0.5.png stream-charcount-1.0.png].each do |fname|
       path = File.join(out_dir, fname)
       assert("#{fname} was generated", File.exist?(path) && File.size(path) > 1000)
     end
