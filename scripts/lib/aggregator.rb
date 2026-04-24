@@ -3,12 +3,13 @@
 require 'json'
 
 class Aggregator
-  EXPECTED_KEYCOUNT_LEN = 40
-  EXPECTED_BIGRAM_LEN = 1600
-  PANE_KEYS = %w[RL RR LL LR]
-  ALTERNATION_KEYS = %w[alternate consecutive first]
+  EXPECTED_KEYCOUNT_LEN  = 40
+  EXPECTED_BIGRAM_LEN    = 1600
+  EXPECTED_STREAM_LEN    = 51
+  PANE_KEYS              = %w[RL RR LL LR]
+  ALTERNATION_KEYS       = %w[alternate consecutive first]
 
-  attr_reader :key_count, :bigram, :basic_char_count, :panes, :alternation
+  attr_reader :key_count, :bigram, :basic_char_count, :panes, :alternation, :stream_count
 
   def initialize
     @key_count        = Array.new(EXPECTED_KEYCOUNT_LEN, 0)
@@ -16,7 +17,8 @@ class Aggregator
     @basic_char_count = Array.new(EXPECTED_BIGRAM_LEN, 0)
     @panes            = Hash[PANE_KEYS.map { |k| [k, 0] }]
     @alternation      = Hash[ALTERNATION_KEYS.map { |k| [k, 0] }]
-    @valid_files = 0
+    @stream_count     = {}   # { "0.5" => [51 ints], "1.0" => [51 ints], ... }
+    @valid_files      = 0
   end
 
   def add_file(path)
@@ -95,6 +97,21 @@ class Aggregator
       warn "alternation missing or invalid in #{path}, treating as zeros"
     end
 
+    # streamCount: { "0.5" => [51 ints], "1.0" => [51 ints], ... }
+    if data['streamCount'].is_a?(Hash)
+      data['streamCount'].each do |threshold, arr|
+        next unless arr.is_a?(Array)
+        vals = arr.map { |v| to_non_neg_int(v) }
+        if vals.length < EXPECTED_STREAM_LEN
+          vals += Array.new(EXPECTED_STREAM_LEN - vals.length, 0)
+        else
+          vals = vals[0, EXPECTED_STREAM_LEN]
+        end
+        @stream_count[threshold] ||= Array.new(EXPECTED_STREAM_LEN, 0)
+        @stream_count[threshold] = @stream_count[threshold].each_with_index.map { |orig, i| orig + vals[i] }
+      end
+    end
+
     @valid_files += 1
     true
   end
@@ -112,6 +129,7 @@ class Aggregator
       basicCharCount: @basic_char_count,
       panes: @panes,
       alternation: @alternation,
+      streamCount: @stream_count,
       key_count_sum: @key_count.sum,
       bigram_sum: @bigram.sum,
       basic_char_count_sum: @basic_char_count.sum,

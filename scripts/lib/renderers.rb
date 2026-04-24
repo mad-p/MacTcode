@@ -532,4 +532,84 @@ module Renderers
     img.save(out_path)
     annotate_png(out_path, annotations, font_magick: font_magick)
   end
+
+  # ---------------------------------------------------------------------------
+  # Stream histogram (horizontal bar chart)
+  # histogram: 51-element array of counts (index = stream length, index 0 unused)
+  # threshold: string e.g. "0.5"
+  # font_path: path to font file for gruff
+  # ---------------------------------------------------------------------------
+  def self.render_stream_histogram(histogram, out_path:, threshold:, width: 1000, font_path: nil)
+    # インデックス1〜50 (長さ1〜50のストリーム)
+    counts = histogram[1, 50] || []
+    counts = counts + Array.new([50 - counts.length, 0].max, 0)
+
+    total = counts.sum
+    title = "漢直ストリーム (しきい値#{threshold}秒)"
+
+    render_stream_bar_chart(counts, total,
+                            out_path: out_path, title: title,
+                            x_label: 'count', n_total: total,
+                            width: width, font_path: font_path)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Stream char-count histogram: bar value = stream_length * frequency
+  # ---------------------------------------------------------------------------
+  def self.render_stream_charcount(histogram, out_path:, threshold:, width: 1000, font_path: nil)
+    counts = histogram[1, 50] || []
+    counts = counts + Array.new([50 - counts.length, 0].max, 0)
+
+    # ストリーム長 * 度数 = そのストリーム長での入力文字数
+    char_counts = counts.each_with_index.map { |freq, i| freq * (i + 1) }
+    total_chars = char_counts.sum
+    title = "漢直ストリーム別文字数(しきい値#{threshold}秒)"
+
+    render_stream_bar_chart(char_counts, total_chars,
+                            out_path: out_path, title: title,
+                            x_label: '文字数', n_total: total_chars,
+                            width: width, font_path: font_path)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Internal: shared horizontal bar chart for stream histograms
+  # ---------------------------------------------------------------------------
+  def self.render_stream_bar_chart(values, _total, out_path:, title:, x_label:, n_total:, width:, font_path:)
+    first_nonzero = values.index { |v| v > 0 } || 0
+    last_nonzero  = values.rindex { |v| v > 0 } || 0
+    range_start   = first_nonzero
+    range_end     = [last_nonzero, 4].max
+    display_values = values[range_start..range_end]
+
+    display_labels = (range_start..range_end).map do |stream_idx|
+      len = stream_idx + 1
+      (len % 5 == 0 || len == 1) ? len.to_s : ''
+    end
+
+    g = Gruff::SideBar.new(width)
+    g.title = title
+    g.font  = font_path if font_path && File.exist?(font_path)
+    g.theme_pastel
+    g.hide_legend = true
+    g.x_axis_label = x_label
+    g.bar_spacing = 0.9
+    g.group_spacing = 0
+    g.labels = display_labels.each_with_index.map { |l, i| [i, l] }.to_h
+    g.data :count, display_values
+    g.write(out_path)
+
+    if defined?(MiniMagick)
+      img_info = MiniMagick::Image.open(out_path)
+      img_w = img_info.width
+      img_h = img_info.height
+      n_text = "n = #{n_total}"
+      ps = 16
+      tx = img_w - ps * n_text.length - 10
+      ty = img_h - ps - 10
+      annotate_png(out_path,
+                   [{ x: tx, y: ty, text: n_text, color: 'black', pointsize: ps }],
+                   font_magick: font_path)
+    end
+  end
+  private_class_method :render_stream_bar_chart
 end
