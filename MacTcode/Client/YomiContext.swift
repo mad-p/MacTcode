@@ -13,16 +13,18 @@ class YomiContext: CustomStringConvertible {
     let range: NSRange
     let fromSelection: Bool
     let fromMirror: Bool
+    var rangeForUndo: NSRange
     
     init(string: String, range: NSRange, fromSelection: Bool, fromMirror: Bool) {
         self.string = string
         self.range = range
         self.fromSelection = fromSelection
         self.fromMirror = fromMirror
+        self.rangeForUndo = NSRange(location: NSNotFound, length: NSNotFound)
         // Log.i("YomiContext: string=\(string), range=\(range), fromSelection: \(fromSelection), fromMirror: \(fromMirror)")
     }
     
     var description: String {
-        return "YomiContext(string: \"\(string)\", range: \(range), fromSelection: \(fromSelection), fromMirror: \(fromMirror))"
+        return "YomiContext(string: \"\(string)\", range: \(range), fromSelection: \(fromSelection), fromMirror: \(fromMirror), rangeForUndo: \(rangeForUndo))"
     }
 }

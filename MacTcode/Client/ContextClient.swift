@@ -306,6 +306,8 @@ class ContextClient: Client {
                     Log.i("  recent.text(after)=\(self.recent.text)")
                 }
                 Log.i("  ContextClient.replaceYomi: calling recent.insertText \(string), \(rr)")
+                yomiContext.rangeForUndo = NSRange(location: rr.location, length: string.count)
+                Log.i("  rangeForUndo=\(yomiContext.rangeForUndo)")
                 recent.insertText(string, replacementRange: rr)
                 Log.i("  recent.text(beforeBackspaces)=\(self.recent.text)")
                 return length
@@ -317,7 +319,10 @@ class ContextClient: Client {
                 return 0
             }
         } else {
+            Log.i("  Replacing yomi with client.insertText: \(string), \(rr)")
             client.insertText(string, replacementRange: rr)
+            yomiContext.rangeForUndo = NSRange(location: rr.location, length: string.count)
+            Log.i("  rangeForUndo=\(yomiContext.rangeForUndo)")
             recent.replaceLast(length: length, with: string)
             return 0
         }
