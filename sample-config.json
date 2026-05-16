@@ -57,7 +57,7 @@
     "symbolSet2" : "\\\\",
     "zenkakuMode" : "90",
     "lineMode" : "88",
-    "pendingCancelKeys" : []
+    "pendingCancelKeys" : ["/"]
   },
   "mazegaki" : {
     "dictionaryFile" : "mazegaki.dic",
