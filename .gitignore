@@ -30,3 +30,4 @@ scripts/out
 /.ruby-version
 /out
 scripts/data-old
+/tmp

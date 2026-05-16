@@ -277,8 +277,9 @@ class ContextClient: Client {
     
     // Yomiの後ろ側からlength文字をstringで置きかえる。送ったBackspaceの数を返す
     func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) -> Int {
-        // Log.i("ContextClient.replaceYomi: string=\(string), length=\(length)")
-        // Log.i("   yomiContext=\(yomiContext)")
+        Log.i("ContextClient.replaceYomi: string=\(string), length=\(length)")
+        Log.i("   yomiContext=\(yomiContext)")
+        Log.i("   recent.text(before)=\(recent.text)")
 
         // yomiContext.range: 読みの位置
         var rr = yomiContext.range
@@ -291,18 +292,22 @@ class ContextClient: Client {
             // Mirrorから読みを取った場合は、BackSpaceを送ってから文字列を送る
             let uiConfig = UserConfigs.i.ui
             if length < uiConfig.backspaceLimit {
-                Log.i("Sending \(length) BackSpaces and then \(string)")
+                Log.i("  Sending \(length) BackSpaces and then \(string)")
                 let now = DispatchTime.now()
                 for i in 0..<length {
                     DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(i)) {
                         self.client.sendBackspace()
+                        Log.i("  ContextClient.replaceYomi: sent backspace \(i + 1)/\(length)")
                     }
                 }
                 DispatchQueue.main.asyncAfter(deadline: now + uiConfig.backspaceDelay * Double(length)) {
                     self.client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                    Log.i("  ContextClient.replaceYomi: calling client.insertText \(string)")
+                    Log.i("  recent.text(after)=\(self.recent.text)")
                 }
-                // Log.i("ContextClient.replaceYomi: calling recent.insertText \(string), \(rr)")
+                Log.i("  ContextClient.replaceYomi: calling recent.insertText \(string), \(rr)")
                 recent.insertText(string, replacementRange: rr)
+                Log.i("  recent.text(beforeBackspaces)=\(self.recent.text)")
                 return length
             } else {
                 // lengthが長すぎるときは単にinsert

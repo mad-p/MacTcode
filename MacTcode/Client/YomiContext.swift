@@ -8,7 +8,7 @@
 import Cocoa
 
 /// Clientからカーソル直前の数文字を取得した結果
-class YomiContext {
+class YomiContext: CustomStringConvertible {
     let string: String
     let range: NSRange
     let fromSelection: Bool
@@ -20,5 +20,9 @@ class YomiContext {
         self.fromSelection = fromSelection
         self.fromMirror = fromMirror
         // Log.i("YomiContext: string=\(string), range=\(range), fromSelection: \(fromSelection), fromMirror: \(fromMirror)")
+    }
+    
+    var description: String {
+        return "YomiContext(string: \"\(string)\", range: \(range), fromSelection: \(fromSelection), fromMirror: \(fromMirror))"
     }
 }
