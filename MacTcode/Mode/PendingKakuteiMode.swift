@@ -113,10 +113,18 @@ class PendingKakuteiMode: Mode {
         }
         // キャンセル期間内
         // キャンセルキーの場合はキャンセル処理を実行して入力イベントを消費
+        // キャンセルキー以外の入力イベントはキャンセル期間を終了し、受容する
+        // ただし printable かつ pendingCancelKeys に含まれる場合はキャンセル
         if inputEvent.type == .delete ||
             inputEvent.type == .control_g ||
             inputEvent.type == .escape {
             Log.i("handle: cancel key detected, canceling pendingKakutei")
+            cancel(client: client)
+            return .processed  // イベントを消費
+        } else if inputEvent.type == .printable,
+                  let text = inputEvent.text,
+                  UserConfigs.i.keyBindings.pendingCancelKeys.contains(text) {
+            Log.i("handle: pendingCancelKeys match (\(text)), canceling pendingKakutei")
             cancel(client: client)
             return .processed  // イベントを消費
         } else {

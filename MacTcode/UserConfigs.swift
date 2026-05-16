@@ -141,6 +141,8 @@ class UserConfigs {
         let symbolSet1: String
         let symbolSet2: String
         let basicTable: [String]
+        // 変換確定後のキャンセルキーとして扱う文字のリスト（printableキーのみ）
+        let pendingCancelKeys: [String]
 
         static let `default` = KeyBindingsConfig(
             bushuConversion: "hu",
@@ -191,7 +193,8 @@ class UserConfigs {
                 "留列刻豆看■■↓■■竹注介具失司迎華許補左態花栄ザ調混ポ決ミ州払乗庫状団計夫食総",
                 "替沼?辞献■■■■■ゅ修究答養復並浦ユ冷ぬ展警型誰組選党択体例満津準遊戸ひょ価与",
                 "還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ"
-            ]
+            ],
+            pendingCancelKeys: ["/"]
         )
     }
 
