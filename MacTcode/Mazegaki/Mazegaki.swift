@@ -124,6 +124,7 @@ class Mazegaki {
             let pending = PendingKakuteiMode(
                 yomi: yomiString,
                 kakutei: string,
+                context: context,
                 onAccepted: { parameter, inputEvent in
                     // 受容時の処理: MRU学習データを更新
                     guard let param = parameter as? [String] else { return .forward }

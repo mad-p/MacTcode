@@ -304,6 +304,7 @@ final class Bushu {
             let pending = PendingKakuteiMode(
                 yomi: yomiString,
                 kakutei: result,
+                context: yomi,
                 onAccepted: { parameter, inputEvent in return self.onAccept(parameter, inputEvent) },
                 parameter: [source1, source2, result]
             )
@@ -367,6 +368,7 @@ final class Bushu {
         let pending = PendingKakuteiMode(
             yomi: src,
             kakutei: result,
+            context: yomiContext,
             onAccepted: { parameter, inputEvent in return self.onAccept(parameter, inputEvent) },
             parameter: [source1, source2, result]
         )

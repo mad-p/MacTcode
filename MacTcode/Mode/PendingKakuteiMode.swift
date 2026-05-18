@@ -28,17 +28,21 @@ class PendingKakuteiMode: Mode {
     /// onAcceptedに渡すパラメータ
     let parameter: Any?
     
+    /// 変換時のYomiContext（キャンセル時に削除位置の計算に使う）
+    let yomiContext: YomiContext
+
     /// イニシャライザ
     /// - Parameters:
-    ///   - timeout: 受容判定時刻
     ///   - yomi: 変換元文字列
     ///   - kakutei: 変換後文字列
+    ///   - context: 変換時のYomiContext
     ///   - onAccepted: 受容時のハンドラ
-    init(yomi: String, kakutei: String,
+    init(yomi: String, kakutei: String, context: YomiContext,
          onAccepted: @escaping (_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult, parameter: Any? = nil) {
         self.acceptedTimeout = Date().addingTimeInterval(UserConfigs.i.system.cancelPeriod)
         self.yomiString = yomi
         self.kakuteiString = kakutei
+        self.yomiContext = context
         self.onAccepted = onAccepted
         self.parameter = parameter
     }
@@ -82,13 +86,20 @@ class PendingKakuteiMode: Mode {
     /// PendingKakuteiをキャンセルする
     /// - Parameter client: クライアント
     func cancel(client: ContextClient) {
-        Log.i("cancelPendingKakutei: yomi=\(yomiString), kakutei=\(kakuteiString)")
+        Log.i("cancelPendingKakutei: yomi=\(yomiString), kakutei=\(kakuteiString), context=\(yomiContext)")
         
         // kakuteiStringを削除してyomiStringに置き換える
-        // YomiContextを作ってClientContext.replaceYomiにまかせる
-        let yomiContext = YomiContext(string: kakuteiString, range: NSRange(), fromSelection: false, fromMirror: true)
-        // Log.i("about to replaceYomi: yomi=\(yomiString), kakutei=\(kakuteiString)")
-        let backspaceCount = client.replaceYomi(yomiString, length: kakuteiString.count, from: yomiContext)
+        // 変換時のYomiContextを元に、確定文字列の範囲を指定したキャンセル用YomiContextを作成する
+        // fromMirrorの場合: BackSpace数 = kakuteiString.count で削除
+        // fromSelectionの場合: context.range.locationからkakuteiString.count文字を置換
+        let cancelContext = YomiContext(
+            string: kakuteiString,
+            range: yomiContext.rangeForUndo,
+            fromSelection: yomiContext.fromSelection,
+            fromMirror: yomiContext.fromMirror
+        )
+        Log.i("  about to replaceYomi: yomi=\(yomiString), kakutei=\(kakuteiString), cancelContext=\(cancelContext)")
+        let backspaceCount = client.replaceYomi(yomiString, length: kakuteiString.count, from: cancelContext)
         uninstall()
         controller?.setBackspaceIgnore(backspaceCount)
     }
@@ -102,10 +113,18 @@ class PendingKakuteiMode: Mode {
         }
         // キャンセル期間内
         // キャンセルキーの場合はキャンセル処理を実行して入力イベントを消費
+        // キャンセルキー以外の入力イベントはキャンセル期間を終了し、受容する
+        // ただし printable かつ pendingCancelKeys に含まれる場合はキャンセル
         if inputEvent.type == .delete ||
             inputEvent.type == .control_g ||
             inputEvent.type == .escape {
             Log.i("handle: cancel key detected, canceling pendingKakutei")
+            cancel(client: client)
+            return .processed  // イベントを消費
+        } else if inputEvent.type == .printable,
+                  let text = inputEvent.text,
+                  UserConfigs.i.keyBindings.pendingCancelKeys.contains(text) {
+            Log.i("handle: pendingCancelKeys match (\(text)), canceling pendingKakutei")
             cancel(client: client)
             return .processed  // イベントを消費
         } else {
