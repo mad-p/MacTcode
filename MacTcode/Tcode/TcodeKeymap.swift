@@ -27,6 +27,9 @@ class TcodeKeymap {
         map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
         
         KeymapResolver.define(sequence: keyBindings.zenkakuMode, keymap: map, action: ZenkakuModeAction())
+        if keyBindings.zenkakuOneMode != "" {
+            KeymapResolver.define(sequence: keyBindings.zenkakuOneMode, keymap: map, action: ZenkakuOneModeAction())
+        }
         KeymapResolver.define(sequence: keyBindings.lineMode, keymap: map, action: ToggleLineModeAction())
         KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: map, entry: Command.keymap(
             Keymap("outset1", fromChars: UserConfigs.i.ui.symbolSet1Chars)))

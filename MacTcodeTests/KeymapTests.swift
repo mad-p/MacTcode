@@ -50,4 +50,21 @@ final class KeymapTests: XCTestCase {
             XCTFail()
         }
     }
+    
+    func testKeymap2() {
+        let keyBindings = UserConfigs.i.keyBindings
+        let basicTableString = keyBindings.basicTable.joined(separator: "\n")
+        
+        let k = Keymap("TCode2D", from2d: basicTableString)
+        
+        let ev = InputEvent(type: .printable, text: "`")
+        k.replace(input: ev, entry: .text("hoge"))
+        let c1 = k.lookup(input: InputEvent(type: .printable, text: "`"))
+        switch c1 {
+        case .text(let string):
+            XCTAssertEqual("hoge", string)
+        default:
+            XCTFail()
+        }
+    }
 }

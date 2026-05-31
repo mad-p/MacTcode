@@ -31,3 +31,5 @@ scripts/out
 /out
 scripts/data-old
 /tmp
+/graphify-out
+/.graphifyignore
