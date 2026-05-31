@@ -65,7 +65,7 @@ class ZenkakuMode: Mode {
             return .processed
         case .space:
             if setting == .single {
-                client.insertText("`", replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                client.insertText(UserConfigs.i.keyBindings.zenkakuOneMode, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 controller?.popMode(self)
             } else {
                 client.insertText("　", replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
