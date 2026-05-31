@@ -28,7 +28,7 @@ class Translator {
         
         let text = event.characters
         let printable = if text != nil {
-            text!.allSatisfy({ $0.isLetter || $0.isNumber || $0.isPunctuation || $0.isMathSymbol })
+            text!.allSatisfy({ $0.isASCII && $0.asciiValue! >= 0x20 && $0.asciiValue! <= 0x7e })
         } else {
             false
         }

@@ -7,11 +7,19 @@
 
 import Cocoa
 
+/// 全角モードの設定
+enum ZenkakuModeSetting {
+    case multi
+    case single
+}
+
 /// 全角入力モード
 class ZenkakuMode: Mode {
     weak var controller: Controller?
-    init(controller: Controller) {
+    var setting: ZenkakuModeSetting
+    init(controller: Controller, setting: ZenkakuModeSetting = .multi) {
         self.controller = controller
+        self.setting = setting
     }
     func setController(_ controller: Controller) {
         self.controller = controller
@@ -46,11 +54,22 @@ class ZenkakuMode: Mode {
             if let inputString = inputEvent.text {
                 let string = han2zen(inputString)
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                if setting == .single {
+                    controller?.popMode(self)
+                }
                 return .processed
             }
             return .forward
-        case .escape:
+        case .escape, .enter:
             controller?.popMode(self)
+            return .processed
+        case .space:
+            if setting == .single {
+                client.insertText("`", replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                controller?.popMode(self)
+            } else {
+                client.insertText("　", replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+            }
             return .processed
         default:
             return .forward

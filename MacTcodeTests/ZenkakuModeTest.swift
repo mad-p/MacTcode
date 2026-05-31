@@ -54,4 +54,9 @@ final class ZenkakuModeTest: XCTestCase {
         feed("teso90123ABC#*zenkaku\u{1b}x y z fudefe")
         XCTAssertEqual("のが１２３ＡＢＣ＃＊ｚｅｎｋａｋｕxyzあいう", spy.text)
     }
+    
+    func testHan2ZenSingle() {
+        feed("tpfi`(nl`)dj")
+        XCTAssertEqual("日本（語）だ", spy.text)
+    }
 }
