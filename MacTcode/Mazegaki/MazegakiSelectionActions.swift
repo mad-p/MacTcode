@@ -30,7 +30,12 @@ class MazegakiSelectionCancelAction: MazegakiAction {
 class MazegakiSelectionKakuteiAction: MazegakiAction {
     override func action(client: any Client, mode: MazegakiSelectionMode, controller: any Controller) -> Command {
         Log.i("KakuteiAction")
-        _ = mode.mazegaki.submit(hit: mode.hits[mode.row], string: mode.candidateString, client: client, controller: controller)
+        let cand2 = mode.candidateString.replacingOccurrences(
+            of: #"^\d:"#,
+            with: "",
+            options: .regularExpression
+        )
+        _ = mode.mazegaki.submit(hit: mode.hits[mode.row], string: cand2, client: client, controller: controller)
         mode.cancel()
         return .processed
     }
