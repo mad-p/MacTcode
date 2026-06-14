@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -128,8 +128,6 @@
 		9D7C3CA22ED41C53009690B8 /* LineModeMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineModeMap.swift; sourceTree = "<group>"; };
 		9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineModeActions.swift; sourceTree = "<group>"; };
 		9D7C3CA62ED41F44009690B8 /* LineMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineMode.swift; sourceTree = "<group>"; };
-		9D808D602FDEAE5200803C92 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
-		9D808D632FDEAE5200803C92 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = InfoPlist.strings; sourceTree = "<group>"; };
 		9D8530162F4984F800740496 /* StrokeStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeStatsTests.swift; sourceTree = "<group>"; };
 		9D85F45C2FDE96DC00099EF3 /* ModeUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeUI.swift; sourceTree = "<group>"; };
 		9D868A002C05F98700128D48 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = "main@2x.tiff"; path = "../main@2x.tiff"; sourceTree = "<group>"; };
@@ -149,6 +147,8 @@
 		9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeInputController.swift; sourceTree = "<group>"; };
 		9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TcodeKeymap.swift; sourceTree = "<group>"; };
 		9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9D93BD512FDECB1300B3F68C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = ../en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9D93BD522FDECB1700B3F68C /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ../ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9D9E63BB2EA4C74C0035FC32 /* InputStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputStats.swift; sourceTree = "<group>"; };
 		9DA358DC2E2DEF1500323184 /* MazegakiDict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiDict.swift; sourceTree = "<group>"; };
 		9DA358DD2E2DEF1500323184 /* MazegakiHit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MazegakiHit.swift; sourceTree = "<group>"; };
@@ -213,6 +213,10 @@
 		9DEAFE342C6DB3E000E8B5E3 /* ClientWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientWrapper.swift; sourceTree = "<group>"; };
 		9DEAFE362C6DB8CF00E8B5E3 /* YomiContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YomiContext.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		9D93BD4D2FDEC76700B3F68C /* Hankana */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Hankana; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		9D8C8DB12C01ACEE003D8A43 /* Frameworks */ = {
@@ -299,6 +303,7 @@
 		9D8C8DB62C01ACEE003D8A43 /* MacTcode */ = {
 			isa = PBXGroup;
 			children = (
+				9D93BD4D2FDEC76700B3F68C /* Hankana */,
 				9D808D622FDEAE5200803C92 /* English.lproj */,
 				9D808D652FDEAE5200803C92 /* Japanese.lproj */,
 				9DE2E3A62FDE8E5A000417CA /* icons */,
@@ -492,6 +497,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				9D93BD4D2FDEC76700B3F68C /* Hankana */,
+			);
 			name = MacTcode;
 			productName = MacTcode;
 			productReference = 9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */;
@@ -563,8 +571,7 @@
 			knownRegions = (
 				en,
 				Base,
-				English,
-				Japanese,
+				ja,
 			);
 			mainGroup = 9D8C8DAB2C01ACEE003D8A43;
 			productRefGroup = 9D8C8DB52C01ACEE003D8A43 /* Products */;
@@ -732,7 +739,7 @@
 		9D808D612FDEAE5200803C92 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				9D808D602FDEAE5200803C92 /* English */,
+				9D93BD512FDECB1300B3F68C /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -740,7 +747,7 @@
 		9D808D642FDEAE5200803C92 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				9D808D632FDEAE5200803C92 /* Japanese */,
+				9D93BD522FDECB1700B3F68C /* ja */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

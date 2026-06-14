@@ -24,6 +24,7 @@ class TcodeKeymap {
         map.replace(input: InputEvent(type: .control_punct, text: "'"),
                     entry: Command.action(TcodeModeAction()))
         map.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
+        map.replace(input: InputEvent(type: .printable, text: "-"), entry: Command.action(DirectModeAction()))
         // passthrough Ctrl-SPC (set-mark)
         map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
         

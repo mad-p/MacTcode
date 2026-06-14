@@ -94,6 +94,7 @@ class TcodeMode: Mode, MultiStroke {
                 return .processed
             case .action(let action):
                 InputStats.i.incrementFunctionCount()
+                pending = seq // actionの中から参照できるようにしておく
                 command = action.execute(client: client, mode: self, controller: controller!)
                 resetPending()
                 continue
