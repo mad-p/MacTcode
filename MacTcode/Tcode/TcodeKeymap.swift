@@ -20,9 +20,10 @@ class TcodeKeymap {
         KeymapResolver.define(sequence: keyBindings.mazegakiConversion, keymap: map, action: PostfixMazegakiAction(inflection: false))
         KeymapResolver.define(sequence: keyBindings.inflectionConversion, keymap: map, action: PostfixMazegakiAction(inflection: true))
         
-        // ignore Ctrl-'
-        map.replace(input: InputEvent(type: .control_punct, text: ","), entry: .processed)
-        map.replace(input: InputEvent(type: .control_punct, text: "'"), entry: .processed)
+        // Ctrl-' → Tcode, Ctrl-, → 英数
+        map.replace(input: InputEvent(type: .control_punct, text: "'"),
+                    entry: Command.action(TcodeModeAction()))
+        map.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
         // passthrough Ctrl-SPC (set-mark)
         map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
         

@@ -18,6 +18,7 @@
 		9D7C3CA52ED41E49009690B8 /* LineModeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */; };
 		9D7C3CA72ED41F46009690B8 /* LineMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3CA62ED41F44009690B8 /* LineMode.swift */; };
 		9D8530172F4984F800740496 /* StrokeStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8530162F4984F800740496 /* StrokeStatsTests.swift */; };
+		9D85F45D2FDE96EE00099EF3 /* ModeUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D85F45C2FDE96DC00099EF3 /* ModeUI.swift */; };
 		9D868A012C05F98700128D48 /* main@2x.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D868A002C05F98700128D48 /* main@2x.tiff */; };
 		9D868FF32C706AB200293645 /* ContextClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D868FF22C706AB200293645 /* ContextClientTests.swift */; };
 		9D8BFEC82C0FA9DA00B99BA2 /* ZenkakuModeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */; };
@@ -126,6 +127,7 @@
 		9D7C3CA42ED41E3E009690B8 /* LineModeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineModeActions.swift; sourceTree = "<group>"; };
 		9D7C3CA62ED41F44009690B8 /* LineMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineMode.swift; sourceTree = "<group>"; };
 		9D8530162F4984F800740496 /* StrokeStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeStatsTests.swift; sourceTree = "<group>"; };
+		9D85F45C2FDE96DC00099EF3 /* ModeUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeUI.swift; sourceTree = "<group>"; };
 		9D868A002C05F98700128D48 /* main@2x.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = "main@2x.tiff"; path = "../main@2x.tiff"; sourceTree = "<group>"; };
 		9D868FF22C706AB200293645 /* ContextClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextClientTests.swift; sourceTree = "<group>"; };
 		9D8BFEC72C0FA9DA00B99BA2 /* ZenkakuModeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenkakuModeTest.swift; sourceTree = "<group>"; };
@@ -435,6 +437,7 @@
 		9DEAFE302C5FB2EC00E8B5E3 /* Mode */ = {
 			isa = PBXGroup;
 			children = (
+				9D85F45C2FDE96DC00099EF3 /* ModeUI.swift */,
 				9D7B903B2EB729FD00DD7920 /* PendingKakuteiMode.swift */,
 				9DEAFE262C5FA2A800E8B5E3 /* Controller.swift */,
 				9DEA6D472C0EB0430005BB18 /* Mode.swift */,
@@ -651,6 +654,7 @@
 				9DA358E52E2DEF1500323184 /* MazegakiSelectionActions.swift in Sources */,
 				9DEA6D4A2C0F987B0005BB18 /* ZenkakuMode.swift in Sources */,
 				9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */,
+				9D85F45D2FDE96EE00099EF3 /* ModeUI.swift in Sources */,
 				9D7C3CA52ED41E49009690B8 /* LineModeActions.swift in Sources */,
 				9DA358EA2E2DEF5B00323184 /* AppDelegate.swift in Sources */,
 				9DA358EB2E2DEF5B00323184 /* NSManualApplication.swift in Sources */,

@@ -16,6 +16,7 @@ class TcodeInputController: IMKInputController, Controller {
     let candidateWindow: IMKCandidates
     var pendingKakutei: PendingKakuteiMode?
     var backspaceIgnore = 0
+    var inputMode: InputMode = .tcode
    
     func setBackspaceIgnore(_ count: Int) {
         self.backspaceIgnore += count
@@ -115,12 +116,12 @@ class TcodeInputController: IMKInputController, Controller {
         guard let client = sender as? IMKTextInput else {
             return false
         }
-        // 除外アプリケーションでは変換しないでそのまま入力する
         if modeStack.isEmpty {
             pushMode(TcodeMode())
         }
         Log.i("handle: client=\(type(of: client))")
         Log.i("  modeStack=\(modeStack)")
+        // 除外アプリケーションでは変換しないでそのまま入力する
         let bid = client.bundleIdentifier()
         Log.i("  client.bundleIdentifier=\(bid ?? "nil")")
         let excludedApps = UserConfigs.i.system.excludedApplications
@@ -128,7 +129,19 @@ class TcodeInputController: IMKInputController, Controller {
         if bundleId != nil && excludedApps.contains(bundleId!) {
             return false
         }
+        
         let inputEvent = Translator.translate(event: event)
+
+        // directモードではそのまま入力にする
+        if inputMode == .direct {
+            // Ctrl-' でtcodeモードに切り替える
+            if inputEvent.type == .control_punct && inputEvent.text == "'" {
+                setInputMode(.tcode)
+                return true // processed
+            }
+            return false
+        }
+        
         let wrappedClient = wrapClient()
         // Log.i("wrappedClient: \(type(of:wrappedClient))")
         // backspaceIgnoreがある間は、キャンセル用と見なさない
@@ -216,4 +229,40 @@ class TcodeInputController: IMKInputController, Controller {
         return modeStack.first { type(of: $0) == targetClass }
     }
 
+    override func setValue(_ value: Any!, forTag tag: Int, client sender: Any!) {
+        Log.i("TcodeInputController.setValue: value=\(value ?? "nil") tag=\(tag) sender=\(sender!)")
+        if let value = value as? String {
+            let mode = InputModeId.idToInputMode(value)
+            inputMode = mode
+        }
+        super.setValue(value, forTag: tag, client: sender)
+    }
+    
+    func setInputMode(_ mode: InputMode) {
+        Log.i("TcodeInputController.setInputMode: \(mode)")
+        let oldmode = self.inputMode
+        self.inputMode = mode
+        switch modeStack.first {
+        case is TcodeMode:
+            if mode == .zenkaku {
+                _ = ZenkakuModeAction().execute(client: wrapClient(), mode: modeStack.first!, controller: self)
+            }
+            break
+        case is ZenkakuMode:
+            if mode != .zenkaku {
+                popMode(modeStack.first!)
+            }
+            break
+        default:
+            break
+        }
+        
+        // if oldmode != mode {
+        //     if let client = self.client() {
+        //         let input = client as IMKTextInput
+        //         let id = InputModeId.inputModeToId(mode)
+        //         input.selectMode(id)
+        //     }
+        // }
+    }
 }

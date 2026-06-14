@@ -32,6 +32,10 @@
 				<string>${PRODUCT_BUNDLE_IDENTIFIER}.tcode</string>
 				<key>TISIntendedLanguage</key>
 				<string>ja</string>
+	                        <key>TISIconIsTemplate</key>
+	                        <true/>
+	                        <key>tsInputModeIconIsTemplate</key>
+	                        <true/>
 				<key>tsInputModeAlternateMenuIconFileKey</key>
 				<string>tcodew.tiff</string>
 				<key>tsInputModeDefaultStateKey</key>
@@ -47,7 +51,7 @@
 				<key>tsInputModeMenuIconFileKey</key>
 				<string>tcode.tiff</string>
 				<key>tsInputModePaletteIconFileKey</key>
-				<string>tcade.tiff</string>
+				<string>tcode.tiff</string>
 				<key>tsInputModePrimaryInScriptKey</key>
 				<true/>
 				<key>tsInputModeScriptKey</key>
@@ -59,12 +63,14 @@
 				<string>${PRODUCT_BUNDLE_IDENTIFIER}.hankana</string>
 				<key>TISIntendedLanguage</key>
 				<string>ja</string>
+	                        <key>TISIconIsTemplate</key>
+	                        <true/>
 				<key>tsInputModeAlternateMenuIconFileKey</key>
 				<string>hankanaw.tiff</string>
 				<key>tsInputModeDefaultStateKey</key>
-				<false/>
+				<true/>
 				<key>tsInputModeIsVisibleKey</key>
-				<false/>
+				<true/>
 				<key>tsInputModeJISKeyboardShortcutKey</key>
 				<integer>2</integer>
 				<key>tsInputModeKeyEquivalentKey</key>
@@ -86,12 +92,14 @@
 				<string>${PRODUCT_BUNDLE_IDENTIFIER}.zenkaku</string>
 				<key>TISIntendedLanguage</key>
 				<string>ja</string>
+	                        <key>TISIconIsTemplate</key>
+	                        <true/>
 				<key>tsInputModeAlternateMenuIconFileKey</key>
-				<string>zenkakuw.tiff</string>
+				<string>zenkaku.tiff</string>
 				<key>tsInputModeDefaultStateKey</key>
-				<false/>
+				<true/>
 				<key>tsInputModeIsVisibleKey</key>
-				<false/>
+				<true/>
 				<key>tsInputModeJISKeyboardShortcutKey</key>
 				<integer>0</integer>
 				<key>tsInputModeKeyEquivalentKey</key>
@@ -99,9 +107,9 @@
 				<key>tsInputModeKeyEquivalentModifiersKey</key>
 				<integer>4608</integer>
 				<key>tsInputModeMenuIconFileKey</key>
-				<string>zenkaku.tiff</string>
+				<string>zenkakuw.tiff</string>
 				<key>tsInputModePaletteIconFileKey</key>
-				<string>zenkaku.tiff</string>
+				<string>zenkakuw.tiff</string>
 				<key>tsInputModePrimaryInScriptKey</key>
 				<false/>
 				<key>tsInputModeScriptKey</key>
@@ -113,12 +121,16 @@
 				<string>${PRODUCT_BUNDLE_IDENTIFIER}.direct</string>
 				<key>TISIntendedLanguage</key>
 				<string>en</string>
+	                        <key>TISIconIsTemplate</key>
+	                        <true/>
+	                        <key>tsInputModeIconIsTemplate</key>
+	                        <true/>
 				<key>tsInputModeAlternateMenuIconFileKey</key>
 				<string>directw.tiff</string>
 				<key>tsInputModeDefaultStateKey</key>
 				<true/>
 				<key>tsInputModeIsVisibleKey</key>
-				<true/>
+				<false/>
 				<key>tsInputModeJISKeyboardShortcutKey</key>
 				<integer>3</integer>
 				<key>tsInputModeKeyEquivalentKey</key>
