@@ -233,7 +233,7 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("TcodeInputController.setValue: value=\(value ?? "nil") tag=\(tag) sender=\(sender!)")
         if let value = value as? String {
             let mode = InputModeId.idToInputMode(value)
-            inputMode = mode
+            setInputMode(mode)
         }
         super.setValue(value, forTag: tag, client: sender)
     }
