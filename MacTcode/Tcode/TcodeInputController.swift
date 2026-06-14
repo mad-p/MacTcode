@@ -247,6 +247,9 @@ class TcodeInputController: IMKInputController, Controller {
             if mode == .zenkaku {
                 _ = ZenkakuModeAction().execute(client: wrapClient(), mode: modeStack.first!, controller: self)
             }
+            if mode == .hankana {
+                _ = HankanaModeAction().execute(client: wrapClient(), mode: modeStack.first!, controller: self)
+            }
             break
         case is ZenkakuMode:
             if mode != .zenkaku {
