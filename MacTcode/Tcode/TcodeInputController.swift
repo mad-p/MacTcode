@@ -139,6 +139,10 @@ class TcodeInputController: IMKInputController, Controller {
                 setInputMode(.tcode)
                 return true // processed
             }
+            // Ctrl-, は無視する
+            if inputEvent.type == .control_punct && inputEvent.text == "," {
+                return true // processed
+            }
             return false
         }
         
@@ -253,6 +257,11 @@ class TcodeInputController: IMKInputController, Controller {
             break
         case is ZenkakuMode:
             if mode != .zenkaku {
+                popMode(modeStack.first!)
+            }
+            break
+        case is HankanaMode:
+            if mode != .hankana {
                 popMode(modeStack.first!)
             }
             break

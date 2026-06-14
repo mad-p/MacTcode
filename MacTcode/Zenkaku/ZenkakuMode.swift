@@ -55,18 +55,18 @@ class ZenkakuMode: Mode {
                 let string = han2zen(inputString)
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
                 if setting == .single {
-                    controller?.popMode(self)
+                    reset()
                 }
                 return .processed
             }
             return .forward
         case .escape, .enter:
-            controller?.popMode(self)
+            reset()
             return .processed
         case .space:
             if setting == .single {
                 client.insertText(UserConfigs.i.keyBindings.zenkakuOneMode, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
-                controller?.popMode(self)
+                reset()
             } else {
                 client.insertText("　", replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
             }
@@ -77,7 +77,8 @@ class ZenkakuMode: Mode {
     }
     
     func reset() {
-        
+        controller?.popMode(self)
+        controller?.setInputMode(.tcode)
     }
 }
 
