@@ -119,7 +119,7 @@
 				<key>tsInputModeScriptKey</key>
 				<string>smJapanese</string>
 			</dict>
-			<key>${PRODUCT_BUNDLE_IDENTIFIER}.line</key>
+			<key>jp.mad-p.inputmethod.MacTcode.line</key>
 			<dict>
 				<key>TISInputSourceID</key>
 				<string>${PRODUCT_BUNDLE_IDENTIFIER}.line</string>
@@ -165,7 +165,7 @@
 				<key>tsInputModeDefaultStateKey</key>
 				<true/>
 				<key>tsInputModeIsVisibleKey</key>
-				<false/>
+				<true/>
 				<key>tsInputModeJISKeyboardShortcutKey</key>
 				<integer>3</integer>
 				<key>tsInputModeKeyEquivalentKey</key>
@@ -188,7 +188,7 @@
 			<string>com.apple.inputmethod.Roman</string>
 			<string>com.apple.inputmethod.Japanese.FullWidthRoman</string>
 			<string>com.apple.inputmethod.Japanese.HalfWidthKana</string>
-			<string>${PRODUCT_BUNDLE_IDENTIFIER}.line</string>
+			<string>jp.mad-p.inputmethod.MacTcode.line</string>
 		</array>
 	</dict>
 	<key>InputMethodConnectionName</key>
