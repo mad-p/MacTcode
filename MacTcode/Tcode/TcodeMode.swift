@@ -31,9 +31,6 @@ class TcodeMode: Mode, MultiStroke {
             pending.removeLast()
         }
     }
-    func filterText(_ text: String) -> String {
-        return text
-    }
     func handle(_ inputEvent: InputEvent, client: ContextClient!) -> HandleResult {
         let seq = pending + [inputEvent]
         
