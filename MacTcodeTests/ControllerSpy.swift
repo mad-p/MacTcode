@@ -31,4 +31,5 @@ class ControllerSpy: Controller {
             modeStack.remove(at: index)
         }
     }
+    func setInputMode(_ mode: InputMode) {}
 }

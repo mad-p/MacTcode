@@ -53,6 +53,7 @@ class LineMode: Mode {
         Log.i("LineMode.cancel")
         line?.reset()
         controller?.popMode(self)
+        controller?.setInputMode(.tcode)
     }
     func reset() {
         cancel()
@@ -81,6 +82,7 @@ class ToggleLineModeAction: Action {
             Log.i("ToggleLineModeAction: activate")
             let mode = LineMode()
             controller.pushMode(mode)
+            controller.setInputMode(.line)
             // show initial indicator (too adhoc)
             let notFound = NSRange(location: NSNotFound, length: NSNotFound)
             client.setMarkedText("▲", selectionRange: notFound, replacementRange: notFound)

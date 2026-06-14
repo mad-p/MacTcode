@@ -65,6 +65,8 @@
 				<string>ja</string>
 	                        <key>TISIconIsTemplate</key>
 	                        <true/>
+	                        <key>tsInputModeIconIsTemplate</key>
+	                        <true/>
 				<key>tsInputModeAlternateMenuIconFileKey</key>
 				<string>hankanaw.tiff</string>
 				<key>tsInputModeDefaultStateKey</key>
@@ -94,8 +96,10 @@
 				<string>ja</string>
 	                        <key>TISIconIsTemplate</key>
 	                        <true/>
+	                        <key>tsInputModeIconIsTemplate</key>
+	                        <true/>
 				<key>tsInputModeAlternateMenuIconFileKey</key>
-				<string>zenkaku.tiff</string>
+				<string>zenkakuw.tiff</string>
 				<key>tsInputModeDefaultStateKey</key>
 				<true/>
 				<key>tsInputModeIsVisibleKey</key>
@@ -107,9 +111,40 @@
 				<key>tsInputModeKeyEquivalentModifiersKey</key>
 				<integer>4608</integer>
 				<key>tsInputModeMenuIconFileKey</key>
-				<string>zenkakuw.tiff</string>
+				<string>zenkaku.tiff</string>
 				<key>tsInputModePaletteIconFileKey</key>
-				<string>zenkakuw.tiff</string>
+				<string>zenkaku.tiff</string>
+				<key>tsInputModePrimaryInScriptKey</key>
+				<false/>
+				<key>tsInputModeScriptKey</key>
+				<string>smJapanese</string>
+			</dict>
+			<key>${PRODUCT_BUNDLE_IDENTIFIER}.line</key>
+			<dict>
+				<key>TISInputSourceID</key>
+				<string>${PRODUCT_BUNDLE_IDENTIFIER}.line</string>
+				<key>TISIntendedLanguage</key>
+				<string>ja</string>
+	                        <key>TISIconIsTemplate</key>
+	                        <true/>
+	                        <key>tsInputModeIconIsTemplate</key>
+	                        <true/>
+				<key>tsInputModeAlternateMenuIconFileKey</key>
+				<string>linew.tiff</string>
+				<key>tsInputModeDefaultStateKey</key>
+				<true/>
+				<key>tsInputModeIsVisibleKey</key>
+				<true/>
+				<key>tsInputModeJISKeyboardShortcutKey</key>
+				<integer>0</integer>
+				<key>tsInputModeKeyEquivalentKey</key>
+				<string>Z</string>
+				<key>tsInputModeKeyEquivalentModifiersKey</key>
+				<integer>4608</integer>
+				<key>tsInputModeMenuIconFileKey</key>
+				<string>line.tiff</string>
+				<key>tsInputModePaletteIconFileKey</key>
+				<string>line.tiff</string>
 				<key>tsInputModePrimaryInScriptKey</key>
 				<false/>
 				<key>tsInputModeScriptKey</key>

@@ -15,4 +15,5 @@ protocol Controller: AnyObject {
     func popMode(_ mode: Mode)
     var candidateWindow: IMKCandidates { get }
     func setBackspaceIgnore(_ count: Int)
+    func setInputMode(_ mode: InputMode)
 }

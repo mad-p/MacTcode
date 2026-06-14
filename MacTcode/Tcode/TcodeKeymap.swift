@@ -52,7 +52,11 @@ class TcodeKeymap {
             KeymapResolver.define(sequence: keyBindings.mazegakiConversion, keymap: newMap, action: PostfixMazegakiAction(inflection: false))
             KeymapResolver.define(sequence: keyBindings.inflectionConversion, keymap: newMap, action: PostfixMazegakiAction(inflection: true))
             
-            newMap.replace(input: InputEvent(type: .control_punct, text: ","), entry: .processed)
+            // Ctrl-' → Tcode, Ctrl-, → 英数
+            newMap.replace(input: InputEvent(type: .control_punct, text: "'"),
+                        entry: Command.action(TcodeModeAction()))
+            newMap.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
+            // passthrough Ctrl-SPC (set-mark)
             newMap.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
             
             KeymapResolver.define(sequence: keyBindings.zenkakuMode, keymap: newMap, action: ZenkakuModeAction())

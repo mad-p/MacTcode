@@ -10,6 +10,7 @@ class InputModeId {
     static let direct = "com.apple.inputmethod.Roman"
     static let hankana = "com.apple.inputmethod.Japanese.HalfWidthKana"
     static let zenkaku = "com.apple.inputmethod.Japanese.FullWidthRoman"
+    static let line = "jp.mad-p.inputmethod.MacTcode.line"
     
     static func idToInputMode(_ id: String) -> InputMode {
         switch id {
@@ -21,6 +22,8 @@ class InputModeId {
             return .hankana
         case InputModeId.zenkaku:
             return .zenkaku
+        case InputModeId.line:
+            return .line
         default:
             return .direct
         }
@@ -35,6 +38,8 @@ class InputModeId {
             return InputModeId.hankana
         case .zenkaku:
             return InputModeId.zenkaku
+        case .line:
+            return InputModeId.line
         }
     }
 }
@@ -44,4 +49,5 @@ enum InputMode {
     case tcode
     case hankana
     case zenkaku
+    case line
 }

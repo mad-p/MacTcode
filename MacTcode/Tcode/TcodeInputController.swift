@@ -257,12 +257,12 @@ class TcodeInputController: IMKInputController, Controller {
             break
         }
         
-        // if oldmode != mode {
-        //     if let client = self.client() {
-        //         let input = client as IMKTextInput
-        //         let id = InputModeId.inputModeToId(mode)
-        //         input.selectMode(id)
-        //     }
-        // }
+        if oldmode != mode {
+            if let client = self.client() {
+                let input = client as IMKTextInput
+                let id = InputModeId.inputModeToId(mode)
+                input.selectMode(id)
+            }
+        }
     }
 }
