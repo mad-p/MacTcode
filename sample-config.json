@@ -57,6 +57,8 @@
     "symbolSet2" : "\\\\",
     "zenkakuMode" : "90",
     "zenkakuOneMode" : "`",
+    "hankanaMode" : "91",
+    "directMode" : "",
     "lineMode" : "88",
     "pendingCancelKeys" : ["/"]
   },

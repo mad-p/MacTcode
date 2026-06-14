@@ -7,68 +7,68 @@
 
 import Foundation
 
+fileprivate func buildTcodeKeymap() -> Keymap {
+    // UserConfigsから基文文字マップを取得
+    let keyBindings = UserConfigs.i.keyBindings
+    let basicTableString = keyBindings.basicTable.joined(separator: "\n")
+    
+    let map = Keymap("TCode2D", from2d: basicTableString)
+    
+    // UserConfigsからキーシーケンス設定を取得
+    let bushuConversion = keyBindings.bushuConversion
+    if bushuConversion != "" {
+        KeymapResolver.define(sequence: bushuConversion, keymap: map, action: PostfixBushuAction())
+    }
+    let mazegakiConversion = keyBindings.mazegakiConversion
+    if mazegakiConversion != "" {
+        KeymapResolver.define(sequence: mazegakiConversion, keymap: map, action: PostfixMazegakiAction(inflection: false))
+    }
+    let inflectionConversion = keyBindings.inflectionConversion
+    if inflectionConversion != "" {
+        KeymapResolver.define(sequence: inflectionConversion, keymap: map, action: PostfixMazegakiAction(inflection: true))
+    }
+    
+    // Ctrl-' → Tcode, Ctrl-, → 英数
+    map.replace(input: InputEvent(type: .control_punct, text: "'"),
+                entry: Command.action(TcodeModeAction()))
+    map.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
+    let directMode = keyBindings.directMode
+    if directMode != "" {
+        KeymapResolver.define(sequence: directMode, keymap: map, action: DirectModeAction())
+    }
+    // passthrough Ctrl-SPC (set-mark)
+    map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
+    
+    let zenkakuMode = keyBindings.zenkakuMode
+    if zenkakuMode != "" {
+        KeymapResolver.define(sequence: zenkakuMode, keymap: map, action: ZenkakuModeAction())
+    }
+    let zenkakuOneMode = keyBindings.zenkakuOneMode
+    if keyBindings.zenkakuOneMode != "" {
+        KeymapResolver.define(sequence: zenkakuOneMode, keymap: map, action: ZenkakuOneModeAction())
+    }
+    let hankanaMode = keyBindings.hankanaMode
+    if hankanaMode != "" {
+        KeymapResolver.define(sequence: hankanaMode, keymap: map, action: HankanaModeAction())
+    }
+    let lineMode = keyBindings.lineMode
+    if lineMode != "" {
+        KeymapResolver.define(sequence: lineMode, keymap: map, action: ToggleLineModeAction())
+    }
+    KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: map, entry: Command.keymap(
+        Keymap("outset1", fromChars: UserConfigs.i.ui.symbolSet1Chars)))
+    KeymapResolver.define(sequence: keyBindings.symbolSet2, keymap: map, entry: Command.keymap(
+        Keymap("outset2", fromChars: UserConfigs.i.ui.symbolSet2Chars)))
+    
+    return map
+}
+
 class TcodeKeymap {
-    static var map: Keymap = {
-        // UserConfigsから基文文字マップを取得
-        let keyBindings = UserConfigs.i.keyBindings
-        let basicTableString = keyBindings.basicTable.joined(separator: "\n")
-        
-        let map = Keymap("TCode2D", from2d: basicTableString)
-        
-        // UserConfigsからキーシーケンス設定を取得
-        KeymapResolver.define(sequence: keyBindings.bushuConversion, keymap: map, action: PostfixBushuAction())
-        KeymapResolver.define(sequence: keyBindings.mazegakiConversion, keymap: map, action: PostfixMazegakiAction(inflection: false))
-        KeymapResolver.define(sequence: keyBindings.inflectionConversion, keymap: map, action: PostfixMazegakiAction(inflection: true))
-        
-        // Ctrl-' → Tcode, Ctrl-, → 英数
-        map.replace(input: InputEvent(type: .control_punct, text: "'"),
-                    entry: Command.action(TcodeModeAction()))
-        map.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
-        map.replace(input: InputEvent(type: .printable, text: "-"), entry: Command.action(DirectModeAction()))
-        // passthrough Ctrl-SPC (set-mark)
-        map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
-        
-        KeymapResolver.define(sequence: keyBindings.zenkakuMode, keymap: map, action: ZenkakuModeAction())
-        if keyBindings.zenkakuOneMode != "" {
-            KeymapResolver.define(sequence: keyBindings.zenkakuOneMode, keymap: map, action: ZenkakuOneModeAction())
-        }
-        KeymapResolver.define(sequence: keyBindings.lineMode, keymap: map, action: ToggleLineModeAction())
-        KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: map, entry: Command.keymap(
-            Keymap("outset1", fromChars: UserConfigs.i.ui.symbolSet1Chars)))
-        KeymapResolver.define(sequence: keyBindings.symbolSet2, keymap: map, entry: Command.keymap(
-            Keymap("outset2", fromChars: UserConfigs.i.ui.symbolSet2Chars)))
-        
-        return map
-    }()
+    static var map: Keymap = buildTcodeKeymap()
     
     // 設定変更時にキーマップを再初期化するためのメソッド
     static func reloadKeymap() {
-        map = {
-            let keyBindings = UserConfigs.i.keyBindings
-            let basicTableString = keyBindings.basicTable.joined(separator: "\n")
-            
-            let newMap = Keymap("TCode2D", from2d: basicTableString)
-            
-            KeymapResolver.define(sequence: keyBindings.bushuConversion, keymap: newMap, action: PostfixBushuAction())
-            KeymapResolver.define(sequence: keyBindings.mazegakiConversion, keymap: newMap, action: PostfixMazegakiAction(inflection: false))
-            KeymapResolver.define(sequence: keyBindings.inflectionConversion, keymap: newMap, action: PostfixMazegakiAction(inflection: true))
-            
-            // Ctrl-' → Tcode, Ctrl-, → 英数
-            newMap.replace(input: InputEvent(type: .control_punct, text: "'"),
-                        entry: Command.action(TcodeModeAction()))
-            newMap.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
-            // passthrough Ctrl-SPC (set-mark)
-            newMap.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
-            
-            KeymapResolver.define(sequence: keyBindings.zenkakuMode, keymap: newMap, action: ZenkakuModeAction())
-            KeymapResolver.define(sequence: keyBindings.lineMode, keymap: newMap, action: ToggleLineModeAction())
-            KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: newMap, entry: Command.keymap(
-                Keymap("outset1", fromChars: UserConfigs.i.ui.symbolSet1Chars)))
-            KeymapResolver.define(sequence: keyBindings.symbolSet2, keymap: newMap, entry: Command.keymap(
-                Keymap("outset2", fromChars: UserConfigs.i.ui.symbolSet2Chars)))
-            
-            return newMap
-        }()
+        map = buildTcodeKeymap()
         
         Log.i("TCode keymap reloaded from UserConfigs")
     }
