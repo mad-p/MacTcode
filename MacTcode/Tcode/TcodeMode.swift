@@ -104,3 +104,21 @@ class TcodeMode: Mode, MultiStroke {
         }
     }
 }
+
+class TcodeModeAction: Action {
+    func execute(client: any Client, mode: any Mode, controller: any Controller) -> Command {
+        if let controller = controller as? TcodeInputController {
+            controller.setInputMode(.tcode)
+        }
+        return .processed
+    }
+}
+
+class DirectModeAction: Action {
+    func execute(client: any Client, mode: any Mode, controller: any Controller) -> Command {
+        if let controller = controller as? TcodeInputController {
+            controller.setInputMode(.direct)
+        }
+        return .processed
+    }
+}

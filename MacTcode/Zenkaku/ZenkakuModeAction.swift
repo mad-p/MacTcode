@@ -10,12 +10,14 @@ import Foundation
 class ZenkakuModeAction: Action {
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
         controller.pushMode(ZenkakuMode(controller: controller, setting: .multi))
+        controller.setInputMode(.zenkaku)
         return .processed
     }
 }
 class ZenkakuOneModeAction: Action {
     func execute(client: Client, mode: Mode, controller: Controller) -> Command {
         controller.pushMode(ZenkakuMode(controller: controller, setting: .single))
+        controller.setInputMode(.zenkaku)
         return .processed
     }
 }

@@ -1,0 +1,7 @@
+/* Localized versions of Info.plist keys */
+
+com.apple.inputmethod.Japanese = "T-Code (MacTcode)";
+com.apple.inputmethod.Japanese.HalfWidthKana = "Half-Width Kana (MacTcode)";
+com.apple.inputmethod.Japanese.FullWidthRoman = "Full-Width ABC (MacTcode)";
+com.apple.inputmethod.Roman = "ABC (MacTcode)";
+jp.mad-p.inputmethod.MacTcode.line = "Line (MacTcode)";

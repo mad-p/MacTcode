@@ -138,6 +138,8 @@ class UserConfigs {
         let inflectionConversion: String
         let zenkakuMode: String
         let zenkakuOneMode: String
+        let hankanaMode: String
+        let directMode: String
         let lineMode: String
         let symbolSet1: String
         let symbolSet2: String
@@ -151,6 +153,8 @@ class UserConfigs {
             inflectionConversion: "58",
             zenkakuMode: "90",
             zenkakuOneMode: "`",
+            hankanaMode: "91",
+            directMode: "",
             lineMode: "88",
             symbolSet1: "\\",
             symbolSet2: "\\\\",
