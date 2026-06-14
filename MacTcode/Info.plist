@@ -188,6 +188,7 @@
 			<string>com.apple.inputmethod.Roman</string>
 			<string>com.apple.inputmethod.Japanese.FullWidthRoman</string>
 			<string>com.apple.inputmethod.Japanese.HalfWidthKana</string>
+			<string>${PRODUCT_BUNDLE_IDENTIFIER}.line</string>
 		</array>
 	</dict>
 	<key>InputMethodConnectionName</key>
