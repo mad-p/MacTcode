@@ -36,6 +36,8 @@ fileprivate func buildTcodeKeymap() -> Keymap {
     if directMode != "" {
         KeymapResolver.define(sequence: directMode, keymap: map, action: DirectModeAction())
     }
+    // かな、英数キーはここに来るまでに処理されているはずなので無視する
+    map.replace(input: InputEvent(type: .japanese, text: " "), entry: .processed)
     // passthrough Ctrl-SPC (set-mark)
     map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
     

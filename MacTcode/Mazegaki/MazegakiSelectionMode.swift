@@ -79,7 +79,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         case .delete, .escape, .control_g:
             cancel()
             return .processed
-        case .control_punct, .unknown:
+        case .control_punct, .unknown, .japanese:
             return .processed
         }
     }
