@@ -29,6 +29,8 @@ enum InputEventType {
     case control_g
     /// それ以外
     case unknown
+    ///  日本語キーボードのイベント
+    case japanese
 }
 
 /// 入力イベント

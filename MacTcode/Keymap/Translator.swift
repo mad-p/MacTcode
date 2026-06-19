@@ -10,6 +10,8 @@ import InputMethodKit
 
 /// NSEventをInputEventに変換する
 class Translator {
+    static let JAPANESE_KEYS = [kVK_JIS_Eisu, kVK_JIS_Kana]
+
     static var layout: [String] {
         return UserConfigs.i.system.keyboardLayoutMapping
     }
@@ -49,7 +51,10 @@ class Translator {
         Log.i(" modifierFlags: \(flags)")
         
         var type: InputEventType = .unknown
-        if event.modifierFlags.contains(.option)
+        // かな、英数キーはここに来るまでに処理されているはずなので無視する
+        if Translator.JAPANESE_KEYS.contains(Int(event.keyCode)) {
+            type = .japanese
+        } else if event.modifierFlags.contains(.option)
             || event.modifierFlags.contains(.command)
         {
             type = .unknown
