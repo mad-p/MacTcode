@@ -143,6 +143,11 @@ class TcodeInputController: IMKInputController, Controller {
             if inputEvent.type == .control_punct && inputEvent.text == "," {
                 return true // processed
             }
+            
+            // かな/英数は無視する
+            if inputEvent.type == .japanese {
+                return true // processed
+            }
             return false
         }
         
