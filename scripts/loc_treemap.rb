@@ -360,7 +360,7 @@ group_laid_out.each do |grp|
   gh = r.h.round
   next unless gw >= 40 && gh >= 14
   annotations << {
-    x: gx, y: gy,
+    x: gx, y: gy + 5,
     text: grp[:label],
     color: text_color,
     pointsize: 10,
@@ -393,7 +393,7 @@ legend_items.each_with_index do |li, i|
   end
   annotations << {
     x: bx + box_size + 3,
-    y: leg_y,
+    y: leg_y + 3,
     text: "#{li[:label]}(#{li[:loc]})",
     color: 'white',
     pointsize: 11,
