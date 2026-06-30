@@ -36,14 +36,21 @@ module Renderers
   def self.annotate_png(path, annotations, font_magick: nil)
     return unless defined?(MiniMagick)
 
+    # 画像サイズを取得して Center gravity 用のオフセット計算に使う
+    img_info = MiniMagick::Image.open(path)
+    img_w = img_info.width
+    img_h = img_info.height
+
     tool = MiniMagick::Tool.new('magick')
     tool << path
     annotations.each do |a|
       tool.font(font_magick) if font_magick
       tool.pointsize(a[:pointsize] || 12)
       tool.fill(a[:color] || 'black')
-      tool.gravity('NorthWest')
-      tool.annotate("+#{a[:x]}+#{a[:y]}", a[:text])
+      tool.gravity('Center')
+      dx = a[:x] - img_w / 2
+      dy = a[:y] - img_h / 2
+      tool.annotate("+#{dx}+#{dy}", a[:text])
     end
     tool << path
     tool.call
@@ -80,7 +87,7 @@ module Renderers
     if title
       title_ps = [[( width * 0.025).to_i, 14].max, 28].min
       tx = (width / 2) - (title_ps * title.length * 0.3).to_i
-      annotations << { x: [tx, 4].max, y: 8, text: title, color: 'black', pointsize: title_ps }
+      annotations << { x: [tx, 4].max, y: 20, text: title, color: 'black', pointsize: title_ps }
     end
 
     4.times do |r|
@@ -208,18 +215,18 @@ module Renderers
 
     # Title
     if title
-      tx = (width / 2) - (title_ps * title.length * 0.3).to_i
-      annotations << { x: [tx, 4].max, y: 8, text: title, color: 'black', pointsize: title_ps }
+      tx = (width / 2) # - (title_ps * title.length * 0.3).to_i
+      annotations << { x: [tx, 4].max, y: 20, text: title, color: 'black', pointsize: title_ps }
     end
 
     ps = [[cell_w * 5 / 8, 8].max, 14].min
     BIGRAM_GROUP_LABELS.each_with_index do |label, gi|
-      cx = pad_left + gi * 5 * cell_w + (5 * cell_w / 2) - (ps * label.length * 0.3).to_i
+      cx = pad_left + gi * 5 * cell_w + (5 * cell_w / 2) #  - (ps * label.length * 0.3).to_i
       cy = [pad_top - ps - 4, 2].max
       annotations << { x: cx, y: cy, text: label, color: 'black', pointsize: ps }
 
-      rx = 2
-      ry = [pad_top + gi * 5 * cell_h + (5 * cell_h / 2) - ps, 2].max
+      rx = 2 + (ps * label.length) / 2
+      ry = [pad_top + gi * 5 * cell_h + (5 * cell_h / 2) , 2].max
       annotations << { x: rx, y: ry, text: label, color: 'black', pointsize: ps }
     end
 
@@ -238,8 +245,8 @@ module Renderers
           text_color = t > 0.6 ? 'white' : 'black'
           x0  = pad_left + ci * cell_w
           y0  = pad_top  + ri * cell_h
-          tx  = x0 + (cell_w / 2) - (char_ps * 0.5).to_i
-          ty  = y0 + (cell_h / 2) - (char_ps * 0.5).to_i
+          tx  = x0 + (cell_w / 2) # - (char_ps * 0.5).to_i
+          ty  = y0 + (cell_h / 2) # - (char_ps * 0.5).to_i
           annotations << { x: [tx, pad_left].max, y: [ty, pad_top].max, text: ch, color: text_color, pointsize: char_ps }
         end
       end
@@ -339,8 +346,8 @@ module Renderers
 
     # --- 標題 ---
     if title
-      tx = (width / 2) - (title_ps * title.length * 0.3).to_i
-      annotations << { x: [tx, 4].max, y: 4, text: title, color: 'black', pointsize: title_ps }
+      tx = (width / 2) # - (title_ps * title.length * 0.3).to_i
+      annotations << { x: [tx, 4].max, y: 12, text: title, color: 'black', pointsize: title_ps }
     end
 
     # --- 象限ラベル ---
@@ -359,8 +366,8 @@ module Renderers
       { text: 'RL', x: left_cx,  y: bot_y },
       { text: 'RR', x: right_cx, y: bot_y },
     ].each do |q|
-      tx = q[:x] - (ql_ps * q[:text].length * 0.35).to_i
-      annotations << { x: [tx, 0].max, y: q[:y], text: q[:text], color: 'black', pointsize: ql_ps }
+      tx = q[:x] # - (ql_ps * q[:text].length * 0.35).to_i
+      annotations << { x: [tx, 0].max, y: q[:y] + ql_ps / 2, text: q[:text], color: 'black', pointsize: ql_ps }
     end
 
     # --- セル内文字ラベル ---
@@ -386,8 +393,8 @@ module Renderers
 
         x0 = pad_left + gx * cell_w
         y0 = pad_top  + gy * cell_h
-        tx = x0 + (cell_w / 2) - (char_ps * 0.5).to_i
-        ty = y0 + (cell_h / 2) - (char_ps * 0.5).to_i
+        tx = x0 + (cell_w / 2) # - (char_ps * 0.5).to_i
+        ty = y0 + (cell_h / 2) # - (char_ps * 0.5).to_i
         annotations << { x: [tx, pad_left].max, y: [ty, pad_top].max,
                          text: ch, color: text_color, pointsize: char_ps }
       end
@@ -473,7 +480,7 @@ module Renderers
 
     # タイトル
     if title
-      tx = (width / 2) - (title_ps * title.length * 0.3).to_i
+      tx = (width / 2) # - (title_ps * title.length * 0.3).to_i
       annotations << { x: [tx, 4].max, y: pad_left, text: title, color: 'black', pointsize: title_ps }
     end
 
@@ -503,8 +510,8 @@ module Renderers
       (0...legend_box_h).each { |py| img[x0, legend_y0 + py] = border; img[x0 + band_w - 1, legend_y0 + py] = border }
       # ラベルテキスト
       label = legend_labels[i]
-      tx = x0 + (band_w / 2) - (legend_ps * label.length * 0.3).to_i
-      ty = legend_y0 + (legend_box_h / 2) - (legend_ps * 0.5).to_i
+      tx = x0 + (band_w / 2) # - (legend_ps * label.length * 0.3).to_i
+      ty = legend_y0 + (legend_box_h / 2) # - (legend_ps * 0.5).to_i
       annotations << { x: [tx, x0].max, y: [ty, legend_y0].max, text: label, color: 'black', pointsize: legend_ps }
     end
 
@@ -524,8 +531,8 @@ module Renderers
 
       # 文字アノテーション
       char_ps = [[cell_w * 3 / 4, 8].max, 18].min
-      tx = x0 + (cell_w / 2) - (char_ps * 0.5).to_i
-      ty = y0 + (cell_h / 2) - (char_ps * 0.5).to_i
+      tx = x0 + (cell_w / 2) # - (char_ps * 0.5).to_i
+      ty = y0 + (cell_h / 2) # - (char_ps * 0.5).to_i
       annotations << { x: [tx, 0].max, y: [ty, 0].max, text: ch, color: 'black', pointsize: char_ps }
     end
 

@@ -50,5 +50,5 @@ test:
 charts:
 	-rm -rf scripts/out
 	mkdir -p scripts/out
-	(cd scripts; bundle exec ruby ./plot_strokes.rb --scale log data/*.json)
+	(cd scripts; bundle exec ruby ./plot_strokes.rb --font ~/Library/Fonts/RictyDiminished-Regular.ttf --scale log data/*.json)
 	(cd scripts; ruby loc_treemap.rb ..)
