@@ -20,7 +20,9 @@ private func legacyActionBindings(from keyBindings: UserConfigs.KeyBindingsConfi
         (keyBindings.hankanaMode, "hankanaMode", nil, nil),
         (keyBindings.lineMode, "lineMode", nil, nil),
         (keyBindings.symbolSet1, "symbolSet1", nil, nil),
-        (keyBindings.symbolSet2, "symbolSet2", nil, nil)
+        (keyBindings.symbolSet2, "symbolSet2", nil, nil),
+        ("C-'", "tcodeMode", nil, nil),
+        ("C-,", "directMode", nil, nil),
     ].compactMap { keys, action, inflection, text in
         keys.isEmpty ? nil : UserConfigs.ActionBindingConfig(
             keys: keys, action: action, inflection: inflection, text: text
@@ -42,6 +44,8 @@ func command(for binding: UserConfigs.ActionBindingConfig, ui: UserConfigs.UICon
         return .action(HankanaModeAction())
     case "lineMode":
         return .action(ToggleLineModeAction())
+    case "tcodeMode":
+        return .action(TcodeModeAction())
     case "directMode":
         return .action(DirectModeAction())
     case "selfInsertAndDirectMode":
@@ -89,11 +93,6 @@ fileprivate func buildTcodeKeymap() -> Keymap {
     let basicTableString = keyBindings.basicTable.joined(separator: "\n")
     
     let map = Keymap("TCode2D", from2d: basicTableString)
-    
-    // Ctrl-' → Tcode, Ctrl-, → 英数
-    map.replace(input: InputEvent(type: .control_punct, text: "'"),
-                entry: Command.action(TcodeModeAction()))
-    map.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
     
     // かな、英数キーはここに来るまでに処理されているはずなので無視する
     map.replace(input: InputEvent(type: .japanese, text: " "), entry: .processed)

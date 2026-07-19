@@ -11,6 +11,7 @@ import InputMethodKit
 /// NSEventをInputEventに変換する
 class Translator {
     static let JAPANESE_KEYS = [kVK_JIS_Eisu, kVK_JIS_Kana]
+    static let CONTROL_PUNCT = " ',.-=/;"
 
     static var layout: [String] {
         return UserConfigs.i.system.keyboardLayoutMapping
@@ -59,7 +60,7 @@ class Translator {
         {
             type = .unknown
         } else if printable {
-            if text != nil && " ',.-=/;".contains(text!) && event.modifierFlags.contains(.control) {
+            if text != nil && Translator.CONTROL_PUNCT.contains(text!) && event.modifierFlags.contains(.control) {
                 type = .control_punct
             } else if text == "\u{07}" && event.modifierFlags.contains(.control) {
                 type = .control_g
