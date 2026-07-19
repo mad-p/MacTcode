@@ -61,7 +61,9 @@
       { "keys" : "91", "action" : "hankanaMode" },
       { "keys" : "88", "action" : "lineMode" },
       { "keys" : "\\", "action" : "symbolSet1" },
-      { "keys" : "\\\\", "action" : "symbolSet2" }
+      { "keys" : "\\\\", "action" : "symbolSet2" },
+      { "keys" : "C-'", "action" : "tcodeMode" },
+      { "keys" : "C-,", "action" : "directMode" }
     ],
     "pendingCancelKeys" : ["/"]
   },
