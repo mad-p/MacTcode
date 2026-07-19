@@ -50,16 +50,19 @@
       "替沼?辞献■■■■■ゅ修究答養復並浦ユ冷ぬ展警型誰組選党択体例満津準遊戸ひょ価与",
       "還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ"
     ],
-    "bushuConversion" : "hu",
-    "inflectionConversion" : "58",
-    "mazegakiConversion" : "uh",
-    "symbolSet1" : "\\",
-    "symbolSet2" : "\\\\",
-    "zenkakuMode" : "90",
-    "zenkakuOneMode" : "`",
-    "hankanaMode" : "91",
-    "directMode" : "",
-    "lineMode" : "88",
+    "actions" : [
+      { "keys" : "hu", "action" : "postfixBushu" },
+      { "keys" : "uh", "action" : "postfixMazegaki", "inflection" : false },
+      { "keys" : "58", "action" : "postfixMazegaki", "inflection" : true },
+      { "keys" : "19", "action" : "selfInsertAndDirectMode", "text" : "19" },
+      { "keys" : "20", "action" : "selfInsertAndDirectMode", "text" : "20" },
+      { "keys" : "90", "action" : "zenkakuMode" },
+      { "keys" : "`", "action" : "zenkakuOneMode" },
+      { "keys" : "91", "action" : "hankanaMode" },
+      { "keys" : "88", "action" : "toggleLineMode" },
+      { "keys" : "\\", "action" : "symbolSet1" },
+      { "keys" : "\\\\", "action" : "symbolSet2" }
+    ],
     "pendingCancelKeys" : ["/"]
   },
   "mazegaki" : {
