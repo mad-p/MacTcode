@@ -36,6 +36,11 @@ fileprivate func buildTcodeKeymap() -> Keymap {
     if directMode != "" {
         KeymapResolver.define(sequence: directMode, keymap: map, action: DirectModeAction())
     }
+    
+    // 年号入力。直接入力に変更しつつ、元のキーを入力
+    KeymapResolver.define(sequence: "19", keymap: map, action: SelfInsertAndDirectMode(text: "19"))
+    KeymapResolver.define(sequence: "20", keymap: map, action: SelfInsertAndDirectMode(text: "20"))
+    
     // かな、英数キーはここに来るまでに処理されているはずなので無視する
     map.replace(input: InputEvent(type: .japanese, text: " "), entry: .processed)
     // passthrough Ctrl-SPC (set-mark)
