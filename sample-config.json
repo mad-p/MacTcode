@@ -59,7 +59,7 @@
       { "keys" : "90", "action" : "zenkakuMode" },
       { "keys" : "`", "action" : "zenkakuOneMode" },
       { "keys" : "91", "action" : "hankanaMode" },
-      { "keys" : "88", "action" : "toggleLineMode" },
+      { "keys" : "88", "action" : "lineMode" },
       { "keys" : "\\", "action" : "symbolSet1" },
       { "keys" : "\\\\", "action" : "symbolSet2" }
     ],

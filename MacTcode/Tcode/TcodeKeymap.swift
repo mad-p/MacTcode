@@ -18,7 +18,7 @@ private func legacyActionBindings(from keyBindings: UserConfigs.KeyBindingsConfi
         (keyBindings.zenkakuMode, "zenkakuMode", nil, nil),
         (keyBindings.zenkakuOneMode, "zenkakuOneMode", nil, nil),
         (keyBindings.hankanaMode, "hankanaMode", nil, nil),
-        (keyBindings.lineMode, "toggleLineMode", nil, nil),
+        (keyBindings.lineMode, "lineMode", nil, nil),
         (keyBindings.symbolSet1, "symbolSet1", nil, nil),
         (keyBindings.symbolSet2, "symbolSet2", nil, nil)
     ].compactMap { keys, action, inflection, text in
@@ -40,7 +40,7 @@ func command(for binding: UserConfigs.ActionBindingConfig, ui: UserConfigs.UICon
         return .action(ZenkakuOneModeAction())
     case "hankanaMode":
         return .action(HankanaModeAction())
-    case "toggleLineMode":
+    case "lineMode":
         return .action(ToggleLineModeAction())
     case "directMode":
         return .action(DirectModeAction())
