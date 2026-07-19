@@ -12,7 +12,7 @@ class TcodeMode: Mode, MultiStroke {
     weak var controller: Controller?
     var pending: [InputEvent] = []
     let recentText = RecentTextClient("")
-    var map = TcodeKeymap.map
+    var keymap = TcodeKeymap.map
     var quickMap: Keymap = TopLevelMap.map
     func setController(_ controller: any Controller) {
         self.controller = controller
@@ -45,7 +45,7 @@ class TcodeMode: Mode, MultiStroke {
             command = topLevelEntry
         } else {
             fromTopLevel = false
-            command = KeymapResolver.resolve(keySequence: seq, keymap: map)
+            command = KeymapResolver.resolve(keySequence: seq, keymap: keymap)
         }
         while true {
             Log.i("execute command \(command)")
@@ -53,7 +53,7 @@ class TcodeMode: Mode, MultiStroke {
             switch command {
             case .passthrough:
                 if fromTopLevel {
-                    command = KeymapResolver.resolve(keySequence: seq, keymap: map)
+                    command = KeymapResolver.resolve(keySequence: seq, keymap: keymap)
                     fromTopLevel = false
                     continue
                 }
