@@ -122,3 +122,16 @@ class DirectModeAction: Action {
         return .processed
     }
 }
+
+class SelfInsertAndDirectMode: Action {
+    var text: String
+    init(text: String) {
+        self.text = text
+    }
+    func execute(client: any Client, mode: any Mode, controller: any Controller) -> Command {
+        if let controller = controller as? TcodeInputController {
+            controller.setInputMode(.direct)
+        }
+        return .text(text)
+    }
+}
