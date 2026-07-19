@@ -72,18 +72,28 @@ func applyActionBindings(_ bindings: [UserConfigs.ActionBindingConfig], to keyma
     var definedSequences = Set<String>()
     for (index, binding) in bindings.enumerated() {
         guard !binding.keys.isEmpty else {
-            NSLog("Invalid key binding at keyBindings.actions[%d]: keys must not be empty. The binding was ignored.", index)
+            Log.i("Invalid key binding at keyBindings.actions[\(index)]: keys must not be empty. The binding was ignored.")
             continue
         }
         guard let entry = command(for: binding, ui: ui) else {
-            NSLog("Invalid key binding at keyBindings.actions[%d]: action %@ has invalid or missing arguments. The binding was ignored.", index, binding.action)
+            Log.i("Invalid key binding at keyBindings.actions[\(index)]: action \(binding.action) has invalid or missing arguments. The binding was ignored.")
             continue
         }
         guard definedSequences.insert(binding.keys).inserted else {
-            NSLog("Invalid key binding at keyBindings.actions[%d]: sequence %@ is defined more than once. The binding was ignored.", index, binding.keys)
+            Log.i("Invalid key binding at keyBindings.actions[\(index)]: sequence \(binding.keys) is defined more than once. The binding was ignored.")
             continue
         }
-        KeymapResolver.define(sequence: binding.keys, keymap: keymap, entry: entry)
+        if (binding.keys.starts(with: "C-") && binding.keys.count == 3) {
+            let char = binding.keys.last!
+            if Translator.CONTROL_PUNCT.contains(char) {
+                let event = InputEvent(type: .control_punct, text: String(binding.keys.last!))
+                keymap.replace(input: event, entry: entry)
+            } else {
+                Log.i("Invalid C-key description at keyBindings.actions[\(index)]: Only punctuations (\(Translator.CONTROL_PUNCT)) are allowed. The binding was ignored.")
+            }
+        } else {
+            KeymapResolver.define(sequence: binding.keys, keymap: keymap, entry: entry)
+        }
     }
 }
 
