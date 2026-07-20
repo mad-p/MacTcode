@@ -28,8 +28,6 @@
 		9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8BFECB2C15D64F00B99BA2 /* Log.swift */; };
 		9D8C8DBF2C01ACF0003D8A43 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DBE2C01ACF0003D8A43 /* Preview Assets.xcassets */; };
 		9D8C8DCA2C01ACF1003D8A43 /* KeymapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */; };
-		9D8C8DD42C01ACF1003D8A43 /* MacTcodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */; };
-		9D8C8DD62C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */; };
 		9D8C8DE52C0338A7003D8A43 /* TcodeInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE42C0338A7003D8A43 /* TcodeInputController.swift */; };
 		9D8C8DE72C0338EB003D8A43 /* TcodeKeymap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE62C0338EB003D8A43 /* TcodeKeymap.swift */; };
 		9D8C8DE92C035BBA003D8A43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D8C8DE82C035BBA003D8A43 /* Assets.xcassets */; };
@@ -106,13 +104,6 @@
 			remoteGlobalIDString = 9D8C8DB32C01ACEE003D8A43;
 			remoteInfo = MacTcode;
 		};
-		9D8C8DD02C01ACF1003D8A43 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9D8C8DAC2C01ACEE003D8A43 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9D8C8DB32C01ACEE003D8A43;
-			remoteInfo = MacTcode;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -142,7 +133,6 @@
 		9D8C8DC02C01ACF0003D8A43 /* MacTcode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacTcode.entitlements; sourceTree = "<group>"; };
 		9D8C8DC52C01ACF1003D8A43 /* MacTcodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacTcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8C8DC92C01ACF1003D8A43 /* KeymapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeymapTests.swift; sourceTree = "<group>"; };
-		9D8C8DCF2C01ACF1003D8A43 /* MacTcodeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacTcodeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8C8DD32C01ACF1003D8A43 /* MacTcodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeUITests.swift; sourceTree = "<group>"; };
 		9D8C8DD52C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTcodeUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		9D8C8DE22C01ADA9003D8A43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -233,13 +223,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9D8C8DCC2C01ACF1003D8A43 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -295,7 +278,6 @@
 			children = (
 				9D8C8DB42C01ACEE003D8A43 /* MacTcode.app */,
 				9D8C8DC52C01ACF1003D8A43 /* MacTcodeTests.xctest */,
-				9D8C8DCF2C01ACF1003D8A43 /* MacTcodeUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -523,24 +505,6 @@
 			productReference = 9D8C8DC52C01ACF1003D8A43 /* MacTcodeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		9D8C8DCE2C01ACF1003D8A43 /* MacTcodeUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 9D8C8DDF2C01ACF1003D8A43 /* Build configuration list for PBXNativeTarget "MacTcodeUITests" */;
-			buildPhases = (
-				9D8C8DCB2C01ACF1003D8A43 /* Sources */,
-				9D8C8DCC2C01ACF1003D8A43 /* Frameworks */,
-				9D8C8DCD2C01ACF1003D8A43 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				9D8C8DD12C01ACF1003D8A43 /* PBXTargetDependency */,
-			);
-			name = MacTcodeUITests;
-			productName = MacTcodeUITests;
-			productReference = 9D8C8DCF2C01ACF1003D8A43 /* MacTcodeUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -555,10 +519,6 @@
 						CreatedOnToolsVersion = 15.4;
 					};
 					9D8C8DC42C01ACF1003D8A43 = {
-						CreatedOnToolsVersion = 15.4;
-						TestTargetID = 9D8C8DB32C01ACEE003D8A43;
-					};
-					9D8C8DCE2C01ACF1003D8A43 = {
 						CreatedOnToolsVersion = 15.4;
 						TestTargetID = 9D8C8DB32C01ACEE003D8A43;
 					};
@@ -580,7 +540,6 @@
 			targets = (
 				9D8C8DB32C01ACEE003D8A43 /* MacTcode */,
 				9D8C8DC42C01ACF1003D8A43 /* MacTcodeTests */,
-				9D8C8DCE2C01ACF1003D8A43 /* MacTcodeUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -628,13 +587,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9D8C8DC32C01ACF1003D8A43 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9D8C8DCD2C01ACF1003D8A43 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -711,15 +663,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9D8C8DCB2C01ACF1003D8A43 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9D8C8DD62C01ACF1003D8A43 /* MacTcodeUITestsLaunchTests.swift in Sources */,
-				9D8C8DD42C01ACF1003D8A43 /* MacTcodeUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -727,11 +670,6 @@
 			isa = PBXTargetDependency;
 			target = 9D8C8DB32C01ACEE003D8A43 /* MacTcode */;
 			targetProxy = 9D8C8DC62C01ACF1003D8A43 /* PBXContainerItemProxy */;
-		};
-		9D8C8DD12C01ACF1003D8A43 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9D8C8DB32C01ACEE003D8A43 /* MacTcode */;
-			targetProxy = 9D8C8DD02C01ACF1003D8A43 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -989,38 +927,6 @@
 			};
 			name = Release;
 		};
-		9D8C8DE02C01ACF1003D8A43 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.MacTcodeUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = MacTcode;
-			};
-			name = Debug;
-		};
-		9D8C8DE12C01ACF1003D8A43 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.github.mad-p.MacTcodeUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = MacTcode;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1047,15 +953,6 @@
 			buildConfigurations = (
 				9D8C8DDD2C01ACF1003D8A43 /* Debug */,
 				9D8C8DDE2C01ACF1003D8A43 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		9D8C8DDF2C01ACF1003D8A43 /* Build configuration list for PBXNativeTarget "MacTcodeUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				9D8C8DE02C01ACF1003D8A43 /* Debug */,
-				9D8C8DE12C01ACF1003D8A43 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
