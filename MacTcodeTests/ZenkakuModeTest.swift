@@ -11,7 +11,7 @@ import InputMethodKit
 @testable import MacTcode
 
 final class ZenkakuModeTest: XCTestCase {
-    var mode: Mode!
+    var mode: TcodeMode!
     var spy: RecentTextClient!
     var client: ContextClient!
     var controller: ControllerSpy!
@@ -36,6 +36,7 @@ final class ZenkakuModeTest: XCTestCase {
         client = ContextClient(client: spy, recent: RecentTextClient(""))
         controller = ControllerSpy()
         mode = TcodeMode()
+        KeymapResolver.define(sequence: "`", keymap: mode.keymap, action: ZenkakuOneModeAction())
         controller.pushMode(mode)
         Log.i("setUp!")
     }

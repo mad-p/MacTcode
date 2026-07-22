@@ -7,6 +7,96 @@
 
 import Foundation
 
+private func legacyActionBindings(from keyBindings: UserConfigs.KeyBindingsConfig) -> [UserConfigs.ActionBindingConfig] {
+    [
+        (keyBindings.bushuConversion, "postfixBushu", nil, nil),
+        (keyBindings.mazegakiConversion, "postfixMazegaki", false, nil),
+        (keyBindings.inflectionConversion, "postfixMazegaki", true, nil),
+        (keyBindings.directMode, "directMode", nil, nil),
+        ("19", "selfInsertAndDirectMode", nil, "19"),
+        ("20", "selfInsertAndDirectMode", nil, "20"),
+        (keyBindings.zenkakuMode, "zenkakuMode", nil, nil),
+        (keyBindings.zenkakuOneMode, "zenkakuOneMode", nil, nil),
+        (keyBindings.hankanaMode, "hankanaMode", nil, nil),
+        (keyBindings.lineMode, "lineMode", nil, nil),
+        (keyBindings.symbolSet1, "symbolSet1", nil, nil),
+        (keyBindings.symbolSet2, "symbolSet2", nil, nil),
+        ("C-'", "tcodeMode", nil, nil),
+        ("C-,", "directMode", nil, nil),
+    ].compactMap { keys, action, inflection, text in
+        keys.isEmpty ? nil : UserConfigs.ActionBindingConfig(
+            keys: keys, action: action, inflection: inflection, text: text
+        )
+    }
+}
+
+func command(for binding: UserConfigs.ActionBindingConfig, ui: UserConfigs.UIConfig) -> Command? {
+    switch binding.action {
+    case "postfixBushu":
+        return .action(PostfixBushuAction())
+    case "postfixMazegaki":
+        return .action(PostfixMazegakiAction(inflection: binding.inflection ?? false))
+    case "zenkakuMode":
+        return .action(ZenkakuModeAction())
+    case "zenkakuOneMode":
+        return .action(ZenkakuOneModeAction())
+    case "hankanaMode":
+        return .action(HankanaModeAction())
+    case "lineMode":
+        return .action(ToggleLineModeAction())
+    case "tcodeMode":
+        return .action(TcodeModeAction())
+    case "directMode":
+        return .action(DirectModeAction())
+    case "selfInsertAndDirectMode":
+        guard let text = binding.text, !text.isEmpty else {
+            return nil
+        }
+        return .action(SelfInsertAndDirectMode(text: text))
+    case "symbolSet1":
+        guard let keymap = Keymap("outset1", fromChars: ui.symbolSet1Chars) else {
+            return nil
+        }
+        return .keymap(keymap)
+    case "symbolSet2":
+        guard let keymap = Keymap("outset2", fromChars: ui.symbolSet2Chars) else {
+            return nil
+        }
+        return .keymap(keymap)
+    default:
+        return nil
+    }
+}
+
+func applyActionBindings(_ bindings: [UserConfigs.ActionBindingConfig], to keymap: Keymap, ui: UserConfigs.UIConfig) {
+    var definedSequences = Set<String>()
+    for (index, binding) in bindings.enumerated() {
+        guard !binding.keys.isEmpty else {
+            Log.i("Invalid key binding at keyBindings.actions[\(index)]: keys must not be empty. The binding was ignored.")
+            continue
+        }
+        guard let entry = command(for: binding, ui: ui) else {
+            Log.i("Invalid key binding at keyBindings.actions[\(index)]: action \(binding.action) has invalid or missing arguments. The binding was ignored.")
+            continue
+        }
+        guard definedSequences.insert(binding.keys).inserted else {
+            Log.i("Invalid key binding at keyBindings.actions[\(index)]: sequence \(binding.keys) is defined more than once. The binding was ignored.")
+            continue
+        }
+        if (binding.keys.starts(with: "C-") && binding.keys.count == 3) {
+            let char = binding.keys.last!
+            if Translator.CONTROL_PUNCT.contains(char) {
+                let event = InputEvent(type: .control_punct, text: String(binding.keys.last!))
+                keymap.replace(input: event, entry: entry)
+            } else {
+                Log.i("Invalid C-key description at keyBindings.actions[\(index)]: Only punctuations (\(Translator.CONTROL_PUNCT)) are allowed. The binding was ignored.")
+            }
+        } else {
+            KeymapResolver.define(sequence: binding.keys, keymap: keymap, entry: entry)
+        }
+    }
+}
+
 fileprivate func buildTcodeKeymap() -> Keymap {
     // UserConfigsから基文文字マップを取得
     let keyBindings = UserConfigs.i.keyBindings
@@ -14,58 +104,14 @@ fileprivate func buildTcodeKeymap() -> Keymap {
     
     let map = Keymap("TCode2D", from2d: basicTableString)
     
-    // UserConfigsからキーシーケンス設定を取得
-    let bushuConversion = keyBindings.bushuConversion
-    if bushuConversion != "" {
-        KeymapResolver.define(sequence: bushuConversion, keymap: map, action: PostfixBushuAction())
-    }
-    let mazegakiConversion = keyBindings.mazegakiConversion
-    if mazegakiConversion != "" {
-        KeymapResolver.define(sequence: mazegakiConversion, keymap: map, action: PostfixMazegakiAction(inflection: false))
-    }
-    let inflectionConversion = keyBindings.inflectionConversion
-    if inflectionConversion != "" {
-        KeymapResolver.define(sequence: inflectionConversion, keymap: map, action: PostfixMazegakiAction(inflection: true))
-    }
-    
-    // Ctrl-' → Tcode, Ctrl-, → 英数
-    map.replace(input: InputEvent(type: .control_punct, text: "'"),
-                entry: Command.action(TcodeModeAction()))
-    map.replace(input: InputEvent(type: .control_punct, text: ","), entry: Command.action(DirectModeAction()))
-    let directMode = keyBindings.directMode
-    if directMode != "" {
-        KeymapResolver.define(sequence: directMode, keymap: map, action: DirectModeAction())
-    }
-    
-    // 年号入力。直接入力に変更しつつ、元のキーを入力
-    KeymapResolver.define(sequence: "19", keymap: map, action: SelfInsertAndDirectMode(text: "19"))
-    KeymapResolver.define(sequence: "20", keymap: map, action: SelfInsertAndDirectMode(text: "20"))
-    
     // かな、英数キーはここに来るまでに処理されているはずなので無視する
     map.replace(input: InputEvent(type: .japanese, text: " "), entry: .processed)
     // passthrough Ctrl-SPC (set-mark)
     map.replace(input: InputEvent(type: .control_punct, text: " "), entry: .passthrough)
     
-    let zenkakuMode = keyBindings.zenkakuMode
-    if zenkakuMode != "" {
-        KeymapResolver.define(sequence: zenkakuMode, keymap: map, action: ZenkakuModeAction())
-    }
-    let zenkakuOneMode = keyBindings.zenkakuOneMode
-    if keyBindings.zenkakuOneMode != "" {
-        KeymapResolver.define(sequence: zenkakuOneMode, keymap: map, action: ZenkakuOneModeAction())
-    }
-    let hankanaMode = keyBindings.hankanaMode
-    if hankanaMode != "" {
-        KeymapResolver.define(sequence: hankanaMode, keymap: map, action: HankanaModeAction())
-    }
-    let lineMode = keyBindings.lineMode
-    if lineMode != "" {
-        KeymapResolver.define(sequence: lineMode, keymap: map, action: ToggleLineModeAction())
-    }
-    KeymapResolver.define(sequence: keyBindings.symbolSet1, keymap: map, entry: Command.keymap(
-        Keymap("outset1", fromChars: UserConfigs.i.ui.symbolSet1Chars)))
-    KeymapResolver.define(sequence: keyBindings.symbolSet2, keymap: map, entry: Command.keymap(
-        Keymap("outset2", fromChars: UserConfigs.i.ui.symbolSet2Chars)))
+    // actions が未指定なら、移行期間中は旧形式の個別設定を使用する。
+    let bindings = keyBindings.actions ?? legacyActionBindings(from: keyBindings)
+    applyActionBindings(bindings, to: map, ui: UserConfigs.i.ui)
     
     return map
 }

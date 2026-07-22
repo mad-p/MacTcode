@@ -67,4 +67,35 @@ final class KeymapTests: XCTestCase {
             XCTFail()
         }
     }
+
+    func testDeclarativeActionBindings() {
+        let keymap = Keymap("test-actions")
+        applyActionBindings([
+            UserConfigs.ActionBindingConfig(keys: "xy", action: "unknown", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "xy", action: "directMode", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "ab", action: "selfInsertAndDirectMode", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "cd", action: "directMode", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "cd", action: "zenkakuMode", inflection: nil, text: nil)
+        ], to: keymap, ui: .default)
+
+        let xy = ["x", "y"].map { InputEvent(type: .printable, text: $0) }
+        let ab = ["a", "b"].map { InputEvent(type: .printable, text: $0) }
+        let cd = ["c", "d"].map { InputEvent(type: .printable, text: $0) }
+
+        if case .action(let action) = KeymapResolver.resolve(keySequence: xy, keymap: keymap) {
+            XCTAssertTrue(action is DirectModeAction)
+        } else {
+            XCTFail("A valid binding after an invalid binding should be applied")
+        }
+        if case .passthrough = KeymapResolver.resolve(keySequence: ab, keymap: keymap) {
+            // Expected: a missing required argument does not create a binding.
+        } else {
+            XCTFail("A binding with missing required arguments should be ignored")
+        }
+        if case .action(let action) = KeymapResolver.resolve(keySequence: cd, keymap: keymap) {
+            XCTAssertTrue(action is DirectModeAction)
+        } else {
+            XCTFail("The first duplicate binding should be retained")
+        }
+    }
 }
