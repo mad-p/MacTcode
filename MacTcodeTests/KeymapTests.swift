@@ -98,4 +98,39 @@ final class KeymapTests: XCTestCase {
             XCTFail("The first duplicate binding should be retained")
         }
     }
+
+    func testDeclarativeTopLevelActionBindings() {
+        let keymap = Keymap("test-top-level-actions")
+        applyTopLevelActionBindings([
+            UserConfigs.ActionBindingConfig(keys: "space", action: "emitPending", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "escape", action: "resetAllState", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "delete", action: "removeLastPending", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "-", action: "removeLastPending", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "-", action: "emitPending", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "xy", action: "emitPending", inflection: nil, text: nil),
+            UserConfigs.ActionBindingConfig(keys: "x", action: "unknown", inflection: nil, text: nil)
+        ], to: keymap)
+
+        if case .action(let action) = keymap.lookup(input: InputEvent(type: .space, text: " ")) {
+            XCTAssertTrue(action is EmitPendingAction)
+        } else {
+            XCTFail("space should resolve to EmitPendingAction")
+        }
+        if case .action(let action) = keymap.lookup(input: InputEvent(type: .escape, text: "\u{1b}")) {
+            XCTAssertTrue(action is ResetAllStateAction)
+        } else {
+            XCTFail("escape should resolve to ResetAllStateAction")
+        }
+        if case .action(let action) = keymap.lookup(input: InputEvent(type: .delete, text: "\u{08}")) {
+            XCTAssertTrue(action is RemoveLastPendingAction)
+        } else {
+            XCTFail("delete should resolve to RemoveLastPendingAction")
+        }
+        if case .action(let action) = keymap.lookup(input: InputEvent(type: .printable, text: "-")) {
+            XCTAssertTrue(action is RemoveLastPendingAction)
+        } else {
+            XCTFail("a one-character printable binding should be applied")
+        }
+        XCTAssertNil(keymap.lookup(input: InputEvent(type: .printable, text: "x")))
+    }
 }

@@ -65,6 +65,12 @@
       { "keys" : "C-'", "action" : "tcodeMode" },
       { "keys" : "C-,", "action" : "directMode" }
     ],
+    "topLevelActions" : [
+      { "keys" : "space", "action" : "emitPending" },
+      { "keys" : "escape", "action" : "resetAllState" },
+      { "keys" : "delete", "action" : "removeLastPending" },
+      { "keys" : "-", "action" : "removeLastPending" }
+    ],
     "pendingCancelKeys" : ["/"]
   },
   "mazegaki" : {

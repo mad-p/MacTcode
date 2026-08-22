@@ -92,6 +92,12 @@ IMEメニューから「設定ファイルフォルダを開く」を選ぶと�
     { "keys" : "C-'", "action" : "tcodeMode" },
     { "keys" : "C-,", "action" : "directMode" }
   ],
+  "topLevelActions": [
+    { "keys": "space", "action": "emitPending" },
+    { "keys": "escape", "action": "resetAllState" },
+    { "keys": "delete", "action": "removeLastPending" },
+    { "keys": "-", "action": "removeLastPending" }
+  ],
   "basicTable": [
     "■■■■■■■■■■ヮヰヱヵヶ請境系探象ゎゐゑ■■盛革突温捕■■■■■依繊借須訳",
     "（40行の文字列配列...）"
@@ -106,6 +112,12 @@ IMEメニューから「設定ファイルフォルダを開く」を選ぶと�
     - **`lineMode`**, **`directMode`**, **`tcodeMode`**: 行入力モード、英数モード、T-Codeモード
     - **`selfInsertAndDirectMode`**: `text` を入力して直接入力モードへ移行します
     - **`symbolSet1`**, **`symbolSet2`**: `ui.symbolSet1Chars`、`ui.symbolSet2Chars` の記号入力セット
+- **`topLevelActions`**: T-Code の打鍵途中でも最優先で処理するアクションのキー割り当て。各要素は `actions` と同じく `keys` と `action` を指定します
+    - **`emitPending`**: 保留中のキー列を入力します。保留中のキー列がない場合は空白を入力します
+    - **`resetAllState`**: 保留中のキー列と現在の入力モードをリセットします
+    - **`removeLastPending`**: 保留中のキー列があれば最後の1打鍵を削除し、なければキーをそのままアプリケーションへ渡します
+    - `keys` には `space`、`escape`、`delete` の特殊キー名、または1文字の通常キーを指定できます
+    - 未指定の場合は、既定の `space` → `emitPending`、`escape` → `resetAllState`、`delete` と `-` → `removeLastPending` を使用します。空配列 `[]` を指定すると既定の最上位アクションをすべて無効にできます
 - **`basicTable`**: T-Code基本文字配列（40行×40文字）
 - **`pendingCancelKeys`**: 変換確定後のキャンセルキーとして扱う文字のリスト（文字列の配列）。デフォルトは `["/"]`。Delete・Escape・Control-G は常にキャンセルキーとして機能するが、ここに文字を追加することでprintableキーでもキャンセルできる
 - キーシーケンス `keys` の設定値について
