@@ -13,6 +13,7 @@ class TopLevelMap {
         map.replace(input: InputEvent(type: .space, text: " "), entry: .action(EmitPendingAction()))
         map.replace(input: InputEvent(type: .escape, text: "\u{1b}"), entry: .action(ResetAllStateAction()))
         map.replace(input: InputEvent(type: .delete, text: "\u{08}"), entry: .action(RemoveLastPendingAction()))
+        map.replace(input: InputEvent(type: .printable, text: "-"), entry: .action(RemoveLastPendingAction()))
         return map
     }()
 }
