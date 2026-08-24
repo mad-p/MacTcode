@@ -36,7 +36,7 @@ class MazegakiSelectionMode: Mode, ModeWithCandidates {
         candidateWindow?.show()
     }
     func handle(_ inputEvent: InputEvent, client: ContextClient!) -> HandleResult {
-        // キーで選択して確定。右手ホームの4キーの後数字の1～0
+        // キーで選択して確定。右手ホームの4キーの後数字の1〜0
         Log.i("MazegakiSelectionMode.handle: event=\(inputEvent) client=\(client!) controller=\(controller!)")
         if let selectKeys = candidateWindow?.selectionKeys() as? [Int] {
             Log.i("  selectKeys = \(selectKeys)")
