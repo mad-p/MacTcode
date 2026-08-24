@@ -153,6 +153,8 @@ class UserConfigs {
         let basicTable: [String]
         /// アクションの宣言的なキー割り当て。nil の場合は旧形式の個別設定を使用する。
         let actions: [ActionBindingConfig]?
+        /// 入力途中でも優先して処理する最上位アクションの割り当て。nil の場合は既定値を使用する。
+        let topLevelActions: [ActionBindingConfig]?
         // 変換確定後のキャンセルキーとして扱う文字のリスト（printableキーのみ）
         let pendingCancelKeys: [String]
 
@@ -210,6 +212,7 @@ class UserConfigs {
                 "還更占箱矢■■■■■志抜航層深担陸巻競護根様独止堂銀以ヌ営治字材過諸単身ピ勝反ズ"
             ],
             actions: nil,
+            topLevelActions: nil,
             pendingCancelKeys: ["/"]
         )
     }
