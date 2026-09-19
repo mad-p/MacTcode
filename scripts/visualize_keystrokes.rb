@@ -17,6 +17,13 @@ class KeystrokeVisualizer
     %w[a s d f g h j k l ;],
     %w[z x c v b n m , . /]
   ].freeze
+  # KEY_ROWS を物理的に押下したときの macOS virtual key code。Dvorak などの入力配列とは独立している。
+  KEYCODES = [
+    18, 19, 20, 21, 23, 22, 26, 28, 25, 29,
+    12, 13, 14, 15, 17, 16, 32, 34, 31, 35,
+     0,  1,  2,  3,  5,  4, 38, 40, 37, 41,
+     6,  7,  8,  9, 11, 45, 46, 43, 47, 44
+  ].freeze
   FUNCTION_KEYS = %w[escape space delete enter cancel].freeze
 
   def initialize(events, fps:, highlight_frames:, width:)
@@ -90,7 +97,7 @@ class KeystrokeVisualizer
     when 'pendingKakuteiCancel'
       state[:highlighted_until]['cancel'] = frame_index + @highlight_frames
     end
-    state[:text] = state[:text].each_char.to_a.last(20).join
+    state[:text] = state[:text].each_char.to_a.last(40).join
   end
 
   def key_name(event)
@@ -98,8 +105,11 @@ class KeystrokeVisualizer
     when 'space', 'delete', 'escape', 'enter'
       event['keyType']
     else
-      text = event['text']
-      text if text && !text.empty?
+      keycode = event['keyCode']
+      return unless keycode
+
+      index = KEYCODES.index(keycode.to_i)
+      index && "key-#{index}"
     end
   end
 
@@ -119,23 +129,24 @@ class KeystrokeVisualizer
     cell = ((@width - 80) / 12.0).floor
     key_height = 54
     keyboard = KEY_ROWS.each_with_index.map do |row, row_index|
-      row.map.with_index do |key, column|
-        key_svg(key, 40 + column * cell, 130 + row_index * (key_height + 12), cell - 8, key_height, state, frame_index)
+      row.map.with_index do |_key, column|
+        key = "key-#{row_index * 10 + column}"
+        key_svg(key, 40 + column * cell, 160 + row_index * (key_height + 12), cell - 8, key_height, state, frame_index)
       end.join
     end.join
     functions = [
       ['escape', 'Esc', 40], ['space', 'Space', 160], ['delete', 'Delete', 400], ['enter', 'Enter', 540], ['cancel', 'Cancel', 680]
-    ].map { |key, label, x| key_svg(key, x, 405, key == 'space' ? 220 : 100, key_height, state, frame_index, label) }.join
+    ].map { |key, label, x| key_svg(key, x, 435, key == 'space' ? 220 : 100, key_height, state, frame_index, label) }.join
 
     <<~SVG
       <svg xmlns="http://www.w3.org/2000/svg" width="#{@width}" height="#{height}" viewBox="0 0 #{@width} #{height}">
         <rect width="100%" height="100%" fill="#1d1f21"/>
         <text x="40" y="48" fill="#ffffff" font-family="Hiragino Sans, sans-serif" font-size="26">MacTcode 打鍵ログ</text>
         <text x="40" y="82" fill="#cccccc" font-family="Menlo, monospace" font-size="19">#{format_time(elapsed)}   mode: #{escape(state[:mode])}   pending: #{escape(state[:pending])}</text>
+        <rect x="40" y="96" width="#{@width - 80}" height="42" rx="6" fill="#303236"/>
+        <text x="54" y="124" fill="#ffffff" font-family="Hiragino Sans, sans-serif" font-size="22">#{escape(state[:text])}</text>
         #{keyboard}
         #{functions}
-        <rect x="40" y="490" width="#{@width - 80}" height="42" rx="6" fill="#303236"/>
-        <text x="54" y="518" fill="#ffffff" font-family="Hiragino Sans, sans-serif" font-size="22">#{escape(state[:text])}</text>
       </svg>
     SVG
   end
