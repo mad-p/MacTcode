@@ -106,7 +106,7 @@ class Mazegaki {
         Log.i("Kakutei \(string)  client=\(type(of:client))")
         InputStats.i.incrementMazegakiCount()
         InputStats.i.recordKakutei(charCount: string.count, subtract: length)
-        let backspaceCount = client.replaceYomi(string, length: length, from: context)
+        let backspaceCount = client.replaceYomi(string, length: length, from: context, source: "mazegaki")
         controller.setBackspaceIgnore(backspaceCount)
 
         // MRU学習が有効な場合、PendingKakuteiを生成

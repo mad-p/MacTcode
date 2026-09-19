@@ -83,11 +83,39 @@ bundle exec ruby tests/run_tests.rb
 
 Aggregator のユニットテスト（正常系・異常系・境界値）と統合テスト（実際のJSONでの全PNG生成）を実行します。
 
+## 打鍵ログ visualizer
+
+MacTcode のメニューから「打鍵ログを開始」を選ぶと、設定ディレクトリ配下の `logs/` に JSONL ログが保存されます。ログには入力内容が含まれるため、共有時には内容を確認してください。
+
+`visualize_keystrokes.rb` は、その JSONL をオーソリニア配列キーボード付きのアニメーション GIF に変換します。GIF 生成には ImageMagick の `magick` コマンドが必要です。
+
+```bash
+cd scripts
+ruby visualize_keystrokes.rb ~/Library/Application\ Support/MacTcode/logs/keystrokes-2026-09-19T12-34-56.789+0900.jsonl
+```
+
+既定では、入力ファイルと同じ場所に `.gif` 拡張子で出力します。
+
+| オプション | 既定値 | 説明 |
+|---|---:|---|
+| `--output FILE` | 入力名の `.gif` | 出力 GIF のパス |
+| `--fps N` | `30` | フレームレート |
+| `--key-highlight-frames N` | `2` | 打鍵キーを赤く表示するフレーム数 |
+| `--width N` | `1000` | 出力画像の横幅（px、400以上） |
+| `--dry-run` | — | GIF を作らず、ログ再生の概要を JSON で出力 |
+
+例:
+
+```bash
+ruby visualize_keystrokes.rb INPUT.jsonl --output demo.gif --fps 30 --key-highlight-frames 2
+```
+
 ## ファイル構成
 
 ```
 scripts/
   plot_strokes.rb        # メインスクリプト
+  visualize_keystrokes.rb # JSONL 打鍵ログから GIF を生成
   Gemfile                # 依存 gems（gruff, chunky_png, mini_magick）
   lib/
     aggregator.rb        # 複数JSONの読み込み・合算
