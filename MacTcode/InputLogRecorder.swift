@@ -86,10 +86,11 @@ final class InputLogRecorder {
         record(type: "modeChanged", fields: ["mode": mode, "transition": transition])
     }
 
-    func recordPendingChanged(_ pending: [InputEvent]) {
+    func recordPendingChanged(_ pending: [InputEvent], nextChars: [String] = []) {
         record(type: "pendingChanged", fields: [
             "keys": pending.compactMap(\.text).joined(),
-            "count": pending.count
+            "count": pending.count,
+            "nextChars": nextChars
         ])
     }
 

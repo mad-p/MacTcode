@@ -53,7 +53,10 @@ class KeystrokeVisualizer
   end
 
   def write_frames(directory)
-    state = { text: '', mode: 'tcode', pending: '', highlighted_until: {}, last_key_input: nil }
+    state = {
+      text: '', mode: 'tcode', pending: '', highlighted_until: {},
+      next_chars: [], held_chars: {}, last_key_input: nil
+    }
     event_index = 0
     total_frames = frame_count
     total_frames.times do |frame_index|
@@ -74,13 +77,19 @@ class KeystrokeVisualizer
     when 'keyInput'
       state[:last_key_input] = event
       key = key_name(event)
-      state[:highlighted_until][key] = frame_index + @highlight_frames if key
+      if key
+        until_frame = frame_index + @highlight_frames
+        state[:highlighted_until][key] = until_frame
+        hold_next_char(key, state, until_frame)
+      end
     when 'passthrough'
       apply_passthrough(state[:last_key_input], state)
     when 'modeChanged'
       state[:mode] = event['mode'] || state[:mode]
     when 'pendingChanged'
       state[:pending] = event['keys'] || ''
+      next_chars = event['nextChars']
+      state[:next_chars] = next_chars.is_a?(Array) && next_chars.length == KEYCODES.length ? next_chars : []
     when 'textCommitted'
       state[:text] += event['text'].to_s
     when 'textDeleted'
@@ -119,9 +128,28 @@ class KeystrokeVisualizer
     case event['keyType']
     when 'printable'
       state[:text] += event['text'].to_s
+      key = key_name(event)
+      if key && basic_key_index(key)
+        until_frame = state[:highlighted_until][key]
+        state[:held_chars][key] = { text: event['text'].to_s, until: until_frame } if until_frame
+      end
     when 'delete'
       state[:text] = state[:text].each_char.to_a[0...-1].join
     end
+  end
+
+  def basic_key_index(key)
+    match = /\Akey-(\d+)\z/.match(key)
+    index = match && match[1].to_i
+    index if index && index < KEYCODES.length
+  end
+
+  def hold_next_char(key, state, until_frame)
+    index = basic_key_index(key)
+    return unless index
+
+    text = state[:next_chars][index].to_s
+    state[:held_chars][key] = { text: text, until: until_frame } unless text.empty?
   end
 
   def svg(state, elapsed, frame_index)
@@ -131,7 +159,8 @@ class KeystrokeVisualizer
     keyboard = KEY_ROWS.each_with_index.map do |row, row_index|
       row.map.with_index do |_key, column|
         key = "key-#{row_index * 10 + column}"
-        key_svg(key, 40 + column * cell, 160 + row_index * (key_height + 12), cell - 8, key_height, state, frame_index)
+        label, label_color = basic_key_label(key, state, frame_index)
+        key_svg(key, 40 + column * cell, 160 + row_index * (key_height + 12), cell - 8, key_height, state, frame_index, label, label_color)
       end.join
     end.join
     functions = [
@@ -151,11 +180,22 @@ class KeystrokeVisualizer
     SVG
   end
 
-  def key_svg(key, x, y, width, height, state, frame_index, label = nil)
+  def basic_key_label(key, state, frame_index)
+    held = state[:held_chars][key]
+    if held && held[:until].to_i > frame_index
+      return [held[:text], '#222222']
+    end
+
+    index = basic_key_index(key)
+    text = index && state[:next_chars][index].to_s
+    text && !text.empty? ? [text, '#aaaaaa'] : [nil, nil]
+  end
+
+  def key_svg(key, x, y, width, height, state, frame_index, label = nil, label_color = nil)
     active = state[:highlighted_until][key].to_i > frame_index
     fill = active ? '#d9534f' : '#e6e6e6'
     label_svg = if label
-                  foreground = active ? '#ffffff' : '#222222'
+                  foreground = label_color || (active ? '#ffffff' : '#222222')
                   <<~SVG
                     <text x="#{x + width / 2}" y="#{y + height / 2 + 7}" text-anchor="middle" fill="#{foreground}" font-family="Menlo, monospace" font-size="20">#{escape(label)}</text>
                   SVG

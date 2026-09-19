@@ -107,6 +107,7 @@ final class ContextClientTests: XCTestCase {
         XCTAssertTrue(lines.allSatisfy { ($0["schemaVersion"] as? Int) == 1 })
         XCTAssertTrue(lines.allSatisfy { ($0["elapsedMilliseconds"] as? Int) != nil })
         XCTAssertEqual(lines[1]["text"] as? String, "a")
+        XCTAssertEqual(lines[2]["nextChars"] as? [String], [])
         XCTAssertEqual(lines[5]["replacedText"] as? String, "かんじ")
         XCTAssertEqual(lines[5]["text"] as? String, "漢字")
     }
