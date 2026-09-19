@@ -27,7 +27,7 @@ final class ContextClientTests: XCTestCase {
         var setMarkedTextReplacementRange: NSRange = NSRange(location: 0, length: 0)
         var bundleIdentifier: String!
         
-        init(selectedRangeValue: NSRange, 
+        init(selectedRangeValue: NSRange,
              stringReturnValue: String = "",
              stringReturnRange: NSRange = NSRange(location: 0, length: 0),
              bundleId: String = "jp.mad-p.inputmethod.MacTcode.stub",
@@ -86,6 +86,10 @@ final class ContextClientTests: XCTestCase {
 
         let url = try InputLogRecorder.i.start(in: directory)
         XCTAssertEqual(url, try InputLogRecorder.i.start(in: directory))
+        XCTAssertNotNil(url.lastPathComponent.range(
+            of: #"^keystrokes-\d{8}-\d{6}\.jsonl$"#,
+            options: .regularExpression
+        ))
         InputLogRecorder.i.recordKeyInput(InputEvent(type: .printable, text: "a", event: nil))
         InputLogRecorder.i.recordPendingChanged([InputEvent(type: .printable, text: "a", event: nil)])
         InputLogRecorder.i.recordTextCommitted("あ", source: "tcode")

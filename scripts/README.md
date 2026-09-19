@@ -93,18 +93,19 @@ MacTcode のメニューから「打鍵ログを開始」を選ぶと、コン�
 ln -s "$HOME/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/logs" scripts/logs
 ```
 
-`visualize_keystrokes.rb` は、その JSONL をオーソリニア配列キーボード付きのアニメーション GIF に変換します。GIF 生成には ImageMagick の `magick` コマンドが必要です。
+`visualize_keystrokes.rb` は、その JSONL をオーソリニア配列キーボード付きのアニメーション GIF または MP4 に変換します。GIF・MP4 とも ImageMagick の `magick` コマンドが必要で、MP4 出力には加えて `ffmpeg` が必要です。
 
 ```bash
 cd scripts
-  rbenv exec ruby visualize_keystrokes.rb logs/keystrokes-2026-09-19T12-34-56.789+0900.jsonl
+rbenv exec ruby visualize_keystrokes.rb logs/keystrokes-20260919-123456.jsonl
 ```
 
-既定では、入力ファイルと同じ場所に `.gif` 拡張子で出力します。`ffmpeg` が `PATH` にある場合は、GIF の生成後に MP4 へ変換し、成功時に中間成果物の GIF を削除します。
+既定では、入力ファイルと同じ場所に `.mp4` 拡張子で出力します。MP4 は一時 GIF を経由して作成しますが、その中間ファイルは出力先には残りません。`--type gif` を指定すると GIF を出力します。
 
 | オプション | 既定値 | 説明 |
 |---|---:|---|
-| `--output FILE` | 入力名の `.gif` | 出力 GIF のパス |
+| `--output FILE` | 入力名の `.mp4` | 出力ファイル。拡張子を省略すると `--type` の拡張子を付加 |
+| `--type TYPE` | `mp4` | 出力形式。`gif` または `mp4` |
 | `--fps N` | `30` | フレームレート |
 | `--key-highlight-frames N` | `9` | 打鍵キーを赤く表示するフレーム数（30 FPS では 0.3 秒） |
 | `--width N` | `1000` | 出力画像の横幅（px、400以上） |
@@ -113,7 +114,7 @@ cd scripts
 例:
 
 ```bash
-rbenv exec ruby visualize_keystrokes.rb INPUT.jsonl --output demo.gif --fps 30 --key-highlight-frames 9
+rbenv exec ruby visualize_keystrokes.rb INPUT.jsonl --type gif --output demo --fps 30 --key-highlight-frames 9
 ```
 
 ## ファイル構成

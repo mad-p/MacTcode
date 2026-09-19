@@ -10,6 +10,7 @@
 		9D0831C72FDECB9100384F6A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D0831C22FDECB9100384F6A /* InfoPlist.strings */; };
 		9D0831C82FDECB9100384F6A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D0831C52FDECB9100384F6A /* InfoPlist.strings */; };
 		9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */; };
+		9D1A5B6D2FE0000100ABCDEF /* InputLogRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1A5B6C2FE0000100ABCDEF /* InputLogRecorder.swift */; };
 		9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */; };
 		9D0F3CE72C04E139005A0CAC /* bushu.dic in Resources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE62C04E139005A0CAC /* bushu.dic */; };
 		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
@@ -110,6 +111,7 @@
 		9D0831C12FDECB9100384F6A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		9D0831C42FDECB9100384F6A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = InfoPlist.strings; sourceTree = "<group>"; };
 		9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bushu.swift; sourceTree = "<group>"; };
+		9D1A5B6C2FE0000100ABCDEF /* InputLogRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputLogRecorder.swift; sourceTree = "<group>"; };
 		9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BushuTests.swift; sourceTree = "<group>"; };
 		9D0F3CE62C04E139005A0CAC /* bushu.dic */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = bushu.dic; sourceTree = "<group>"; };
 		9D4818D82C0368DB00906504 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = main.tiff; path = ../main.tiff; sourceTree = "<group>"; };
@@ -289,6 +291,7 @@
 				9D0831C62FDECB9100384F6A /* ja.lproj */,
 				9DE2E3A62FDE8E5A000417CA /* icons */,
 				9D9E63BB2EA4C74C0035FC32 /* InputStats.swift */,
+				9D1A5B6C2FE0000100ABCDEF /* InputLogRecorder.swift */,
 				9DB0E49E2E2E083300E07616 /* UserConfigs.swift */,
 				9DA358E82E2DEF5B00323184 /* AppDelegate.swift */,
 				9DA358E92E2DEF5B00323184 /* NSManualApplication.swift */,
@@ -622,6 +625,7 @@
 				9DA358E72E2DEF4100323184 /* PostfixBushuAction.swift in Sources */,
 				9D7B903C2EB729FD00DD7920 /* PendingKakuteiMode.swift in Sources */,
 				9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */,
+				9D1A5B6D2FE0000100ABCDEF /* InputLogRecorder.swift in Sources */,
 				9DEAFE352C6DB3E000E8B5E3 /* ClientWrapper.swift in Sources */,
 				9D8BFECC2C15D64F00B99BA2 /* Log.swift in Sources */,
 				9DEAFE272C5FA2A800E8B5E3 /* Controller.swift in Sources */,
