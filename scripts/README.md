@@ -85,29 +85,35 @@ Aggregator のユニットテスト（正常系・異常系・境界値）と統
 
 ## 打鍵ログ visualizer
 
-MacTcode のメニューから「打鍵ログを開始」を選ぶと、設定ディレクトリ配下の `logs/` に JSONL ログが保存されます。ログには入力内容が含まれるため、共有時には内容を確認してください。
+MacTcode のメニューから「打鍵ログを開始」を選ぶと、コンテナ内の設定ディレクトリ `~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/logs/` に JSONL ログが保存されます。ログには入力内容が含まれるため、共有時には内容を確認してください。
+
+パスが長いため、次のコマンドで `scripts/logs` から参照できるシンボリックリンクを作ることを推奨します。`scripts/logs` は Git の管理対象外です。
+
+```bash
+ln -s "$HOME/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/logs" scripts/logs
+```
 
 `visualize_keystrokes.rb` は、その JSONL をオーソリニア配列キーボード付きのアニメーション GIF に変換します。GIF 生成には ImageMagick の `magick` コマンドが必要です。
 
 ```bash
 cd scripts
-ruby visualize_keystrokes.rb ~/Library/Application\ Support/MacTcode/logs/keystrokes-2026-09-19T12-34-56.789+0900.jsonl
+  rbenv exec ruby visualize_keystrokes.rb logs/keystrokes-2026-09-19T12-34-56.789+0900.jsonl
 ```
 
-既定では、入力ファイルと同じ場所に `.gif` 拡張子で出力します。
+既定では、入力ファイルと同じ場所に `.gif` 拡張子で出力します。`ffmpeg` が `PATH` にある場合は、GIF の生成後に MP4 へ変換し、成功時に中間成果物の GIF を削除します。
 
 | オプション | 既定値 | 説明 |
 |---|---:|---|
 | `--output FILE` | 入力名の `.gif` | 出力 GIF のパス |
 | `--fps N` | `30` | フレームレート |
-| `--key-highlight-frames N` | `2` | 打鍵キーを赤く表示するフレーム数 |
+| `--key-highlight-frames N` | `9` | 打鍵キーを赤く表示するフレーム数（30 FPS では 0.3 秒） |
 | `--width N` | `1000` | 出力画像の横幅（px、400以上） |
 | `--dry-run` | — | GIF を作らず、ログ再生の概要を JSON で出力 |
 
 例:
 
 ```bash
-ruby visualize_keystrokes.rb INPUT.jsonl --output demo.gif --fps 30 --key-highlight-frames 2
+rbenv exec ruby visualize_keystrokes.rb INPUT.jsonl --output demo.gif --fps 30 --key-highlight-frames 9
 ```
 
 ## ファイル構成

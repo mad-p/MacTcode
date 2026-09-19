@@ -12,9 +12,9 @@ require 'cgi'
 
 class KeystrokeVisualizer
   KEY_ROWS = [
-    %w[1 2 3 4 5 6 7 8 9 0 - =],
-    %w[q w e r t y u i o p [ ]],
-    %w[a s d f g h j k l ; '],
+    %w[1 2 3 4 5 6 7 8 9 0],
+    %w[q w e r t y u i o p],
+    %w[a s d f g h j k l ;],
     %w[z x c v b n m , . /]
   ].freeze
   FUNCTION_KEYS = %w[escape space delete].freeze
@@ -48,7 +48,8 @@ class KeystrokeVisualizer
   def write_frames(directory)
     state = { text: '', mode: 'tcode', pending: '', highlighted_until: {} }
     event_index = 0
-    frame_count.times do |frame_index|
+    total_frames = frame_count
+    total_frames.times do |frame_index|
       at = (frame_index * 1000.0 / @fps).round
       while event_index < @events.length && @events[event_index].fetch('elapsedMilliseconds', 0) <= at
         apply(@events[event_index], state, frame_index)
@@ -109,8 +110,7 @@ class KeystrokeVisualizer
       end.join
     end.join
     functions = [
-      ['escape', 'Esc', 40], ['space', 'Space', 160], ['delete', 'Delete', 400],
-      ['enter', 'Enter', 540]
+      ['escape', 'Esc', 40], ['space', 'Space', 160], ['delete', 'Delete', 400], ['enter', 'Enter', 540]
     ].map { |key, label, x| key_svg(key, x, 405, key == 'space' ? 220 : 100, key_height, state, frame_index, label) }.join
 
     <<~SVG
@@ -126,13 +126,20 @@ class KeystrokeVisualizer
     SVG
   end
 
-  def key_svg(key, x, y, width, height, state, frame_index, label = key)
+  def key_svg(key, x, y, width, height, state, frame_index, label = nil)
     active = state[:highlighted_until][key].to_i > frame_index
     fill = active ? '#d9534f' : '#e6e6e6'
-    foreground = active ? '#ffffff' : '#222222'
+    label_svg = if label
+                  foreground = active ? '#ffffff' : '#222222'
+                  <<~SVG
+                    <text x="#{x + width / 2}" y="#{y + height / 2 + 7}" text-anchor="middle" fill="#{foreground}" font-family="Menlo, monospace" font-size="20">#{escape(label)}</text>
+                  SVG
+                else
+                  ''
+                end
     <<~SVG
       <rect x="#{x}" y="#{y}" width="#{width}" height="#{height}" rx="7" fill="#{fill}"/>
-      <text x="#{x + width / 2}" y="#{y + height / 2 + 7}" text-anchor="middle" fill="#{foreground}" font-family="Menlo, monospace" font-size="20">#{escape(label)}</text>
+      #{label_svg}
     SVG
   end
 
@@ -161,12 +168,12 @@ def read_events(path)
   events
 end
 
-options = { fps: 30, highlight_frames: 2, width: 1000 }
+options = { fps: 30, highlight_frames: 9, width: 1000 }
 parser = OptionParser.new do |opts|
   opts.banner = 'Usage: visualize_keystrokes.rb INPUT.jsonl [options]'
   opts.on('-o', '--output FILE', '出力 GIF（既定: 入力と同じ名前の .gif）') { |value| options[:output] = value }
   opts.on('--fps N', Integer, 'FPS（既定: 30）') { |value| options[:fps] = value }
-  opts.on('--key-highlight-frames N', Integer, '打鍵キーの強調フレーム数（既定: 2）') { |value| options[:highlight_frames] = value }
+  opts.on('--key-highlight-frames N', Integer, '打鍵キーの強調フレーム数（既定: 9）') { |value| options[:highlight_frames] = value }
   opts.on('--width N', Integer, '出力幅 px（既定: 1000）') { |value| options[:width] = value }
   opts.on('--dry-run', 'GIF を生成せず再生概要を JSON で出力') { options[:dry_run] = true }
 end
@@ -188,6 +195,7 @@ unless system('which', 'magick', out: File::NULL, err: File::NULL)
   abort('ImageMagick の magick コマンドが必要です。例: brew install imagemagick')
 end
 Dir.mktmpdir('mactcode-visualizer') do |directory|
+  puts "Generating #{visualizer.frame_count} frames at #{options[:fps]} FPS..."
   visualizer.write_frames(directory)
   frames = File.join(directory, 'frame-*.svg')
   delay = [(100.0 / options[:fps]).round, 1].max
@@ -195,3 +203,14 @@ Dir.mktmpdir('mactcode-visualizer') do |directory|
   abort('GIF のエンコードに失敗しました') unless success
 end
 puts "Generated #{output} (#{visualizer.frame_count} frames at #{options[:fps]} FPS)"
+
+if system('which', 'ffmpeg', out: File::NULL, err: File::NULL)
+  mp4_output = output.sub(/\.gif\z/i, '.mp4')
+  mp4_output = "#{output}.mp4" if mp4_output == output
+  if system('ffmpeg', '-y', '-i', output, mp4_output)
+    File.delete(output)
+    puts "Generated #{mp4_output}; removed intermediate GIF #{output}"
+  else
+    warn "MP4 conversion failed; keeping GIF #{output}"
+  end
+end
