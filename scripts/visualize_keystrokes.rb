@@ -10,6 +10,8 @@ require 'tmpdir'
 require 'fileutils'
 require 'cgi'
 require 'time'
+require 'open3'
+require 'thread'
 
 class KeystrokeVisualizer
   KEY_ROWS = [
@@ -220,7 +222,7 @@ class KeystrokeVisualizer
 
   def format_recording_started_at
     timestamp = @events.find { |event| event['type'] == 'sessionStarted' }&.fetch('timestamp', nil)
-    Time.iso8601(timestamp).localtime.strftime('%Y-%m-%d %H:%M:%S') if timestamp
+    Time.iso8601(timestamp).strftime('%Y-%m-%d %H:%M:%S') if timestamp
   rescue ArgumentError
     nil
   end
@@ -262,6 +264,71 @@ def command_available?(name)
   system('which', name, out: File::NULL, err: File::NULL)
 end
 
+FRAME_CONVERSION_WORKERS = 8
+
+def convert_svg_frames_to_gifs(directory)
+  svg_frames = Dir.glob(File.join(directory, 'frame-*.svg')).sort
+  raise '変換対象の SVG フレームがありません' if svg_frames.empty?
+
+  queue = Queue.new
+  svg_frames.each do |svg_path|
+    queue << [svg_path, svg_path.sub(/\.svg\z/, '.gif')]
+  end
+
+  mutex = Mutex.new
+  completed = 0
+  failures = []
+  puts "Converting #{svg_frames.length} SVG frames to GIF with #{FRAME_CONVERSION_WORKERS} workers..."
+
+  workers = FRAME_CONVERSION_WORKERS.times.map do
+    Thread.new do
+      loop do
+        svg_path, gif_path = begin
+          queue.pop(true)
+        rescue ThreadError
+          break
+        end
+
+        begin
+          _stdout, stderr, status = Open3.capture3('magick', svg_path, gif_path)
+          failure = if status.success? && File.size?(gif_path)
+                      nil
+                    else
+                      "#{File.basename(svg_path)}: #{stderr.strip}"
+                    end
+        rescue StandardError => error
+          failure = "#{File.basename(svg_path)}: #{error.message}"
+        end
+
+        mutex.synchronize do
+          completed += 1
+          failures << failure if failure
+          print "\rConverting frames: #{completed}/#{svg_frames.length}"
+          $stdout.flush
+        end
+      end
+    end
+  end
+  workers.each(&:join)
+  puts
+
+  unless failures.empty?
+    raise "#{failures.length} frame(s) failed to convert:\n#{failures.join("\n")}"
+  end
+
+  svg_frames.map { |svg_path| svg_path.sub(/\.svg\z/, '.gif') }
+end
+
+def assemble_animated_gif(gif_frames, delay, output)
+  raise '合成対象の GIF フレームがありません' if gif_frames.empty?
+
+  frame_list = File.join(File.dirname(gif_frames.first), 'frames.txt')
+  File.write(frame_list, gif_frames.join("\n") + "\n")
+  puts "Assembling #{gif_frames.length} GIF frames..."
+  success = system('magick', '-delay', delay.to_s, '-loop', '0', "@#{frame_list}", output)
+  raise 'GIF のエンコードに失敗しました' unless success
+end
+
 options = { fps: 30, highlight_frames: 9, width: 1000, type: 'mp4' }
 parser = OptionParser.new do |opts|
   opts.banner = 'Usage: visualize_keystrokes.rb INPUT.jsonl [options]'
@@ -295,14 +362,19 @@ output = output_path(input, options[:output], options[:type])
 Dir.mktmpdir('mactcode-visualizer') do |directory|
   puts "Generating #{visualizer.frame_count} frames at #{options[:fps]} FPS..."
   visualizer.write_frames(directory)
-  frames = File.join(directory, 'frame-*.svg')
-  gif_output = options[:type] == 'gif' ? output : File.join(directory, 'animation.gif')
-  delay = [(100.0 / options[:fps]).round, 1].max
-  success = system('magick', '-delay', delay.to_s, '-loop', '0', frames, gif_output)
-  abort('GIF のエンコードに失敗しました') unless success
+  begin
+    gif_frames = convert_svg_frames_to_gifs(directory)
+    gif_output = File.join(directory, 'animation.gif')
+    delay = [(100.0 / options[:fps]).round, 1].max
+    assemble_animated_gif(gif_frames, delay, gif_output)
+  rescue StandardError => error
+    abort(error.message)
+  end
   if options[:type] == 'mp4'
     puts "Encoding to #{output} ..."
     abort('MP4 のエンコードに失敗しました') unless system('ffmpeg', '-y', '-i', gif_output, output)
+  else
+    FileUtils.mv(gif_output, output)
   end
 end
 puts "Generated #{output} (#{visualizer.frame_count} frames at #{options[:fps]} FPS)"
