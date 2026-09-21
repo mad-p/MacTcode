@@ -24,7 +24,7 @@ class KeystrokeVisualizer
      0,  1,  2,  3,  5,  4, 38, 40, 37, 41,
      6,  7,  8,  9, 11, 45, 46, 43, 47, 44
   ].freeze
-  FUNCTION_KEYS = %w[escape space delete enter cancel].freeze
+  FUNCTION_KEYS = %w[sym space delete enter cancel].freeze
 
   def initialize(events, fps:, highlight_frames:, width:)
     @events = events.sort_by { |event| [event.fetch('elapsedMilliseconds', 0), event.fetch('sequence', 0)] }
@@ -90,6 +90,9 @@ class KeystrokeVisualizer
       state[:pending] = event['keys'] || ''
       next_chars = event['nextChars']
       state[:next_chars] = next_chars.is_a?(Array) && next_chars.length == KEYCODES.length ? next_chars : []
+      if state[:pending].end_with?('\\')
+        state[:highlighted_until]['sym'] = frame_index + @highlight_frames
+      end
     when 'textCommitted'
       state[:text] += event['text'].to_s
     when 'textDeleted'
@@ -159,12 +162,12 @@ class KeystrokeVisualizer
     keyboard = KEY_ROWS.each_with_index.map do |row, row_index|
       row.map.with_index do |_key, column|
         key = "key-#{row_index * 10 + column}"
-        label, label_color = basic_key_label(key, state, frame_index)
-        key_svg(key, 40 + column * cell, 160 + row_index * (key_height + 12), cell - 8, key_height, state, frame_index, label, label_color)
+        label, label_color, emphasized = basic_key_label(key, state, frame_index)
+        key_svg(key, 40 + column * cell, 160 + row_index * (key_height + 12), cell - 8, key_height, state, frame_index, label, label_color, emphasized)
       end.join
     end.join
     functions = [
-      ['escape', 'Esc', 40], ['space', 'Space', 160], ['delete', 'Delete', 400], ['enter', 'Enter', 540], ['cancel', 'Cancel', 680]
+      ['sym', 'Sym', 40], ['space', 'Space', 160], ['delete', 'Delete', 400], ['enter', 'Enter', 540], ['cancel', 'Cancel', 680]
     ].map { |key, label, x| key_svg(key, x, 435, key == 'space' ? 220 : 100, key_height, state, frame_index, label) }.join
 
     <<~SVG
@@ -183,21 +186,21 @@ class KeystrokeVisualizer
   def basic_key_label(key, state, frame_index)
     held = state[:held_chars][key]
     if held && held[:until].to_i > frame_index
-      return [held[:text], '#222222']
+      return [held[:text], '#ffffff', true]
     end
 
     index = basic_key_index(key)
     text = index && state[:next_chars][index].to_s
-    text && !text.empty? ? [text, '#aaaaaa'] : [nil, nil]
+    text && !text.empty? ? [text, '#aaaaaa', false] : [nil, nil, false]
   end
 
-  def key_svg(key, x, y, width, height, state, frame_index, label = nil, label_color = nil)
+  def key_svg(key, x, y, width, height, state, frame_index, label = nil, label_color = nil, emphasized = false)
     active = state[:highlighted_until][key].to_i > frame_index
     fill = active ? '#d9534f' : '#e6e6e6'
     label_svg = if label
                   foreground = label_color || (active ? '#ffffff' : '#222222')
                   <<~SVG
-                    <text x="#{x + width / 2}" y="#{y + height / 2 + 7}" text-anchor="middle" fill="#{foreground}" font-family="Menlo, monospace" font-size="20">#{escape(label)}</text>
+                    <text x="#{x + width / 2}" y="#{y + height / 2 + 8}" text-anchor="middle" fill="#{foreground}" font-family="Menlo, monospace" font-size="#{emphasized ? 24 : 20}"#{emphasized ? ' font-weight="bold"' : ''}>#{escape(label)}</text>
                   SVG
                 else
                   ''

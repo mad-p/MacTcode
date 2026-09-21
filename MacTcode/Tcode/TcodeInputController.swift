@@ -265,7 +265,7 @@ class TcodeInputController: IMKInputController, Controller {
     func popMode(_ mode: Mode) {
         if let index = modeStack.firstIndex(where: { $0 === mode }) {
             modeStack.remove(at: index)
-            InputLogRecorder.i.recordModeChanged(String(describing: type(of: mode)), transition: "popped")
+            InputLogRecorder.i.recordModeChanged(String(describing: type(of: self.mode)), transition: "popped")
             // モード切替はバイグラム・ストリーム両方の連続性を断つ
             InputStats.i.recordNonStrokeEvent()
             InputStats.i.recordStreamEndEvent()
