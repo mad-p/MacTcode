@@ -9,6 +9,7 @@ require 'optparse'
 require 'tmpdir'
 require 'fileutils'
 require 'cgi'
+require 'time'
 
 class KeystrokeVisualizer
   KEY_ROWS = [
@@ -31,6 +32,7 @@ class KeystrokeVisualizer
     @fps = fps
     @highlight_frames = highlight_frames
     @width = width
+    @recording_started_at = format_recording_started_at
   end
 
   def duration_milliseconds
@@ -173,8 +175,8 @@ class KeystrokeVisualizer
     <<~SVG
       <svg xmlns="http://www.w3.org/2000/svg" width="#{@width}" height="#{height}" viewBox="0 0 #{@width} #{height}">
         <rect width="100%" height="100%" fill="#1d1f21"/>
-        <text x="40" y="48" fill="#ffffff" font-family="Hiragino Sans, sans-serif" font-size="26">MacTcode 打鍵ログ</text>
-        <text x="40" y="82" fill="#cccccc" font-family="Menlo, monospace" font-size="19">#{format_time(elapsed)}   mode: #{escape(state[:mode])}   pending: #{escape(state[:pending])}</text>
+        <text x="40" y="48" fill="#ffffff" font-family="Hiragino Sans, sans-serif" font-size="26">MacTcode 打鍵ログ<tspan dx="24" fill="#cccccc" font-family="Menlo, monospace" font-size="20">#{escape(@recording_started_at)}</tspan></text>
+        <text x="40" y="82" fill="#cccccc" font-family="Menlo, monospace" font-size="19">#{format_time(elapsed)}   mode: #{escape(display_mode(state[:mode]))}   pending: #{escape(state[:pending])}</text>
         <rect x="40" y="96" width="#{@width - 80}" height="42" rx="6" fill="#303236"/>
         <text x="54" y="124" fill="#ffffff" font-family="Hiragino Sans, sans-serif" font-size="22">#{escape(state[:text])}</text>
         #{keyboard}
@@ -214,6 +216,17 @@ class KeystrokeVisualizer
   def format_time(milliseconds)
     seconds = milliseconds / 1000
     format('%02d:%02d:%02d', seconds / 3600, (seconds / 60) % 60, seconds % 60)
+  end
+
+  def format_recording_started_at
+    timestamp = @events.find { |event| event['type'] == 'sessionStarted' }&.fetch('timestamp', nil)
+    Time.iso8601(timestamp).localtime.strftime('%Y-%m-%d %H:%M:%S') if timestamp
+  rescue ArgumentError
+    nil
+  end
+
+  def display_mode(mode)
+    mode.to_s.split(/[.:]/).last.sub(/Mode\z/, '').downcase
   end
 
   def escape(text)
