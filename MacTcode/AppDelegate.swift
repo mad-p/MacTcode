@@ -69,6 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         Log.i("★AppDelegate terminating self=\(ObjectIdentifier(self))")
+        InputLogRecorder.i.stop(reason: "applicationTermination")
         InputStats.i.writeStatsToFile(force: true)
     }
 

@@ -99,7 +99,8 @@ class PendingKakuteiMode: Mode {
             fromMirror: yomiContext.fromMirror
         )
         Log.i("  about to replaceYomi: yomi=\(yomiString), kakutei=\(kakuteiString), cancelContext=\(cancelContext)")
-        let backspaceCount = client.replaceYomi(yomiString, length: kakuteiString.count, from: cancelContext)
+        let backspaceCount = client.replaceYomi(yomiString, length: kakuteiString.count, from: cancelContext, source: "pendingKakuteiCancel")
+        InputLogRecorder.i.record(type: "pendingKakuteiCancel")
         uninstall()
         controller?.setBackspaceIgnore(backspaceCount)
     }

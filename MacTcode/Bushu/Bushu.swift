@@ -293,7 +293,7 @@ final class Bushu {
         }
 
         Log.i("Bushu \(source1)\(source2) -> \(result)")
-        let backspaceCount = client.replaceYomi(result, length: 2, from: yomi)
+        let backspaceCount = client.replaceYomi(result, length: 2, from: yomi, source: "bushu")
         controller.setBackspaceIgnore(backspaceCount)
         InputStats.i.incrementBushuCount()
         InputStats.i.recordKakutei(charCount: 1, subtract: 2)
@@ -359,7 +359,7 @@ final class Bushu {
         )
 
         // 変換実行
-        let backspaceCount = client.replaceYomi(result, length: 2, from: yomiContext)
+        let backspaceCount = client.replaceYomi(result, length: 2, from: yomiContext, source: "bushuAuto")
         controller.setBackspaceIgnore(backspaceCount)
 
         // PendingKakuteiを作成

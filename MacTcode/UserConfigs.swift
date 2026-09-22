@@ -517,6 +517,7 @@ class UserConfigs {
     }
 
     func reloadConfig() {
+        InputLogRecorder.i.stop(reason: "configReload")
         loadConfig()
         log("Configuration reloaded.")
     }

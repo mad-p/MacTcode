@@ -61,6 +61,19 @@ class KeymapResolver {
             return .passthrough   // このキーマップにそのシーケンスはない
         }
     }
+    /// pending の次に基本キーを押したとき確定する文字を、基本キーの順序で返す。
+    /// pending が空の場合はキートップ表示を消すため空配列を返す。
+    static func nextChars(pending: [InputEvent], keymap: Keymap) -> [String] {
+        guard !pending.isEmpty else { return [] }
+        return (0..<nKeys).map { key in
+            guard let text = Translator.keyToStr(key) else { return "" }
+            let input = InputEvent(type: .printable, text: text)
+            if case .text(let output) = resolve(keySequence: pending + [input], keymap: keymap) {
+                return output
+            }
+            return ""
+        }
+    }
     static func replace(keySequence: [InputEvent], keymap: Keymap, entry newEntry: Command) {
         let (_, key, map) = traverse(keySequence: keySequence, keymap: keymap)
         if let entry = map.lookup(input: key) {

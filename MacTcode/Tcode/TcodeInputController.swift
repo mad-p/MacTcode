@@ -11,6 +11,7 @@ import InputMethodKit
 @objc(TcodeInputController)
 class TcodeInputController: IMKInputController, Controller {
     let menuObj: NSMenu
+    let inputLoggingMenuItem: NSMenuItem
 
     var modeStack: [Mode] = []
     let candidateWindow: IMKCandidates
@@ -28,6 +29,7 @@ class TcodeInputController: IMKInputController, Controller {
         self.menuObj.addItem(withTitle: "学習/統計ファイルを更新", action: #selector(writeStatsToFile), keyEquivalent: "")
         self.menuObj.addItem(withTitle: "設定ファイルフォルダを開く", action: #selector(openConfigFolder), keyEquivalent: "")
         self.menuObj.addItem(withTitle: "サンプル設定ファイルを作成", action: #selector(createSampleConfigFile), keyEquivalent: "")
+        self.inputLoggingMenuItem = self.menuObj.addItem(withTitle: "打鍵ログを開始", action: #selector(toggleInputLogging), keyEquivalent: "")
 
         candidateWindow = IMKCandidates(server: server, panelType: kIMKSingleRowSteppingCandidatePanel)
         super.init(server: server, delegate: delegate, client: inputClient)
@@ -36,7 +38,18 @@ class TcodeInputController: IMKInputController, Controller {
     }
 
     override func menu() -> NSMenu! {
+        updateInputLoggingMenuItem()
         return menuObj
+    }
+
+    private func updateInputLoggingMenuItem() {
+        if InputLogRecorder.i.isRecording {
+            inputLoggingMenuItem.title = "打鍵ログを停止"
+            inputLoggingMenuItem.state = .on
+        } else {
+            inputLoggingMenuItem.title = "打鍵ログを開始"
+            inputLoggingMenuItem.state = .off
+        }
     }
 
     @objc
@@ -53,6 +66,23 @@ class TcodeInputController: IMKInputController, Controller {
     @objc
     func createSampleConfigFile() {
         UserConfigs.i.createSampleConfigFile()
+    }
+
+    @objc
+    func toggleInputLogging() {
+        if InputLogRecorder.i.isRecording {
+            InputLogRecorder.i.stop(reason: "menu")
+            updateInputLoggingMenuItem()
+            return
+        }
+        do {
+            let url = try InputLogRecorder.i.startDefaultSession()
+            updateInputLoggingMenuItem()
+            Log.i("Input logging started: \(url.path)")
+        } catch {
+            updateInputLoggingMenuItem()
+            Log.i("Failed to start input logging: \(error)")
+        }
     }
 
     override func inputControllerWillClose() {
@@ -131,6 +161,7 @@ class TcodeInputController: IMKInputController, Controller {
         }
         
         let inputEvent = Translator.translate(event: event)
+        InputLogRecorder.i.recordKeyInput(inputEvent)
 
         // directモードではそのまま入力にする
         if inputMode == .direct {
@@ -148,6 +179,7 @@ class TcodeInputController: IMKInputController, Controller {
             if inputEvent.type == .japanese {
                 return true // processed
             }
+            InputLogRecorder.i.record(type: "passthrough", fields: ["reason": "directMode"])
             return false
         }
         
@@ -167,11 +199,14 @@ class TcodeInputController: IMKInputController, Controller {
             // Log.i(" handle returned: \(handleResult)")
             switch handleResult {
             case .forward: continue
-            case .passthrough: return false
+            case .passthrough:
+                InputLogRecorder.i.record(type: "passthrough", fields: ["reason": "modeForward"])
+                return false
             case .processed: return true
             }
         }
         // どのモードでも処理しなかったのでクライアントにゆだねる
+        InputLogRecorder.i.record(type: "passthrough", fields: ["reason": "unhandled"])
         return false
     }
     
@@ -222,6 +257,7 @@ class TcodeInputController: IMKInputController, Controller {
         Log.i("TcodeInputController.pushMode: \(mode)")
         modeStack = [mode] + modeStack
         mode.setController(self)
+        InputLogRecorder.i.recordModeChanged(String(describing: type(of: mode)), transition: "pushed")
         // モード切替はバイグラム・ストリーム両方の連続性を断つ
         InputStats.i.recordNonStrokeEvent()
         InputStats.i.recordStreamEndEvent()
@@ -229,6 +265,7 @@ class TcodeInputController: IMKInputController, Controller {
     func popMode(_ mode: Mode) {
         if let index = modeStack.firstIndex(where: { $0 === mode }) {
             modeStack.remove(at: index)
+            InputLogRecorder.i.recordModeChanged(String(describing: type(of: self.mode)), transition: "popped")
             // モード切替はバイグラム・ストリーム両方の連続性を断つ
             InputStats.i.recordNonStrokeEvent()
             InputStats.i.recordStreamEndEvent()
@@ -275,6 +312,7 @@ class TcodeInputController: IMKInputController, Controller {
         }
         
         if oldmode != mode {
+            InputLogRecorder.i.recordModeChanged(String(describing: mode), transition: "selected")
             if let client = self.client() {
                 let input = client as IMKTextInput
                 let id = InputModeId.inputModeToId(mode)

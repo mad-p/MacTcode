@@ -33,3 +33,4 @@ scripts/data-old
 /tmp
 /graphify-out
 /.graphifyignore
+/scripts/logs

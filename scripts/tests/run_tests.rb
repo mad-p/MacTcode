@@ -125,6 +125,33 @@ Dir.mktmpdir do |tmpdir|
 end
 
 # ---------------------------------------------------------------------------
+# Integration test: keystroke visualizer JSONL playback
+# ---------------------------------------------------------------------------
+puts "\n=== Keystroke visualizer dry-run test ==="
+
+Dir.mktmpdir do |tmpdir|
+  log_path = File.join(tmpdir, 'keystrokes.jsonl')
+  events = [
+    { schemaVersion: 1, sequence: 1, elapsedMilliseconds: 0, type: 'sessionStarted' },
+    { schemaVersion: 1, sequence: 2, elapsedMilliseconds: 10, type: 'keyInput', text: 'a', keyType: 'printable' },
+    { schemaVersion: 1, sequence: 3, elapsedMilliseconds: 10, type: 'pendingChanged', keys: 'a', count: 1 },
+    { schemaVersion: 1, sequence: 4, elapsedMilliseconds: 50, type: 'textCommitted', text: 'あ', source: 'tcode' },
+    { schemaVersion: 1, sequence: 5, elapsedMilliseconds: 80, type: 'textReplaced', replacedText: 'あ', text: '安', source: 'bushu' },
+    { schemaVersion: 1, sequence: 6, elapsedMilliseconds: 100, type: 'sessionStopped', reason: 'test' }
+  ]
+  File.write(log_path, events.map { |event| JSON.generate(event) }.join("\n") + "\n")
+  script = File.join(__dir__, '..', 'visualize_keystrokes.rb')
+  output = `ruby #{script.shellescape} #{log_path.shellescape} --fps 20 --key-highlight-frames 3 --dry-run 2>&1`
+  exit_code = $?.exitstatus
+  summary = JSON.parse(output) if exit_code == 0
+  assert('visualizer dry-run exits with code 0', exit_code == 0)
+  assert('visualizer counts all JSONL events', summary && summary['eventCount'] == events.length)
+  assert('visualizer applies FPS option', summary && summary['fps'] == 20)
+  assert('visualizer applies highlight-frame option', summary && summary['keyHighlightFrames'] == 3)
+  assert('visualizer produces at least one frame', summary && summary['frameCount'] > 1)
+end
+
+# ---------------------------------------------------------------------------
 # Integration test: actual data files
 # ---------------------------------------------------------------------------
 puts "\n=== Integration test (scripts/data) ==="
