@@ -75,7 +75,7 @@ MacTcode の入力操作を JSON Lines（JSONL）形式で記録し、ログか�
 | `pendingKakuteiCancel` | `PendingKakutei` を取り消したことを表し、Cancel キーを強調する。 |
 | `sessionStarted` / `sessionStopped` | 記録セッションの開始・終了を表す。 |
 
-パススルーイベントも記録対象とする。必要に応じて、修飾キーと理由（例: `applicationShortcut`、`unsupportedKey`、`directMode`）を持たせ、単なる `passthrough` だけでは区別できない状態を避ける。
+パススルーイベントも記録対象とする。現在は `reason`（`directMode`、`modeForward`、`unhandled` など）で、IME が入力を処理しなかった理由を記録する。直前の `keyInput` と組み合わせて再生するため、visualizer は `passthrough` 自体にキー情報を持たせない。
 
 ### `pendingChanged` と `nextChars`
 
@@ -120,7 +120,7 @@ pending が空の場合は `nextChars: []` を記録する。これは基本キ�
 
 ### `textDeleted`
 
-Backspace などで確定済み文字列を削除した場合に用いる。最近入力文字表示を正確に再生できるよう、削除数だけでなく削除対象の実文字列も記録する方式を推奨する。
+Backspace などで確定済み文字列を削除した場合に用いる。削除対象の文字列を取得できる経路では `text` に記録する。取得できない経路では `text` を省略でき、その場合 visualizer は表示用バッファの末尾1文字を削除する。
 
 ```json
 {
@@ -178,6 +178,8 @@ Backspace などで確定済み文字列を削除した場合に用いる。最�
 - Ruby スクリプトとして実装する。
 - ログ読み込み・状態再生、フレーム描画、エンコードを分離する。
 - 各フレームは SVG として描画し、エンコーダ固有の API へ描画ロジックを密結合させない。
+- タイトルには `MacTcode 打鍵ログ` と、`sessionStarted.timestamp` から得る録画開始時刻を `YYYY-mm-dd HH:MM:SS` 形式で表示する。
+- モード表示は Swift のクラス名をそのまま表示せず、名前空間と末尾の `Mode` を除いた小文字の名前を表示する。例: `MacTcode.ZenkakuMode` は `zenkaku`。
 
 ### 出力形式と依存コマンド
 
@@ -187,6 +189,9 @@ Backspace などで確定済み文字列を削除した場合に用いる。最�
 - MP4 出力時に `ffmpeg` がなければ、起動直後に Homebrew のインストール例を表示して終了する。
 - `--output` に拡張子がなければ、`--type` に応じて `.gif` または `.mp4` を付加する。
 - MP4 用の中間 GIF は一時ディレクトリにのみ作成し、出力先には残さない。
+- SVG フレームはそれぞれ静止 GIF へ変換する。この変換は8ワーカーで並列に実行し、`Converting frames: n/total` の進捗を表示する。
+- 個別フレームの変換失敗はすべて収集し、1件でも失敗した場合は動画 GIF の合成・MP4 変換・最終出力の更新を行わない。
+- すべての静止 GIF の変換成功後、順番に並べて1回の `magick` コマンドで動画 GIF へ合成する。
 
 | 形式 | 位置付け |
 | --- | --- |
@@ -215,37 +220,37 @@ ruby scripts/visualize_keystrokes.rb INPUT.jsonl --fps 30 --key-highlight-frames
 
 ### 描画内容と物理キー位置
 
-- 4行・40個の基本キーと、Escape、Space、Delete、Enter、Cancel のファンクションキーを描画する。
+- 4行・40個の基本キーと、Sym、Space、Delete、Enter、Cancel のファンクションキーを描画する。Escape キーは描画しない。
 - 基本キーのキートップには通常のキーラベルを印字しない。ファンクションキーにはラベルを表示する。
 - `[`, `]`, `-`, `=`, `'` はレイアウトへ含めない。
 - 基本キーの位置は `KEYCODES` 定数で定義した macOS virtual key code と対応付ける。ハイライト位置は入力文字列ではなく `keyInput.keyCode` から決めるため、Dvorak などの入力配列でも物理位置が正しい。
 - 打鍵キーは赤く強調する。
-- 経過時間、モード、pending を表示する。
-- 最近入力した文字列はキーボード上方に表示し、最大40 `Character` を維持する。
+- 経過時間、モード、pending を表示する。`pendingChanged.keys` の末尾がバックスラッシュの場合は Sym キーを強調する。
+- 最近入力した文字列はキーボード上方に表示し、Ruby の `each_char` 単位で末尾40文字までを維持する。
 
 ### 次打鍵候補とハイライト中の文字
 
 - `pendingChanged.nextChars` が40要素なら、各基本キーに対応する文字列を薄い色で描画する。
 - `nextChars` が空配列、存在しない、または40要素でない場合は、通常の候補文字をすべて消す。
 - 1打鍵目のキーが候補文字を持つ場合、そのキーが赤く強調されている間も候補文字は薄い色のまま表示する。
-- 2打鍵目では、押したキーに表示済みの候補文字をハイライト期間中保持し、濃い色で表示する。直後に空の `nextChars` が届いても消さない。
-- printable な passthrough の場合は、基本キーのハイライト期間中に `keyInput.text` を濃い色で表示する。
+- 2打鍵目では、押したキーに表示済みの候補文字をハイライト期間中保持する。直後に空の `nextChars` が届いても消さない。
+- printable な passthrough の場合は、基本キーのハイライト期間中に直前の `keyInput.text` を表示する。
+- ハイライト中に保持する文字は赤い背景上で見やすくするため、白・太字・通常候補より大きい文字で表示する。
 - `pendingKakuteiCancel` では Cancel キーを強調する。
 
 ### 最近入力した文字列
 
 visualizer は `textCommitted`、`textDeleted`、`textReplaced` を順に適用して表示用のテキストバッファを維持する。
 
-- 表示は最大40 `Character` とする。
-- 文字数の単位は Swift の `Character` とする。
+- 表示は最大40文字とする。
+- 現在の visualizer では Ruby の `each_char` 単位で保持・切り詰める。
 - カーソル移動、範囲選択、任意位置への編集は初版の対象外とする。
 - 変換中の文字列ではなく、確定したテキストだけを表示対象とする。
 
 ## 今後の詳細設計
 
-- `keyInput` に保存する修飾キー表現の厳密な形式
-- passthrough の理由の列挙値
-- `textDeleted` で削除対象文字列を常に取得できない経路がある場合の安全な表現
+- `keyInput.modifiers` の配列順序・将来追加する修飾キー名
+- passthrough の `reason` の列挙値を公開仕様として固定すること
 - セッション開始イベントに設定識別情報や辞書版を追加するか
 - WebP 出力の追加方法
 
