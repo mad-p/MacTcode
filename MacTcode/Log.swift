@@ -5,7 +5,6 @@
 //  Created by maeda on 2024/06/09.
 //
 
-import Cocoa
 import os
 
 /// ログ出力

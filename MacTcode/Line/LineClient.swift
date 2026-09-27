@@ -48,7 +48,7 @@ class LineClient: ContextClient {
         recent.sendBackspace()
         updateMarkedText()
     }
-    override func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) -> Int {
+    override func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext, source: String) -> Int {
         if !yomiContext.fromMirror {
             Log.i("LineClient.replaceYomi: from mirror?")
         }

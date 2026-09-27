@@ -68,6 +68,25 @@ final class KeymapTests: XCTestCase {
         }
     }
 
+    func testNextCharsForPendingSequence() {
+        let root = Keymap("root")
+        let next = Keymap("next")
+        let nested = Keymap("nested")
+        let first = InputEvent(type: .printable, text: Translator.keyToStr(0))
+        let textKey = InputEvent(type: .printable, text: Translator.keyToStr(1))
+        let nestedKey = InputEvent(type: .printable, text: Translator.keyToStr(2))
+        root.add(first, .keymap(next))
+        next.add(textKey, .text("確"))
+        next.add(nestedKey, .keymap(nested))
+
+        XCTAssertEqual(KeymapResolver.nextChars(pending: [], keymap: root), [])
+        let nextChars = KeymapResolver.nextChars(pending: [first], keymap: root)
+        XCTAssertEqual(nextChars.count, nKeys)
+        XCTAssertEqual(nextChars[1], "確")
+        XCTAssertEqual(nextChars[2], "")
+        XCTAssertEqual(nextChars[3], "")
+    }
+
     func testDeclarativeActionBindings() {
         let keymap = Keymap("test-actions")
         applyActionBindings([

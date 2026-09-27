@@ -34,6 +34,9 @@ class ContextClient: Client {
         _ string: String,
         replacementRange rr: NSRange
     ) {
+        if client is ClientWrapper {
+            InputLogRecorder.i.recordTextCommitted(string)
+        }
         client.insertText(string, replacementRange: rr)
         if rr.length == NSNotFound {
             recent.append(string)
@@ -50,6 +53,9 @@ class ContextClient: Client {
     }
     func sendBackspace() {
         Log.i("ContextClient.sendBackspace")
+        if client is ClientWrapper {
+            InputLogRecorder.i.recordTextDeleted(recent.text.last.map(String.init))
+        }
         client.sendBackspace()
     }
     func sendDummyInsertMaybe() {
@@ -276,7 +282,7 @@ class ContextClient: Client {
     }
     
     // Yomiの後ろ側からlength文字をstringで置きかえる。送ったBackspaceの数を返す
-    func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext) -> Int {
+    func replaceYomi(_ string: String, length: Int, from yomiContext: YomiContext, source: String = "replacement") -> Int {
         Log.i("ContextClient.replaceYomi: string=\(string), length=\(length)")
         Log.i("   yomiContext=\(yomiContext)")
         Log.i("   recent.text(before)=\(recent.text)")
@@ -287,6 +293,10 @@ class ContextClient: Client {
         rr.length = length
         if rr.location < 0 {
             rr.location = 0
+        }
+        if client is ClientWrapper {
+            let replacedText = String(yomiContext.string.suffix(length))
+            InputLogRecorder.i.recordTextReplaced(replacedText: replacedText, text: string, source: source)
         }
         if yomiContext.fromMirror {
             // Mirrorから読みを取った場合は、BackSpaceを送ってから文字列を送る

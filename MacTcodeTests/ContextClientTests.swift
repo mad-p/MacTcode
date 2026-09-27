@@ -27,7 +27,7 @@ final class ContextClientTests: XCTestCase {
         var setMarkedTextReplacementRange: NSRange = NSRange(location: 0, length: 0)
         var bundleIdentifier: String!
         
-        init(selectedRangeValue: NSRange, 
+        init(selectedRangeValue: NSRange,
              stringReturnValue: String = "",
              stringReturnRange: NSRange = NSRange(location: 0, length: 0),
              bundleId: String = "jp.mad-p.inputmethod.MacTcode.stub",
@@ -74,6 +74,42 @@ final class ContextClientTests: XCTestCase {
         func sendDummyInsertMaybe() {
             // nop
         }
+    }
+
+    func testInputLogRecorderWritesOrderedJSONLines() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MacTcodeInputLogTests-\(UUID().uuidString)", isDirectory: true)
+        defer {
+            InputLogRecorder.i.stop(reason: "testCleanup")
+            try? FileManager.default.removeItem(at: directory)
+        }
+
+        let url = try InputLogRecorder.i.start(in: directory)
+        XCTAssertEqual(url, try InputLogRecorder.i.start(in: directory))
+        XCTAssertNotNil(url.lastPathComponent.range(
+            of: #"^keystrokes-\d{8}-\d{6}\.jsonl$"#,
+            options: .regularExpression
+        ))
+        InputLogRecorder.i.recordKeyInput(InputEvent(type: .printable, text: "a", event: nil))
+        InputLogRecorder.i.recordPendingChanged([InputEvent(type: .printable, text: "a", event: nil)])
+        InputLogRecorder.i.recordTextCommitted("あ", source: "tcode")
+        InputLogRecorder.i.recordTextDeleted("あ")
+        InputLogRecorder.i.recordTextReplaced(replacedText: "かんじ", text: "漢字", source: "mazegaki")
+        InputLogRecorder.i.stop(reason: "test")
+
+        let lines = try String(contentsOf: url, encoding: .utf8)
+            .split(separator: "\n")
+            .map { try! JSONSerialization.jsonObject(with: Data($0.utf8)) as! [String: Any] }
+        XCTAssertEqual(lines.map { $0["type"] as? String }, [
+            "sessionStarted", "keyInput", "pendingChanged", "textCommitted", "textDeleted", "textReplaced", "sessionStopped"
+        ])
+        XCTAssertEqual(lines.map { $0["sequence"] as? Int }, Array(1...7))
+        XCTAssertTrue(lines.allSatisfy { ($0["schemaVersion"] as? Int) == 1 })
+        XCTAssertTrue(lines.allSatisfy { ($0["elapsedMilliseconds"] as? Int) != nil })
+        XCTAssertEqual(lines[1]["text"] as? String, "a")
+        XCTAssertEqual(lines[2]["nextChars"] as? [String], [])
+        XCTAssertEqual(lines[5]["replacedText"] as? String, "かんじ")
+        XCTAssertEqual(lines[5]["text"] as? String, "漢字")
     }
     func testYomiExactFromSelection() {
         let client = ClientStub(selectedRangeValue: NSRange(location: 3, length: 2),

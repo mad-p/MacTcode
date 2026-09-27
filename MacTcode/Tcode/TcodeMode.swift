@@ -21,7 +21,9 @@ class TcodeMode: Mode, MultiStroke {
         return ContextClient(client: client, recent: recentText)
     }
     func resetPending() {
+        guard !pending.isEmpty else { return }
         pending = []
+        recordPendingChanged()
     }
     func reset() {
         resetPending()
@@ -29,6 +31,7 @@ class TcodeMode: Mode, MultiStroke {
     func removeLastPending() {
         if pending.count > 0 {
             pending.removeLast()
+            recordPendingChanged()
         }
     }
     func handle(_ inputEvent: InputEvent, client: ContextClient!) -> HandleResult {
@@ -64,6 +67,7 @@ class TcodeMode: Mode, MultiStroke {
                 return .processed
             case .pending:
                 pending = seq
+                recordPendingChanged()
                 client.sendDummyInsertMaybe()
                 return .processed
             case .text(let string):
@@ -102,6 +106,12 @@ class TcodeMode: Mode, MultiStroke {
                 return .processed
             }
         }
+    }
+    private func recordPendingChanged() {
+        InputLogRecorder.i.recordPendingChanged(
+            pending,
+            nextChars: KeymapResolver.nextChars(pending: pending, keymap: keymap)
+        )
     }
 }
 

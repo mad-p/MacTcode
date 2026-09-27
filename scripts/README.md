@@ -83,11 +83,46 @@ bundle exec ruby tests/run_tests.rb
 
 Aggregator のユニットテスト（正常系・異常系・境界値）と統合テスト（実際のJSONでの全PNG生成）を実行します。
 
+## 打鍵ログ visualizer
+
+MacTcode のメニューから「打鍵ログを開始」を選ぶと、コンテナ内の設定ディレクトリ `~/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/logs/` に JSONL ログが保存されます。ログには入力内容が含まれるため、共有時には内容を確認してください。
+
+パスが長いため、次のコマンドで `scripts/logs` から参照できるシンボリックリンクを作ることを推奨します。`scripts/logs` は Git の管理対象外です。
+
+```bash
+ln -s "$HOME/Library/Containers/jp.mad-p.inputmethod.MacTcode/Data/Library/Application Support/MacTcode/logs" scripts/logs
+```
+
+`visualize_keystrokes.rb` は、その JSONL をオーソリニア配列キーボード付きのアニメーション GIF または MP4 に変換します。GIF・MP4 とも ImageMagick の `magick` コマンドが必要で、MP4 出力には加えて `ffmpeg` が必要です。
+
+```bash
+cd scripts
+rbenv exec ruby visualize_keystrokes.rb logs/keystrokes-20260919-123456.jsonl
+```
+
+既定では、入力ファイルと同じ場所に `.mp4` 拡張子で出力します。MP4 は一時 GIF を経由して作成しますが、その中間ファイルは出力先には残りません。`--type gif` を指定すると GIF を出力します。
+
+| オプション | 既定値 | 説明 |
+|---|---:|---|
+| `--output FILE` | 入力名の `.mp4` | 出力ファイル。拡張子を省略すると `--type` の拡張子を付加 |
+| `--type TYPE` | `mp4` | 出力形式。`gif` または `mp4` |
+| `--fps N` | `30` | フレームレート |
+| `--key-highlight-frames N` | `9` | 打鍵キーを赤く表示するフレーム数（30 FPS では 0.3 秒） |
+| `--width N` | `1000` | 出力画像の横幅（px、400以上） |
+| `--dry-run` | — | GIF を作らず、ログ再生の概要を JSON で出力 |
+
+例:
+
+```bash
+rbenv exec ruby visualize_keystrokes.rb INPUT.jsonl --type gif --output demo --fps 30 --key-highlight-frames 9
+```
+
 ## ファイル構成
 
 ```
 scripts/
   plot_strokes.rb        # メインスクリプト
+  visualize_keystrokes.rb # JSONL 打鍵ログから GIF を生成
   Gemfile                # 依存 gems（gruff, chunky_png, mini_magick）
   lib/
     aggregator.rb        # 複数JSONの読み込み・合算
