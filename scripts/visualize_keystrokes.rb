@@ -256,7 +256,7 @@ def output_path(input, output, type)
   unless /\.#{type}$/ =~ path
     path += ".#{type}"
   end
-  puts "output_path: input=#{input}  output=#{output}  type=#{type}  path=#{path}"
+  puts "input=#{input}  output=#{output}  type=#{type}  output_path=#{path}"
   path
 end
 
@@ -329,12 +329,12 @@ def assemble_animated_gif(gif_frames, delay, output)
   raise 'GIF のエンコードに失敗しました' unless success
 end
 
-options = { fps: 30, highlight_frames: 9, width: 1000, type: 'mp4' }
+options = { fps: 25, highlight_frames: 9, width: 1000, type: 'mp4' }
 parser = OptionParser.new do |opts|
   opts.banner = 'Usage: visualize_keystrokes.rb INPUT.jsonl [options]'
   opts.on('-o', '--output FILE', '出力ファイル（拡張子省略時は --type を使用）') { |value| options[:output] = value }
   opts.on('-t', '--type TYPE', %w[gif mp4], '出力形式: gif または mp4（既定: mp4）') { |value| options[:type] = value }
-  opts.on('--fps N', Integer, 'FPS（既定: 30）') { |value| options[:fps] = value }
+  opts.on('--fps N', Integer, 'FPS（既定: 25）') { |value| options[:fps] = value }
   opts.on('-h', '--key-highlight-frames N', Integer, '打鍵キーの強調フレーム数（既定: 9）') { |value| options[:highlight_frames] = value }
   opts.on('--width N', Integer, '出力幅 px（既定: 1000）') { |value| options[:width] = value }
   opts.on('--dry-run', 'GIF を生成せず再生概要を JSON で出力') { options[:dry_run] = true }
