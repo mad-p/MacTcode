@@ -10,9 +10,9 @@
 		9D0831C72FDECB9100384F6A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D0831C22FDECB9100384F6A /* InfoPlist.strings */; };
 		9D0831C82FDECB9100384F6A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D0831C52FDECB9100384F6A /* InfoPlist.strings */; };
 		9D0F3CDF2C04D00F005A0CAC /* Bushu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */; };
-		9D1A5B6D2FE0000100ABCDEF /* InputLogRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1A5B6C2FE0000100ABCDEF /* InputLogRecorder.swift */; };
 		9D0F3CE52C04DEAC005A0CAC /* BushuTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */; };
 		9D0F3CE72C04E139005A0CAC /* bushu.dic in Resources */ = {isa = PBXBuildFile; fileRef = 9D0F3CE62C04E139005A0CAC /* bushu.dic */; };
+		9D1A5B6D2FE0000100ABCDEF /* InputLogRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1A5B6C2FE0000100ABCDEF /* InputLogRecorder.swift */; };
 		9D4818DA2C0368DB00906504 /* main.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 9D4818D82C0368DB00906504 /* main.tiff */; };
 		9D7B903C2EB729FD00DD7920 /* PendingKakuteiMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7B903B2EB729FD00DD7920 /* PendingKakuteiMode.swift */; };
 		9D7C3C9B2ECB52D0009690B8 /* ControllerSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C3C9A2ECB52CB009690B8 /* ControllerSpy.swift */; };
@@ -111,9 +111,9 @@
 		9D0831C12FDECB9100384F6A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		9D0831C42FDECB9100384F6A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = InfoPlist.strings; sourceTree = "<group>"; };
 		9D0F3CDE2C04D00E005A0CAC /* Bushu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bushu.swift; sourceTree = "<group>"; };
-		9D1A5B6C2FE0000100ABCDEF /* InputLogRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputLogRecorder.swift; sourceTree = "<group>"; };
 		9D0F3CE42C04DEAC005A0CAC /* BushuTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BushuTests.swift; sourceTree = "<group>"; };
 		9D0F3CE62C04E139005A0CAC /* bushu.dic */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = bushu.dic; sourceTree = "<group>"; };
+		9D1A5B6C2FE0000100ABCDEF /* InputLogRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputLogRecorder.swift; sourceTree = "<group>"; };
 		9D4818D82C0368DB00906504 /* main.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = main.tiff; path = ../main.tiff; sourceTree = "<group>"; };
 		9D6BA6A82C462793007524AC /* InputMethodKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InputMethodKit.framework; path = System/Library/Frameworks/InputMethodKit.framework; sourceTree = SDKROOT; };
 		9D6BA6AA2C46279A007524AC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -850,7 +850,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.25.0;
+				MARKETING_VERSION = 0.25.1;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -887,7 +887,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 0.25.0;
+				MARKETING_VERSION = 0.25.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.mad-p.inputmethod.MacTcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
