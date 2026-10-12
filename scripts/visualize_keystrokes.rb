@@ -222,7 +222,7 @@ class KeystrokeVisualizer
 
   def format_recording_started_at
     timestamp = @events.find { |event| event['type'] == 'sessionStarted' }&.fetch('timestamp', nil)
-    Time.iso8601(timestamp).strftime('%Y-%m-%d %H:%M:%S') if timestamp
+    Time.iso8601(timestamp).localtime.strftime('%Y-%m-%d %H:%M:%S') if timestamp
   rescue ArgumentError
     nil
   end
