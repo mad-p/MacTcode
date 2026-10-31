@@ -305,10 +305,15 @@ final class Bushu {
                 yomi: yomiString,
                 kakutei: result,
                 context: yomi,
-                onAccepted: { parameter, inputEvent in return self.onAccept(parameter, inputEvent) },
+                onAccepted: { parameter, inputEvent in
+                    InputStats.i.recordBushuKanjiConversion(source: yomiString, result: result)
+                    return self.onAccept(parameter, inputEvent)
+                },
                 parameter: [source1, source2, result]
             )
             controller.pushMode(pending)
+        } else {
+            InputStats.i.recordBushuKanjiConversion(source: source1 + source2, result: result)
         }
 
         return true
@@ -369,7 +374,10 @@ final class Bushu {
             yomi: src,
             kakutei: result,
             context: yomiContext,
-            onAccepted: { parameter, inputEvent in return self.onAccept(parameter, inputEvent) },
+            onAccepted: { parameter, inputEvent in
+                InputStats.i.recordBushuKanjiConversion(source: src, result: result)
+                return self.onAccept(parameter, inputEvent)
+            },
             parameter: [source1, source2, result]
         )
         controller.pushMode(pending)
