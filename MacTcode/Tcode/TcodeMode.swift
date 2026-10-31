@@ -73,6 +73,7 @@ class TcodeMode: Mode, MultiStroke {
             case .text(let string):
                 resetPending()
                 client.insertText(string, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                InputStats.i.recordDirectKanji(in: string)
 
                 // ここでストローク統計を記録
                 // 基本キー2打鍵で入力された場合に限り、統計情報を記録する

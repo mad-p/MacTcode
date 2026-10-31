@@ -3,6 +3,7 @@ import XCTest
 
 final class StrokeStatsTests: XCTestCase {
     let fileURL = UserConfigs.i.configFileURL("stroke-stats.json")
+    let recordFileURL = UserConfigs.i.configFileURL("tc-record.txt")
 
     // 設定を上書きするヘルパー
     private func makeSystem(strokeStatsEnabled: Bool = true,
@@ -27,13 +28,17 @@ final class StrokeStatsTests: XCTestCase {
 
     override func setUpWithError() throws {
         try? FileManager.default.removeItem(at: fileURL)
+        try? FileManager.default.removeItem(at: recordFileURL)
         InputStats.i.resetStrokeStats()
+        InputStats.i.resetKanjiConversionStats()
         UserConfigs.i.updateSystem(makeSystem())
     }
 
     override func tearDownWithError() throws {
         UserConfigs.i.updateSystem(makeSystem())
         try? FileManager.default.removeItem(at: fileURL)
+        try? FileManager.default.removeItem(at: recordFileURL)
+        InputStats.i.resetKanjiConversionStats()
     }
 
     func loadStats() throws -> [String: Any] {
@@ -247,5 +252,34 @@ final class StrokeStatsTests: XCTestCase {
         guard let hist = streamCount["1.0"] else { XCTFail("no histogram for 1.0"); return }
         // ストリームは継続して合計3文字
         XCTAssertEqual(1, hist[3], "recordNonStrokeEvent後もストリーム継続して長さ3")
+    }
+
+    func testKanjiConversionDeltaPreservesUnchangedKanji() {
+        XCTAssertEqual(
+            InputStats.KanjiConversionDelta(consumed: 0, introduced: 2),
+            InputStats.kanjiConversionDelta(from: "漢字へんかん", to: "漢字変換")
+        )
+        XCTAssertEqual(
+            InputStats.KanjiConversionDelta(consumed: 0, introduced: 1),
+            InputStats.kanjiConversionDelta(from: "地しん", to: "地震")
+        )
+    }
+
+    func testKanjiConversionStatsAreWrittenAsIndependentRecord() throws {
+        InputStats.i.recordDirectKanji(in: "日月A")
+        InputStats.i.recordBushuKanjiConversion(source: "日月", result: "明")
+        InputStats.i.recordMazegakiKanjiConversion(source: "漢字へんかん", result: "漢字変換")
+
+        InputStats.i.writeStatsToFile(force: true)
+
+        let record = try String(contentsOf: recordFileURL, encoding: .utf8)
+        XCTAssertTrue(record.contains("kanjiDirect=2"))
+        XCTAssertTrue(record.contains("kanjiConsumed=2"))
+        XCTAssertTrue(record.contains("kanjiBushu=1"))
+        XCTAssertTrue(record.contains("kanjiMazegaki=2"))
+
+        // 書き出し後は区間カウンタがリセットされ、追加の空レコードは出力しない。
+        InputStats.i.writeStatsToFile(force: true)
+        XCTAssertEqual(record, try String(contentsOf: recordFileURL, encoding: .utf8))
     }
 }

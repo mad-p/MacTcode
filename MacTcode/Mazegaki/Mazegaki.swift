@@ -127,6 +127,7 @@ class Mazegaki {
                 context: context,
                 onAccepted: { parameter, inputEvent in
                     // 受容時の処理: MRU学習データを更新
+                    InputStats.i.recordMazegakiKanjiConversion(source: hit.yomi.joined(), result: string)
                     guard let param = parameter as? [String] else { return .forward }
                     let key = param[0]
                     let candidateWithoutInflection = param[1]
@@ -139,6 +140,8 @@ class Mazegaki {
                 parameter: [hit.key, candidateWithoutInflection]
             )
             controller.pushMode(pending)
+        } else {
+            InputStats.i.recordMazegakiKanjiConversion(source: hit.yomi.joined(), result: string)
         }
 
         return true

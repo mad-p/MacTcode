@@ -24,7 +24,7 @@ class PendingKakuteiMode: Mode {
     
     /// 受容されたときに学習データのメンテナンスのために呼び出される処理
     let onAccepted: (_ parameter: Any?, _ inputEvent: InputEvent?) -> HandleResult
-    
+
     /// onAcceptedに渡すパラメータ
     let parameter: Any?
     

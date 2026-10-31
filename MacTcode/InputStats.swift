@@ -42,6 +42,11 @@ class StreamCounter {
 class InputStats {
     static let i = InputStats()
 
+    struct KanjiConversionDelta: Equatable {
+        let consumed: Int
+        let introduced: Int
+    }
+
     private var lastSyncDate = Date()
 
     private var basicCount = 0
@@ -49,6 +54,13 @@ class InputStats {
     private var mazegakiCount = 0
     private var functionCount = 0
     private var totalActionCount = 0
+
+    // 漢字変換統計（tc-record.txt の区間レコードにのみ保存する）
+    // すべて非負の単調増加カウンタ。直接入力の純増減は解析側で算出する。
+    private var directKanjiInputCount = 0
+    private var consumedKanjiCount = 0
+    private var bushuKanjiOutputCount = 0
+    private var mazegakiKanjiOutputCount = 0
 
     // ストローク統計 (T-Code基本キーのみ)
     // per-key count (0..39)
@@ -97,6 +109,111 @@ class InputStats {
             self.basicCount += 1
             self.totalActionCount += 1
             // Log.i("basicCount = \(self.basicCount)")
+        }
+    }
+
+    /// T-Code の基本入力で出力した漢字を記録する。
+    func recordDirectKanji(in string: String) {
+        let count = Self.kanjiCount(in: string)
+        guard count > 0 else { return }
+        queue.async(flags: .barrier) {
+            self.directKanjiInputCount += count
+        }
+    }
+
+    /// 部首変換による、変換元漢字の消費と結果漢字の出力を記録する。
+    func recordBushuKanjiConversion(source: String, result: String) {
+        let consumed = Self.kanjiCount(in: source)
+        let output = Self.kanjiCount(in: result)
+        guard consumed > 0 || output > 0 else { return }
+        queue.async(flags: .barrier) {
+            self.consumedKanjiCount += consumed
+            self.bushuKanjiOutputCount += output
+        }
+    }
+
+    /// 交ぜ書き変換による漢字の差分を記録する。
+    /// 変換前後で同じ文字として残った漢字は、消費・新規出力のどちらにも数えない。
+    func recordMazegakiKanjiConversion(source: String, result: String) {
+        let delta = Self.kanjiConversionDelta(from: source, to: result)
+        guard delta.consumed > 0 || delta.introduced > 0 else { return }
+        queue.async(flags: .barrier) {
+            self.consumedKanjiCount += delta.consumed
+            self.mazegakiKanjiOutputCount += delta.introduced
+        }
+    }
+
+    /// テスト用に漢字変換統計の区間カウンタをリセットする。
+    func resetKanjiConversionStats() {
+        queue.sync(flags: .barrier) {
+            self.directKanjiInputCount = 0
+            self.consumedKanjiCount = 0
+            self.bushuKanjiOutputCount = 0
+            self.mazegakiKanjiOutputCount = 0
+        }
+    }
+
+    /// 交ぜ書き変換前後の文字列から、消費・新規出力された漢字数を求める。
+    /// 文字単位の最長共通部分列を使い、位置ずれした不変漢字も維持されたものとして扱う。
+    static func kanjiConversionDelta(from source: String, to result: String) -> KanjiConversionDelta {
+        let sourceCharacters = Array(source)
+        let resultCharacters = Array(result)
+        let sourceCount = sourceCharacters.count
+        let resultCount = resultCharacters.count
+        var lcs = Array(repeating: Array(repeating: 0, count: resultCount + 1), count: sourceCount + 1)
+
+        if sourceCount > 0 && resultCount > 0 {
+            for sourceIndex in 1...sourceCount {
+                for resultIndex in 1...resultCount {
+                    if sourceCharacters[sourceIndex - 1] == resultCharacters[resultIndex - 1] {
+                        lcs[sourceIndex][resultIndex] = lcs[sourceIndex - 1][resultIndex - 1] + 1
+                    } else {
+                        lcs[sourceIndex][resultIndex] = max(lcs[sourceIndex - 1][resultIndex], lcs[sourceIndex][resultIndex - 1])
+                    }
+                }
+            }
+        }
+
+        var preservedSourceKanji = 0
+        var preservedResultKanji = 0
+        var sourceIndex = sourceCount
+        var resultIndex = resultCount
+        while sourceIndex > 0 && resultIndex > 0 {
+            if sourceCharacters[sourceIndex - 1] == resultCharacters[resultIndex - 1] {
+                if Self.isKanji(sourceCharacters[sourceIndex - 1]) {
+                    preservedSourceKanji += 1
+                    preservedResultKanji += 1
+                }
+                sourceIndex -= 1
+                resultIndex -= 1
+            } else if lcs[sourceIndex - 1][resultIndex] >= lcs[sourceIndex][resultIndex - 1] {
+                sourceIndex -= 1
+            } else {
+                resultIndex -= 1
+            }
+        }
+
+        return KanjiConversionDelta(
+            consumed: Self.kanjiCount(in: source) - preservedSourceKanji,
+            introduced: Self.kanjiCount(in: result) - preservedResultKanji
+        )
+    }
+
+    private static func kanjiCount(in string: String) -> Int {
+        string.reduce(into: 0) { count, character in
+            if isKanji(character) { count += 1 }
+        }
+    }
+
+    private static func isKanji(_ character: Character) -> Bool {
+        character.unicodeScalars.contains { scalar in
+            switch scalar.value {
+            case 0x3400...0x4DBF, 0x4E00...0x9FFF, 0xF900...0xFAFF,
+                 0x20000...0x2EBEF, 0x30000...0x323AF:
+                return true
+            default:
+                return false
+            }
         }
     }
 
@@ -340,7 +457,11 @@ class InputStats {
             MazegakiDict.i.saveMruData()
             Bushu.i.saveAutoData()
 
-            guard totalActionCount > 0 else {
+            let hasKanjiConversionStats = directKanjiInputCount > 0 ||
+                consumedKanjiCount > 0 ||
+                bushuKanjiOutputCount > 0 ||
+                mazegakiKanjiOutputCount > 0
+            guard totalActionCount > 0 || hasKanjiConversionStats else {
                 lastSyncDate = Date()
                 return
             }
@@ -367,12 +488,16 @@ class InputStats {
             let functionPercent = totalActionCount > 0 ? (functionCount * 100) / totalActionCount : 0
 
             // 統計行を作成
-            let statsLine = String(format: "%@ 文字: %4d  部首: %3d(%d%%)  交ぜ書き: %3d(%d%%)  機能: %3d(%d%%)\n",
+            let statsLine = String(format: "%@ 文字: %4d  部首: %3d(%d%%)  交ぜ書き: %3d(%d%%)  機能: %3d(%d%%)  kanjiDirect=%d kanjiConsumed=%d kanjiBushu=%d kanjiMazegaki=%d\n",
                                    dateString,
                                    basicCount,
                                    bushuCount, bushuPercent,
                                    mazegakiCount, mazegakiPercent,
-                                   functionCount, functionPercent)
+                                   functionCount, functionPercent,
+                                   directKanjiInputCount,
+                                   consumedKanjiCount,
+                                   bushuKanjiOutputCount,
+                                   mazegakiKanjiOutputCount)
 
             // ファイルに追記
             if let data = statsLine.data(using: .utf8) {
@@ -397,6 +522,10 @@ class InputStats {
             mazegakiCount = 0
             functionCount = 0
             totalActionCount = 0
+            directKanjiInputCount = 0
+            consumedKanjiCount = 0
+            bushuKanjiOutputCount = 0
+            mazegakiKanjiOutputCount = 0
         }
     }
 }
