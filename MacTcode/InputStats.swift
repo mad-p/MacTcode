@@ -48,6 +48,8 @@ class InputStats {
     }
 
     private var lastSyncDate = Date()
+    /// nil のときはユーザー設定ディレクトリを使用する。テストでは専用ディレクトリを注入する。
+    private let statisticsDirectoryURL: URL?
 
     private var basicCount = 0
     private var bushuCount = 0
@@ -86,7 +88,8 @@ class InputStats {
 
     private let queue = DispatchQueue(label: "jp.mad-p.inputmethods.MacTcode.inputstats", attributes: .concurrent)
 
-    private init() {
+    init(statisticsDirectoryURL: URL? = nil) {
+        self.statisticsDirectoryURL = statisticsDirectoryURL
         // 初期化時に保存済みの stroke-stats.json を読み込む
         loadStrokeStatsMaybe()
         // ストリームカウンタを初期化
@@ -377,7 +380,11 @@ class InputStats {
     // MARK: - Persistence (JSON)
 
     private func strokeStatsFileURL() -> URL {
-        return UserConfigs.i.configFileURL("stroke-stats.json")
+        statisticsFileURL(named: "stroke-stats.json")
+    }
+
+    private func statisticsFileURL(named filename: String) -> URL {
+        (statisticsDirectoryURL ?? UserConfigs.i.macTcodeURL).appendingPathComponent(filename)
     }
 
     func loadStrokeStatsMaybe() {
@@ -473,7 +480,7 @@ class InputStats {
             }
 
             let fileManager = FileManager.default
-            let fileURL = UserConfigs.i.configFileURL("tc-record.txt")
+            let fileURL = self.statisticsFileURL(named: "tc-record.txt")
 
             // 現在の日時を取得
             let dateFormatter = DateFormatter()

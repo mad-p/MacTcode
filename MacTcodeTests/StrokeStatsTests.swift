@@ -2,8 +2,10 @@ import XCTest
 @testable import MacTcode
 
 final class StrokeStatsTests: XCTestCase {
-    let fileURL = UserConfigs.i.configFileURL("stroke-stats.json")
-    let recordFileURL = UserConfigs.i.configFileURL("tc-record.txt")
+    private var statisticsDirectoryURL: URL!
+    private var fileURL: URL!
+    private var recordFileURL: URL!
+    private var stats: InputStats!
 
     // 設定を上書きするヘルパー
     private func makeSystem(strokeStatsEnabled: Bool = true,
@@ -27,18 +29,20 @@ final class StrokeStatsTests: XCTestCase {
     }
 
     override func setUpWithError() throws {
-        try? FileManager.default.removeItem(at: fileURL)
-        try? FileManager.default.removeItem(at: recordFileURL)
-        InputStats.i.resetStrokeStats()
-        InputStats.i.resetKanjiConversionStats()
+        statisticsDirectoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MacTcode-StrokeStatsTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: statisticsDirectoryURL, withIntermediateDirectories: true)
+        fileURL = statisticsDirectoryURL.appendingPathComponent("stroke-stats.json")
+        recordFileURL = statisticsDirectoryURL.appendingPathComponent("tc-record.txt")
+        stats = InputStats(statisticsDirectoryURL: statisticsDirectoryURL)
         UserConfigs.i.updateSystem(makeSystem())
     }
 
     override func tearDownWithError() throws {
         UserConfigs.i.updateSystem(makeSystem())
-        try? FileManager.default.removeItem(at: fileURL)
-        try? FileManager.default.removeItem(at: recordFileURL)
-        InputStats.i.resetKanjiConversionStats()
+        stats = nil
+        try FileManager.default.removeItem(at: statisticsDirectoryURL)
+        statisticsDirectoryURL = nil
     }
 
     func loadStats() throws -> [String: Any] {
@@ -49,10 +53,10 @@ final class StrokeStatsTests: XCTestCase {
     }
 
     func testRecordStrokeAndBigram() throws {
-        InputStats.i.resetStrokeStats()
-        InputStats.i.recordStroke(key: 2)
-        InputStats.i.recordStroke(key: 7)
-        InputStats.i.writeStrokeStatsToFile()
+        stats.resetStrokeStats()
+        stats.recordStroke(key: 2)
+        stats.recordStroke(key: 7)
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let keyCount = dict["keyCount"] as? [Int] else { XCTFail("no keyCount"); return }
@@ -68,11 +72,11 @@ final class StrokeStatsTests: XCTestCase {
     }
 
     func testContinuityBreak() throws {
-        InputStats.i.resetStrokeStats()
-        InputStats.i.recordStroke(key: 1)
-        InputStats.i.recordNonStrokeEvent()
-        InputStats.i.recordStroke(key: 3)
-        InputStats.i.writeStrokeStatsToFile()
+        stats.resetStrokeStats()
+        stats.recordStroke(key: 1)
+        stats.recordNonStrokeEvent()
+        stats.recordStroke(key: 3)
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let bigram = dict["bigram"] as? [Int] else { XCTFail("no bigram"); return }
@@ -84,9 +88,9 @@ final class StrokeStatsTests: XCTestCase {
 
     func testDisabledDoesNotWrite() throws {
         UserConfigs.i.updateSystem(makeSystem(strokeStatsEnabled: false))
-        InputStats.i.resetStrokeStats()
-        InputStats.i.recordStroke(key: 5)
-        InputStats.i.writeStrokeStatsToFile()
+        stats.resetStrokeStats()
+        stats.recordStroke(key: 5)
+        stats.writeStrokeStatsToFile()
         XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
     }
 
@@ -94,18 +98,18 @@ final class StrokeStatsTests: XCTestCase {
 
     func testStreamSingleStream() throws {
         // 連続した3文字入力でストリーム長3が記録される
-        InputStats.i.resetStrokeStats()
+        stats.resetStrokeStats()
         UserConfigs.i.updateSystem(makeSystem(streamThresholds: ["1.0"]))
-        InputStats.i.recordKakutei(charCount: 1)
-        InputStats.i.recordKakutei(charCount: 1)
-        InputStats.i.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
         // ストリーム終了
-        InputStats.i.recordStreamEndEvent()
+        stats.recordStreamEndEvent()
         let exp = expectation(description: "barrier queue flush")
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { exp.fulfill() }
         wait(for: [exp], timeout: 1.0)
 
-        InputStats.i.writeStrokeStatsToFile()
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let streamCount = dict["streamCount"] as? [String: [Int]] else {
@@ -120,25 +124,25 @@ final class StrokeStatsTests: XCTestCase {
         // しきい値0.5秒で: 連続2文字 → 0.6秒待機 → 連続1文字
         // 0.5秒しきい値では長さ2と長さ1の2ストリームになる
         // 1.0秒しきい値では長さ3の1ストリームになる
-        InputStats.i.resetStrokeStats()
+        stats.resetStrokeStats()
         UserConfigs.i.updateSystem(makeSystem(streamThresholds: ["0.5", "1.0"]))
-        InputStats.i.recordKakutei(charCount: 1)
-        InputStats.i.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
 
         // 0.6秒待機（0.5秒しきい値を超えるが1.0秒しきい値は超えない）
         let wait1 = expectation(description: "wait 0.6s")
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.65) { wait1.fulfill() }
         wait(for: [wait1], timeout: 2.0)
 
-        InputStats.i.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
 
         // ストリーム終了
-        InputStats.i.recordStreamEndEvent()
+        stats.recordStreamEndEvent()
         let wait2 = expectation(description: "barrier flush")
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { wait2.fulfill() }
         wait(for: [wait2], timeout: 1.0)
 
-        InputStats.i.writeStrokeStatsToFile()
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let streamCount = dict["streamCount"] as? [String: [Int]] else {
@@ -158,17 +162,17 @@ final class StrokeStatsTests: XCTestCase {
     func testStreamMazegakiCharCount() throws {
         // 交ぜ書き変換で3文字確定、ヨミ4文字減算 → net=-1 → currentLength変化なし
         // さらに基本文字1文字 → 合計1文字のストリーム
-        InputStats.i.resetStrokeStats()
+        stats.resetStrokeStats()
         UserConfigs.i.updateSystem(makeSystem(streamThresholds: ["1.0"]))
         // ヨミ4文字打鍵済みとして subtract: 4、確定3文字
-        InputStats.i.recordKakutei(charCount: 3, subtract: 4)
-        InputStats.i.recordKakutei(charCount: 1)
-        InputStats.i.recordStreamEndEvent()
+        stats.recordKakutei(charCount: 3, subtract: 4)
+        stats.recordKakutei(charCount: 1)
+        stats.recordStreamEndEvent()
         let exp = expectation(description: "flush")
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { exp.fulfill() }
         wait(for: [exp], timeout: 1.0)
 
-        InputStats.i.writeStrokeStatsToFile()
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let streamCount = dict["streamCount"] as? [String: [Int]] else {
@@ -182,19 +186,19 @@ final class StrokeStatsTests: XCTestCase {
     func testStreamBushuSubtract() throws {
         // 部首変換: 基本文字2打鍵後に subtract=2 の確定
         // currentLength の変化: 0 →(+1)→ 1 →(+1)→ 2 →(net=1-2=-1, max(0,2-1)=1)→ 1
-        InputStats.i.resetStrokeStats()
+        stats.resetStrokeStats()
         UserConfigs.i.updateSystem(makeSystem(streamThresholds: ["1.0"]))
         // 基本文字2打鍵
-        InputStats.i.recordKakutei(charCount: 1)
-        InputStats.i.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
+        stats.recordKakutei(charCount: 1)
         // 部首変換確定 subtract=2
-        InputStats.i.recordKakutei(charCount: 1, subtract: 2)
-        InputStats.i.recordStreamEndEvent()
+        stats.recordKakutei(charCount: 1, subtract: 2)
+        stats.recordStreamEndEvent()
         let exp = expectation(description: "flush")
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { exp.fulfill() }
         wait(for: [exp], timeout: 1.0)
 
-        InputStats.i.writeStrokeStatsToFile()
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let streamCount = dict["streamCount"] as? [String: [Int]] else {
@@ -207,17 +211,17 @@ final class StrokeStatsTests: XCTestCase {
 
     func testStreamCapAt50() throws {
         // 51文字連続入力 → ストリーム長は50にキャップ
-        InputStats.i.resetStrokeStats()
+        stats.resetStrokeStats()
         UserConfigs.i.updateSystem(makeSystem(streamThresholds: ["1.0"]))
         for _ in 0..<51 {
-            InputStats.i.recordKakutei(charCount: 1)
+            stats.recordKakutei(charCount: 1)
         }
-        InputStats.i.recordStreamEndEvent()
+        stats.recordStreamEndEvent()
         let exp = expectation(description: "flush")
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { exp.fulfill() }
         wait(for: [exp], timeout: 1.0)
 
-        InputStats.i.writeStrokeStatsToFile()
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let streamCount = dict["streamCount"] as? [String: [Int]] else {
@@ -232,18 +236,18 @@ final class StrokeStatsTests: XCTestCase {
 
     func testRecordNonStrokeEventDoesNotEndStream() throws {
         // recordNonStrokeEvent はバイグラムのみ断ち、ストリームは終了しない
-        InputStats.i.resetStrokeStats()
+        stats.resetStrokeStats()
         UserConfigs.i.updateSystem(makeSystem(streamThresholds: ["1.0"]))
-        InputStats.i.recordKakutei(charCount: 2)
+        stats.recordKakutei(charCount: 2)
         // バイグラム不連続のみ（PendingKakutei受容相当）
-        InputStats.i.recordNonStrokeEvent()
-        InputStats.i.recordKakutei(charCount: 1)
-        InputStats.i.recordStreamEndEvent()
+        stats.recordNonStrokeEvent()
+        stats.recordKakutei(charCount: 1)
+        stats.recordStreamEndEvent()
         let exp = expectation(description: "flush")
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { exp.fulfill() }
         wait(for: [exp], timeout: 1.0)
 
-        InputStats.i.writeStrokeStatsToFile()
+        stats.writeStrokeStatsToFile()
 
         let dict = try loadStats()
         guard let streamCount = dict["streamCount"] as? [String: [Int]] else {
@@ -266,11 +270,11 @@ final class StrokeStatsTests: XCTestCase {
     }
 
     func testKanjiConversionStatsAreWrittenAsIndependentRecord() throws {
-        InputStats.i.recordDirectKanji(in: "日月A")
-        InputStats.i.recordBushuKanjiConversion(source: "日月", result: "明")
-        InputStats.i.recordMazegakiKanjiConversion(source: "漢字へんかん", result: "漢字変換")
+        stats.recordDirectKanji(in: "日月A")
+        stats.recordBushuKanjiConversion(source: "日月", result: "明")
+        stats.recordMazegakiKanjiConversion(source: "漢字へんかん", result: "漢字変換")
 
-        InputStats.i.writeStatsToFile(force: true)
+        stats.writeStatsToFile(force: true)
 
         let record = try String(contentsOf: recordFileURL, encoding: .utf8)
         XCTAssertTrue(record.contains("kanjiDirect=2"))
@@ -279,7 +283,7 @@ final class StrokeStatsTests: XCTestCase {
         XCTAssertTrue(record.contains("kanjiMazegaki=2"))
 
         // 書き出し後は区間カウンタがリセットされ、追加の空レコードは出力しない。
-        InputStats.i.writeStatsToFile(force: true)
+        stats.writeStatsToFile(force: true)
         XCTAssertEqual(record, try String(contentsOf: recordFileURL, encoding: .utf8))
     }
 }
